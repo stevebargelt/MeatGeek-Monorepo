@@ -7,7 +7,7 @@ trigger:
       - main
   paths:
     include:
-      - "build/*"
+      - "sessions/*"
       - "shared/*"
     exclude:
       - docs
