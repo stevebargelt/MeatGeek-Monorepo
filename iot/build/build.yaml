@@ -69,5 +69,5 @@ stages:
                     ResourceGroupName: "MeatGeek-IoT"
                     appType: functionApp
                     package: "$(System.DefaultWorkingDirectory)/MeatGeek.IoT.Functions.zip"
-                    webAppName: "meatgeek-iot-app-service-plan"
+                    webAppName: "meatgeekiotapi"
 # $(System.DefaultWorkingDirectory)/_stevebargelt.MeatGeek-IoT/functions/MeatGeek.IoT.Functions.zip
