@@ -55,19 +55,18 @@ stages:
           runOnce:
             deploy:
               steps:
-              - task: DownloadPipelineArtifact@2
-                inputs:
-                  buildType: 'current'
-                  artifactName: 'functions'
-                  targetPath: '$(System.DefaultWorkingDirectory)'              
-              - task: AzureRmWebAppDeployment@4
-                displayName: Azure Functions Deploy
+                - task: DownloadPipelineArtifact@2
                   inputs:
-                    ConnectionType: 'AzureRM'
-                    azureSubscription: 'Visual Studio Enterprise'
-                    ResourceGroupName: 'MeatGeek-IoT'
+                    buildType: "current"
+                    artifactName: "functions"
+                    targetPath: "$(System.DefaultWorkingDirectory)"
+                - task: AzureRmWebAppDeployment@4
+                  displayName: Azure Functions Deploy
+                  inputs:
+                    ConnectionType: "AzureRM"
+                    azureSubscription: "Visual Studio Enterprise"
+                    ResourceGroupName: "MeatGeek-IoT"
                     appType: functionApp
-                    package: '$(System.DefaultWorkingDirectory)/functions/MeatGeek.IoT.Functions.zip'
-                    webAppName: 'meatgeek-iot-app-service-plan'
-
-# $(System.DefaultWorkingDirectory)/_stevebargelt.MeatGeek-IoT/functions/MeatGeek.IoT.Functions.zip                     
+                    package: "$(System.DefaultWorkingDirectory)/functions/MeatGeek.IoT.Functions.zip"
+                    webAppName: "meatgeek-iot-app-service-plan"
+# $(System.DefaultWorkingDirectory)/_stevebargelt.MeatGeek-IoT/functions/MeatGeek.IoT.Functions.zip
