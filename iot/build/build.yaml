@@ -68,6 +68,6 @@ stages:
                     azureSubscription: "meatgeek-iot"
                     ResourceGroupName: "MeatGeek-IoT"
                     appType: functionApp
-                    package: "$(System.DefaultWorkingDirectory)/functions/MeatGeek.IoT.Functions.zip"
+                    package: "$(System.DefaultWorkingDirectory)/MeatGeek.IoT.Functions.zip"
                     webAppName: "meatgeek-iot-app-service-plan"
 # $(System.DefaultWorkingDirectory)/_stevebargelt.MeatGeek-IoT/functions/MeatGeek.IoT.Functions.zip
