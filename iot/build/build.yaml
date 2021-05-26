@@ -51,6 +51,7 @@ stages:
       - deployment: deployprod
         displayName: Deploy to Prod
         dependsOn: DotNetPublish
+        environment: prod
         strategy:
           runOnce:
             deploy:
