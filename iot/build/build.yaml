@@ -65,7 +65,7 @@ stages:
                   displayName: Azure Functions Deploy
                   inputs:
                     ConnectionType: "AzureRM"
-                    azureSubscription: "Visual Studio Enterprise"
+                    azureSubscription: "meatgeek-iot"
                     ResourceGroupName: "MeatGeek-IoT"
                     appType: functionApp
                     package: "$(System.DefaultWorkingDirectory)/functions/MeatGeek.IoT.Functions.zip"
