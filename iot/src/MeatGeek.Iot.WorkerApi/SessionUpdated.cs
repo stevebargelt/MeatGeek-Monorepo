@@ -1,13 +1,11 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Devices;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.EventGrid;
 using Microsoft.Extensions.Logging;
 using MeatGeek.Shared;
 using MeatGeek.Shared.EventSchemas.Sessions;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MeatGeek.IoT.WorkerApi
