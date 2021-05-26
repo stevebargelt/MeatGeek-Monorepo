@@ -14,13 +14,13 @@ steps:
     inputs:
       rootFolderOrFile: proxies
       includeRootFolder: false
-      archiveFile: $(Build.ArtifactStagingDirectory)/proxies.zip
+      archiveFile: $(Build.ArtifactStagingDirectory)/proxy/proxies.zip
 
   # Publish the zipped `proxies` folder as an artifact
   - task: PublishBuildArtifacts@1
     displayName: Publish Proxy Configuration
     inputs:
-      PathtoPublish: $(Build.ArtifactStagingDirectory)/proxies.zip
+      PathtoPublish: $(Build.ArtifactStagingDirectory)/proxy/proxies.zip
       ArtifactName: proxies
       publishLocation: Container
 
