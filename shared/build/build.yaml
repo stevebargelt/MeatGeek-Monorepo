@@ -14,19 +14,19 @@ steps:
     displayName: Run dotnet restore
     inputs:
       command: "restore"
-      projects: "src/**/*.csproj"
+      projects: "shared/src/**/*.csproj"
 
   - task: DotNetCoreCLI@1
     displayName: Run dotnet build
     inputs:
-      projects: "src/**/*.csproj"
+      projects: "shared/src/**/*.csproj"
 
   - task: DotNetCoreCLI@1
     displayName: Run dotnet publish
     inputs:
       command: "publish"
       publishWebProjects: "False"
-      projects: "src/**/*.csproj"
+      projects: "shared/src/**/*.csproj"
       arguments: "--output $(build.artifactstagingdirectory)"
       zipAfterPublish: "True"
 
