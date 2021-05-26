@@ -6,8 +6,8 @@ trigger:
       - main
   paths:
     include:
-      - "iot/src/MeatGeek.IoT.Functions"
-      - "iot/build/build.yaml"
+      - "iot/src/MeatGeek.IoT.WorkerApi"
+      - "iot/build/build-worker-api.yaml"
       - "shared/*"
 
 stages:
@@ -20,11 +20,11 @@ stages:
             displayName: Run dotnet restore
             inputs:
               command: "restore"
-              projects: "iot/src/MeatGeek.IoT.Functions/*.csproj"
+              projects: "iot/src/MeatGeek.Iot.WorkerApi/*.csproj"
           - task: DotNetCoreCLI@1
             displayName: Run dotnet build
             inputs:
-              projects: "iot/src/MeatGeek.IoT.Functions/*.csproj"
+              projects: "iot/src/MeatGeek.Iot.WorkerApi/*.csproj"
   - stage: Publish
     jobs:
       - job: DotNetPublish
@@ -35,7 +35,7 @@ stages:
             inputs:
               command: "publish"
               publishWebProjects: "False"
-              projects: "iot/src/MeatGeek.IoT.Functions/*.csproj"
+              projects: "iot/src/MeatGeek.Iot.WorkerApi/*.csproj"
               arguments: "--output $(build.artifactstagingdirectory)"
               zipAfterPublish: "True"
           - publish: $(build.artifactstagingdirectory)
@@ -69,5 +69,5 @@ stages:
                     azureSubscription: "meatgeek-iot"
                     ResourceGroupName: "MeatGeek-IoT"
                     appType: functionApp
-                    package: "$(System.DefaultWorkingDirectory)/MeatGeek.IoT.Functions.zip"
-                    webAppName: "meatgeekiotapi"
+                    package: "$(System.DefaultWorkingDirectory)/MeatGeek.IoT.WorkerApi.zip"
+                    webAppName: "meatgeek-iot-workerapi"
