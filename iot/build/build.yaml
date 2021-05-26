@@ -12,7 +12,7 @@ trigger:
 stages:
   - stage: Build
     jobs:
-      - job: Restore
+      - job: Build
         displayName: "DotNet Restore"
         steps:
           - task: DotNetCoreCLI@1
@@ -20,10 +20,6 @@ stages:
             inputs:
               command: "restore"
               projects: "iot/src/**/*.csproj"
-      - job: Build
-        displayName: "DotNet Build"
-        dependsOn: Restore
-        steps:
           - task: DotNetCoreCLI@1
             displayName: Run dotnet build
             inputs:
@@ -52,3 +48,26 @@ stages:
               pathToPublish: iot/deploy
               artifactName: deploy
               artifactType: container
+      - deployment: deployprod
+        displayName: Deploy to Prod
+        dependsoOn: DotNetPublish
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+              - task: DownloadPipelineArtifact@2
+                inputs:
+                  buildType: 'current'
+                  artifactName: 'functions'
+                  targetPath: '$(System.DefaultWorkingDirectory)'              
+              - task: AzureRmWebAppDeployment@4
+                displayName: Azure Functions Deploy
+                  inputs:
+                    ConnectionType: 'AzureRM'
+                    azureSubscription: 'Visual Studio Enterprise'
+                    ResourceGroupName: 'MeatGeek-IoT'
+                    appType: functionApp
+                    package: '$(System.DefaultWorkingDirectory)/functions/MeatGeek.IoT.Functions.zip'
+                    webAppName: 'meatgeek-iot-app-service-plan'
+
+# $(System.DefaultWorkingDirectory)/_stevebargelt.MeatGeek-IoT/functions/MeatGeek.IoT.Functions.zip                     
