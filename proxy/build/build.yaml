@@ -28,6 +28,6 @@ steps:
   - task: PublishBuildArtifacts@1
     displayName: Publish Deployment Scripts
     inputs:
-      PathtoPublish: deploy
+      PathtoPublish: proxy/deploy
       ArtifactName: deploy
       publishLocation: Container
