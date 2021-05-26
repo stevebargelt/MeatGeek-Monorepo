@@ -10,24 +10,28 @@ trigger:
       - "shared/*"
 
 stages:
-  - stage: "Build"
+  - stage: Build
     jobs:
-      - job: "Restore"
+      - job: Restore
+        displayName: "DotNet Restore"
         steps:
           - task: DotNetCoreCLI@1
             displayName: Run dotnet restore
             inputs:
               command: "restore"
               projects: "iot/src/**/*.csproj"
-      - job: "Build"
+      - job: Build
+        displayName: "DotNet Build"
+        dependsOn: Restore
         steps:
           - task: DotNetCoreCLI@1
             displayName: Run dotnet build
             inputs:
               projects: "iot/src/**/*.csproj"
-  - stage: "Publish"
+  - stage: Publish
     jobs:
-      - job: "DotNetPublish"
+      - job: DotNetPublish
+        displayName: "DotNet Publish"
         steps:
           - task: DotNetCoreCLI@1
             displayName: Run dotnet publish
@@ -38,6 +42,8 @@ stages:
               arguments: "--output $(build.artifactstagingdirectory)"
               zipAfterPublish: "True"
       - job: "PublishFunctions"
+        displayName: "Publish Functions"
+        dependsOn: DotNetPublish
         steps:
           - task: PublishBuildArtifacts@1
             displayName: Publish Azure Functions
@@ -46,6 +52,7 @@ stages:
               artifactName: functions
               artifactType: container
       - job: "PublishDeployFolder"
+        displayName: "Publish Deploy Artifacts"
         steps:
           - task: PublishBuildArtifacts@1
             displayName: Publish Deployment Scripts
