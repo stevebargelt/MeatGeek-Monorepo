@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json.schemastore.org/proxies",
+  "proxies": {
+    "sessions": {
+      "matchCondition": {
+        "methods": ["GET", "POST"],
+        "route": "/sessions"
+      },
+      "backendUri": "https://%SessionsMicroserviceApiAppName%.azurewebsites.net/api/sessions"
+    },
+    "sessionsSingle": {
+      "matchCondition": {
+        "methods": ["GET", "PUT", "PATCH", "DELETE"],
+        "route": "/sessions/{sessionId}"
+      },
+      "backendUri": "https://%SessionsMicroserviceApiAppName%.azurewebsites.net/api/sessions/{sessionId}"
+    },
+    "sessionsSwagger": {
+      "matchCondition": {
+        "methods": ["GET"],
+        "route": "/sessions/swagger/ui"
+      },
+      "backendUri": "https://%SessionsMicroserviceApiAppName%.azurewebsites.net/api/swagger/ui"
+    },
+    "device": {
+      "matchCondition": {
+        "methods": ["GET"],
+        "route": "/device"
+      },
+      "backendUri": "https://%DeviceMicroserviceApiAppName%.azurewebsites.net/api/status"
+    },
+    "deviceStatus": {
+      "matchCondition": {
+        "methods": ["GET"],
+        "route": "/device/status"
+      },
+      "backendUri": "https://%DeviceMicroserviceApiAppName%.azurewebsites.net/api/status"
+    },
+    "deviceTemps": {
+      "matchCondition": {
+        "methods": ["GET"],
+        "route": "/device/temps"
+      },
+      "backendUri": "https://%DeviceMicroserviceApiAppName%.azurewebsites.net/api/temps"
+    },
+    "deviceMode": {
+      "matchCondition": {
+        "methods": ["POST"],
+        "route": "/device/mode"
+      },
+      "backendUri": "https://%DeviceMicroserviceApiAppName%.azurewebsites.net/api/mode"
+    },
+    "deviceSetPoint": {
+      "matchCondition": {
+        "methods": ["GET", "POST"],
+        "route": "/device/setpoint"
+      },
+      "backendUri": "https://%DeviceMicroserviceApiAppName%.azurewebsites.net/api/setpoint"
+    },
+    "deviceTelemetryInterval": {
+      "matchCondition": {
+        "methods": ["GET", "POST"],
+        "route": "/device/telemetryinterval"
+      },
+      "backendUri": "https://%DeviceMicroserviceApiAppName%.azurewebsites.net/api/telemetryinterval"
+    },
+    "iotSwagger": {
+      "matchCondition": {
+        "methods": ["GET"],
+        "route": "/iot/swagger/ui"
+      },
+      "backendUri": "https://%IotMicroserviceApiAppName%.azurewebsites.net/api/swagger/ui"
+    },
+    "iotGetChart": {
+      "matchCondition": {
+        "methods": ["GET"],
+        "route": "/iot/chart/{starttime}/{timeseries}/{endtime}"
+      },
+      "backendUri": "https://%IotMicroserviceApiAppName%.azurewebsites.net/api/chart"
+    }
+  }
+}

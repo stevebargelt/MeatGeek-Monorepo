@@ -1,0 +1,219 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "variables": {
+    "applicationInsightsName": "meatgeekiotapi",
+    "functionsAppServicePlanName": "meatgeek-iot-app-service-plan",
+    "functionsApiAppName": "meatgeekiotapi",
+    "storageAccountName": "mgiotstorage"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "westus2",
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "allowBlobPublicAccess": true,
+        "allowSharedKeyAccess": true,
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "virtualNetworkRules": [],
+          "ipRules": [],
+          "defaultAction": "Allow"
+        },
+        "supportsHttpsTrafficOnly": true,
+        "encryption": {
+          "services": {
+            "file": {
+              "keyType": "Account",
+              "enabled": true
+            },
+            "blob": {
+              "keyType": "Account",
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        },
+        "accessTier": "Hot"
+      }
+    },
+    {
+      "name": "[variables('applicationInsightsName')]",
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2014-04-01",
+      "location": "[resourceGroup().location]",
+      "kind": "other",
+      "properties": {
+        "applicationId": "[variables('applicationInsightsName')]"
+      }
+    },
+
+    {
+      "name": "[variables('functionsAppServicePlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2018-02-01",
+      "sku": {
+        "name": "Y1",
+        "tier": "Dynamic",
+        "size": "Y1",
+        "family": "Y",
+        "capacity": 0
+      },
+      "kind": "functionapp",
+      "properties": {
+        "perSiteScaling": false,
+        "maximumElasticWorkerCount": 1,
+        "reserved": false,
+        "isXenon": false,
+        "hyperV": false,
+        "targetWorkerCount": 0,
+        "targetWorkerSizeId": 0
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "properties": {
+        "cors": {
+          "corsRules": []
+        },
+        "deleteRetentionPolicy": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/fileServices",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/tableServices",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      }
+    },
+    {
+      "name": "[variables('functionsApiAppName')]",
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2018-11-01",
+      "kind": "functionapp",
+      "properties": {
+        "enabled": true,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('functionsAppServicePlanName'))]",
+        "reserved": false,
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/IOT-API-AppInsightsInstrumentationKey/)"
+            },
+            {
+              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+              "value": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/IOT-API-ApplicationInsightsConnectionString/)"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/AzureWebJobStorage-IoT/)"
+            },
+            {
+              "name": "CosmosDBConnection",
+              "value": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/CosmosDBConnection-IoT/)"
+            },
+            {
+              "name": "destinationmodules",
+              "value": "meatgeek2/Telemetry"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~3"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "dotnet"
+            },
+            {
+              "name": "IoTHubConnection",
+              "value": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/IoTHubConnection-MeatGeek/)"
+            },
+            {
+              "name": "MeatGeekIoTServiceConnection",
+              "value": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/MeatGeekIoTServiceConnection/)"
+            },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',listKeys(resourceId('2394ff5d-4d73-4134-a00f-2385754aeeb5','MeatGeek-IoT','Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value,';EndpointSuffix=','core.windows.net')]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "meatgeekiotapia6fd"
+            }
+          ]
+        }
+      },
+      "identity": {
+        "type": "systemAssigned"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('functionsAppServicePlanName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "apiAppName": {
+      "type": "string",
+      "value": "[variables('functionsApiAppName')]"
+    }
+  }
+}

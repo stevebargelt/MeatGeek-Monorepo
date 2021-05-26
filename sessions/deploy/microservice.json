@@ -1,0 +1,250 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "variables": {
+    "applicationInsightsName": "meatgeek-sessions-appinsights",
+    "functionsAppServicePlanName": "meatgeek-sessions-app-service-plan",
+    "functionsApiAppName": "meatgeeksessionsapi",
+    "cosmosDbAccountName": "meatgeek-sessions",
+    "cosmosDbDatabaseName": "Sessions",
+    "cosmosDbCollectionName": "sessions",
+    "storageAccountName": "mgsessapistorage"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "westus2",
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "kind": "Storage",
+      "properties": {
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "virtualNetworkRules": [],
+          "ipRules": [],
+          "defaultAction": "Allow"
+        },
+        "supportsHttpsTrafficOnly": true,
+        "encryption": {
+          "services": {
+            "file": {
+              "keyType": "Account",
+              "enabled": true
+            },
+            "blob": {
+              "keyType": "Account",
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        }
+      }
+    },
+    {
+      "name": "[variables('applicationInsightsName')]",
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2014-04-01",
+      "location": "[resourceGroup().location]",
+      "kind": "other",
+      "properties": {
+        "applicationId": "[variables('applicationInsightsName')]"
+      }
+    },
+
+    {
+      "name": "[variables('functionsAppServicePlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2018-02-01",
+      "sku": {
+        "name": "Y1",
+        "tier": "Dynamic",
+        "size": "Y1",
+        "family": "Y",
+        "capacity": 0
+      },
+      "kind": "functionapp",
+      "properties": {
+        "perSiteScaling": false,
+        "maximumElasticWorkerCount": 1,
+        "reserved": false,
+        "isXenon": false,
+        "hyperV": false,
+        "targetWorkerCount": 0,
+        "targetWorkerSizeId": 0
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "properties": {
+        "cors": {
+          "corsRules": []
+        },
+        "deleteRetentionPolicy": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/fileServices",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/tableServices",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      }
+    },
+    {
+      "name": "[variables('functionsApiAppName')]",
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2018-11-01",
+      "kind": "functionapp",
+      "properties": {
+        "enabled": true,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('functionsAppServicePlanName'))]",
+        "reserved": false,
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~3"
+            }
+          ]
+        }
+      },
+      "identity": {
+        "type": "systemAssigned"
+      },
+      "resources": [
+        {
+          "apiVersion": "2016-08-01",
+          "name": "appsettings",
+          "type": "config",
+          "properties": {
+            "FUNCTIONS_EXTENSION_VERSION": "~3",
+            "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+            "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('applicationInsightsName')), '2014-04-01').InstrumentationKey]",
+            "APPLICATIONINSIGHTS_CONNECTION_STRING": "[concat('InstrumentationKey=', reference(resourceId('Microsoft.Insights/components', variables('applicationInsightsName')), '2014-04-01').InstrumentationKey)]",
+            "CosmosDBConnection": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/CosmosDBConnection/)",
+            "IoTHubConnection": "@Microsoft.KeyVault(SecretUri=https://inferno.vault.azure.net/secrets/IoTHubConnection/)",
+            "AzureWebJobStorage": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/AzureWebJobStorage/)",
+            "EventGridTopicEndpoint": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/EventGridTopicEndpoint/)",
+            "EventGridTopicKey": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/EventGridTopicKey/)",
+            "DatabaseName": "[variables('cosmosDbDatabaseName')]",
+            "CollectionName": "[variables('cosmosDbCollectionName')]",
+            "AzureWebJobsSecretStorageType": "Files"
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', variables('functionsApiAppName'))]",
+            "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]"
+            // "[resourceId('Microsoft.CognitiveServices/accounts', variables('cognitiveServicesAccountName'))]"
+          ]
+        }
+      ],
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('functionsAppServicePlanName'))]"
+      ]
+    },
+    {
+      "name": "[variables('cosmosDbAccountName')]",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-04-08",
+      "kind": "GlobalDocumentDB",
+      "properties": {
+        "publicNetworkAccess": "Enabled",
+        "enableAutomaticFailover": false,
+        "enableMultipleWriteLocations": false,
+        "isVirtualNetworkFilterEnabled": false,
+        "virtualNetworkRules": [],
+        "disableKeyBasedMetadataWriteAccess": false,
+        "enableFreeTier": false,
+        "enableAnalyticalStorage": false,
+        "createMode": "Default",
+        "databaseAccountOfferType": "Standard",
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Session",
+          "maxIntervalInSeconds": 5,
+          "maxStalenessPrefix": 100
+        },
+        "locations": [
+          {
+            "locationName": "West US 2",
+            "provisioningState": "Succeeded",
+            "failoverPriority": 0,
+            "isZoneRedundant": false
+          }
+        ],
+        "cors": [],
+        "capabilities": [],
+        "ipRules": [],
+        "backupPolicy": {
+          "type": "Periodic",
+          "periodicModeProperties": {
+            "backupIntervalInMinutes": 240,
+            "backupRetentionIntervalInHours": 8
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "cosmosDbAccountName": {
+      "type": "string",
+      "value": "[variables('cosmosDbAccountName')]"
+    },
+    "apiAppName": {
+      "type": "string",
+      "value": "[variables('functionsApiAppName')]"
+    }
+  }
+}

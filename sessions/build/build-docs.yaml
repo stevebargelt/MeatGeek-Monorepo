@@ -1,0 +1,59 @@
+# Builds the MeatGeek sessions microservice resources
+name: $(BuildID)
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - docs
+      - mkdocs.yml
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: "3.x"
+      addToPath: true
+      architecture: "x64"
+      displayName: "Setup Environment"
+
+  # Upgrade pip
+  - task: Bash@3
+    displayName: "Upgrading pip"
+    inputs:
+      targetType: "inline"
+      script: |
+        sudo -H pip3 install --upgrade pip
+      continueOnError: false
+
+  # Install TechDocs
+  - task: Bash@3
+    displayName: "npm install techdocs"
+    inputs:
+      targetType: "inline"
+      script: |
+        # Install @techdocs/cli, mkdocs and mkdocs plugins
+        sudo chown -R $USER /usr/local
+        npm install -g @techdocs/cli 
+        pip3 install mkdocs-techdocs-core
+
+  # Generate TechDocs
+  - task: Bash@3
+    displayName: "Generate techdocs"
+    inputs:
+      targetType: "inline"
+      script: |
+        # Generate
+        techdocs-cli generate --no-docker
+
+  # Publish the Docs as an artifact
+  - task: PublishBuildArtifacts@1
+    displayName: Publish TechDocs
+    inputs:
+      pathToPublish: site
+      artifactName: docs-site
+      artifactType: container

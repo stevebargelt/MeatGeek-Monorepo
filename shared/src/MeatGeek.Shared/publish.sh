@@ -1,0 +1,2 @@
+dotnet clean --configuration Release /property:GenerateFullPaths=true /consoleloggerparameters:NoSummary
+dotnet publish --configuration Release /property:GenerateFullPaths=true /consoleloggerparameters:NoSummary

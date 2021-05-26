@@ -1,0 +1,195 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "variables": {
+    "applicationInsightsName": "meatgeek-device-appinsights",
+    "functionsAppServicePlanName": "meatgeek-device-app-service-plan",
+    "functionsApiAppName": "meatgeek-deviceapi",
+    "storageAccountName": "mgdevapistorage"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "westus2",
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "kind": "Storage",
+      "properties": {
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "virtualNetworkRules": [],
+          "ipRules": [],
+          "defaultAction": "Allow"
+        },
+        "supportsHttpsTrafficOnly": true,
+        "encryption": {
+          "services": {
+            "file": {
+              "keyType": "Account",
+              "enabled": true
+            },
+            "blob": {
+              "keyType": "Account",
+              "enabled": true
+            }
+          },
+          "keySource": "Microsoft.Storage"
+        }
+      }
+    },
+    {
+      "name": "[variables('applicationInsightsName')]",
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2014-04-01",
+      "location": "[resourceGroup().location]",
+      "kind": "other",
+      "properties": {
+        "applicationId": "[variables('applicationInsightsName')]"
+      }
+    },
+
+    {
+      "name": "[variables('functionsAppServicePlanName')]",
+      "type": "Microsoft.Web/serverfarms",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-09-01",
+      "sku": {
+        "name": "Y1",
+        "tier": "Dynamic",
+        "size": "Y1",
+        "family": "Y",
+        "capacity": 0
+      },
+      "kind": "functionapp",
+      "properties": {
+        "perSiteScaling": false,
+        "maximumElasticWorkerCount": 1,
+        "reserved": false,
+        "isXenon": false,
+        "hyperV": false,
+        "targetWorkerCount": 0,
+        "targetWorkerSizeId": 0
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "properties": {
+        "cors": {
+          "corsRules": []
+        },
+        "deleteRetentionPolicy": {
+          "enabled": false
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/fileServices",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/queueServices",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/tableServices",
+      "apiVersion": "2019-06-01",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {
+        "cors": {
+          "corsRules": []
+        }
+      }
+    },
+    {
+      "name": "[variables('functionsApiAppName')]",
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-08-01",
+      "kind": "functionapp",
+      "properties": {
+        "enabled": true,
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('functionsAppServicePlanName'))]",
+        "reserved": false
+      },
+      "identity": {
+        "type": "systemAssigned"
+      },
+      "resources": [
+        {
+          "name": "appsettings",
+          "type": "config",
+          "apiVersion": "2016-08-01",
+          "properties": {
+            "FUNCTIONS_EXTENSION_VERSION": "~3",
+            "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+            "AzureWebJobsSecretStorageType": "Files",
+            "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('applicationInsightsName')), '2014-04-01').InstrumentationKey]",
+            "APPLICATIONINSIGHTS_CONNECTION_STRING": "[concat('InstrumentationKey=', reference(resourceId('Microsoft.Insights/components', variables('applicationInsightsName')), '2014-04-01').InstrumentationKey)]",
+            "CosmosDBConnection": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/CosmosDBConnection)",
+            "AzureWebJobStorage": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/AzureWebJobStorage-DeviceApi/f2966037d1d9482aa5defbc00e194d12)",
+            "RelayConnectionName": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/RelayConnectionName/09182ac4a7e54b429fe84bd71b5b9389)",
+            "RelayKey": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/RelayKey/ed1fa6fafd75465bb7975b4416fd0882)",
+            "RelayKeyName": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/RelayKeyName/22e330913ea04dc38cc677d374926935)",
+            "RelayNamespace": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/RelayNamespace/9a7365a48f104b7e8aa6c27f7e946ca2)",
+            "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/AzureWebJobStorage-DeviceApi/f2966037d1d9482aa5defbc00e194d12)",
+            "WEBSITE_CONTENTSHARE": "meatgeekdeviceapifunctionsapp",
+            "InfernoIoTServiceConnection": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/InfernoIoTServiceConnection/f0841ed18ade4583a679ab932b079982)",
+            "MeatGeekIoTServiceConnection": "@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/MeatGeekIoTServiceConnection/bd181ca77bbc4e4a80b100dfc8c6b848)"
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/sites', variables('functionsApiAppName'))]",
+            "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]"
+          ]
+        }
+      ],
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('functionsAppServicePlanName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "apiAppName": {
+      "type": "string",
+      "value": "[variables('functionsApiAppName')]"
+    }
+  }
+}

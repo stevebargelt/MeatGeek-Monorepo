@@ -1,0 +1,13 @@
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: meatgeek-session
+  description: Session API for MeatGeek
+  annotations:
+    backstage.io/techdocs-ref: url:https://github.com/stevebargelt/meatgeek-azure-sessions
+spec:
+  type: openapi
+  lifecycle: production
+  owner: team-a
+  definition:
+    $text: https://meatgeeksessionsapi.azurewebsites.net/api/swagger.json

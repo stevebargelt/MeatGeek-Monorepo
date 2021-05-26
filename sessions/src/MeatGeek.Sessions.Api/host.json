@@ -1,0 +1,12 @@
+{
+  "version": "2.0",
+  "logging": {
+    "fileLoggingMode": "debugOnly",
+    "logLevel": {
+      "MeatGeek.Sessions": "Information",
+      "MeatGeek.Sessions.Services": "Information",
+      "MeatGeek.Sessions.Services.SessionsServicesDI": "Information",
+      "default": "Information"
+    }
+  }
+}
