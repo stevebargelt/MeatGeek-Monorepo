@@ -41,17 +41,9 @@ stages:
               projects: "iot/src/**/*.csproj"
               arguments: "--output $(build.artifactstagingdirectory)"
               zipAfterPublish: "True"
-      - job: "PublishFunctions"
-        displayName: "Publish Functions"
-        dependsOn: DotNetPublish
-        steps:
-          - task: PublishBuildArtifacts@1
-            displayName: Publish Azure Functions
-            inputs:
-              pathToPublish: $(build.artifactstagingdirectory)
-              artifactName: functions
-              artifactType: container
-      - job: "PublishDeployFolder"
+          - publish: $(build.artifactstagingdirectory)
+            artifact: functions
+      - job: PublishDeployFolder
         displayName: "Publish Deploy Artifacts"
         steps:
           - task: PublishBuildArtifacts@1
