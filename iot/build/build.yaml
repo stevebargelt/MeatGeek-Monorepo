@@ -9,39 +9,24 @@ trigger:
       - "iot/*"
       - "shared/*"
 
-# resources:
-#   repositories:
-#     - repository: self
-#       type: github
-#       endpoint: stevebargelt
-#       name: stevebargelt/MeatGeek-IoT
-#       trigger:
-#         branches:
-#           include:
-#             - main
-
-#     - repository: shared
-#       type: github
-#       endpoint: stevebargelt
-#       name: stevebargelt/MeatGeek-Shared
-
-steps:
-  # - checkout: self
-  # - checkout: shared
-  #   path: s/shared
-
-  # Build the APIs
-  - task: DotNetCoreCLI@1
-    displayName: Run dotnet restore
-    inputs:
-      command: "restore"
-      projects: "iot/src/**/*.csproj"
-
-  - task: DotNetCoreCLI@1
-    displayName: Run dotnet build
-    inputs:
-      projects: "iot/src/**/*.csproj"
-
+stages:
+- stage: "Build"
+  jobs:
+  -job: 'Restore' 
+   steps:
+   - task: DotNetCoreCLI@1
+     displayName: Run dotnet restore
+     inputs:
+       command: "restore"
+       projects: "iot/src/**/*.csproj"
+  -job: 'Build'
+   - task: DotNetCoreCLI@1
+     displayName: Run dotnet build
+     inputs:
+       projects: "iot/src/**/*.csproj"
+-stage: 'Publish'
+ jobs:
+ -job: 'DotNet Publish'
   - task: DotNetCoreCLI@1
     displayName: Run dotnet publish
     inputs:
@@ -50,19 +35,17 @@ steps:
       projects: "iot/src/**/*.csproj"
       arguments: "--output $(build.artifactstagingdirectory)"
       zipAfterPublish: "True"
-
-  # Publish the APIs as an artifact
+ -job: 'Publish Functions as Artifacts'
   - task: PublishBuildArtifacts@1
     displayName: Publish Azure Functions
     inputs:
       pathToPublish: $(build.artifactstagingdirectory)
       artifactName: functions
       artifactType: container
-
-  # Publish the `deploy` folder as an artifact
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Deployment Scripts
-    inputs:
-      pathToPublish: iot/deploy
-      artifactName: deploy
-      artifactType: container
+  -job: 'Publish Deploy Folder'
+   - task: PublishBuildArtifacts@1
+     displayName: Publish Deployment Scripts
+     inputs:
+       pathToPublish: iot/deploy
+       artifactName: deploy
+       artifactType: container
