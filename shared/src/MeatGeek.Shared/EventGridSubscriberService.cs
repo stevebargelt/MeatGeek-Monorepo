@@ -1,6 +1,5 @@
 using System;
 using MeatGeek.Shared.EventSchemas.Sessions;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace MeatGeek.Shared
