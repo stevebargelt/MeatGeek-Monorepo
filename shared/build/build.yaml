@@ -6,7 +6,8 @@ trigger:
       - main
   paths:
     include:
-      - "shared/*"
+      - "shared/src/*"
+      - "shared/build/build.yaml"
 
 steps:
   # Build the APIs
@@ -36,12 +37,4 @@ steps:
     inputs:
       pathToPublish: $(build.artifactstagingdirectory)
       artifactName: shared
-      artifactType: container
-
-  # Publish the `deploy` folder as an artifact
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Deployment Scripts
-    inputs:
-      pathToPublish: "shared/deploy"
-      artifactName: deploy
       artifactType: container
