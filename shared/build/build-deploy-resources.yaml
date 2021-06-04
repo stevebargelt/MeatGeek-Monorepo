@@ -51,11 +51,11 @@ stages:
                   displayName: "Sessions: Create Cosmos DB Resources"
                   inputs:
                     targetType: filePath
-                    filePath: "./$(System.DefaultWorkingDirectory)/CreateCosmosDBResources.ps1"
+                    filePath: "$(System.DefaultWorkingDirectory)/CreateCosmosDBResources.ps1"
                     arguments: "-ResourceGroupName $(sharedRG) -DatabaseName $(sessionsCosmosDB) -CollectionName $(sessionsCosmosCollectionName) -PartitionKeyPath $(sessionsCosmosPartitionPath)"
                 - task: PowerShell@2
                   displayName: "IoT: Create Cosmos DB Resources"
                   inputs:
                     targetType: filePath
-                    filePath: "./$(System.DefaultWorkingDirectory)/CreateCosmosDBResources.ps1"
+                    filePath: "$(System.DefaultWorkingDirectory)/CreateCosmosDBResources.ps1"
                     arguments: "-ResourceGroupName $(sharedRG) -DatabaseName $(iotCosmosDB) -CollectionName $(iotCosmosCollectionName) -PartitionKeyPath $(iotCosmosPartitionPath)"
