@@ -47,15 +47,19 @@ stages:
                     csmFile: "$(System.DefaultWorkingDirectory)/shared.json"
                     overrideParameters: -cosmosDbAccountName "$(sharedCosmos)" -kvName "$(sharedKV)" -userObjectId "$(steve-trg-guid)"
                     deploymentMode: "Incremental" # Options: Incremental, Complete, Validate
-                - task: PowerShell@2
+                - task: AzureCLI@2
                   displayName: "Sessions: Create Cosmos DB Resources"
                   inputs:
-                    targetType: filePath
-                    filePath: "$(System.DefaultWorkingDirectory)/CreateCosmosDBResources.ps1"
+                    azureSubscription: $(azSubscriptionConnection)
+                    scriptType: ps
+                    scriptLocation: scriptPath
+                    scriptPath: "$(System.DefaultWorkingDirectory)/CreateCosmosDBResources.ps1"
                     arguments: "-ResourceGroupName $(sharedRG) -DatabaseName $(sessionsCosmosDB) -CollectionName $(sessionsCosmosCollectionName) -PartitionKeyPath $(sessionsCosmosPartitionPath)"
-                - task: PowerShell@2
+                - task: AzureCLI@2
                   displayName: "IoT: Create Cosmos DB Resources"
                   inputs:
-                    targetType: filePath
-                    filePath: "$(System.DefaultWorkingDirectory)/CreateCosmosDBResources.ps1"
+                    azureSubscription: $(azSubscriptionConnection)
+                    scriptType: ps
+                    scriptLocation: scriptPath
+                    scriptPath: "$(System.DefaultWorkingDirectory)/CreateCosmosDBResources.ps1"
                     arguments: "-ResourceGroupName $(sharedRG) -DatabaseName $(iotCosmosDB) -CollectionName $(iotCosmosCollectionName) -PartitionKeyPath $(iotCosmosPartitionPath)"
