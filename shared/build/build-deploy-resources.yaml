@@ -45,7 +45,7 @@ stages:
                     location: $(location)
                     templateLocation: "Linked artifact"
                     csmFile: "$(System.DefaultWorkingDirectory)/shared.json"
-                    overrideParameters: -cosmosDbAccountName "$(sharedCosmos)" -kvName "$(sharedKV)"" -userObjectId "$(steve-trg-guid)"
+                    overrideParameters: -cosmosDbAccountName "$(sharedCosmos)" -kvName "$(sharedKV)" -userObjectId "$(steve-trg-guid)"
                     deploymentMode: "Incremental" # Options: Incremental, Complete, Validate
                 - task: PowerShell@2
                   displayName: "Sessions: Create Cosmos DB Resources"
