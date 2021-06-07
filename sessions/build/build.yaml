@@ -13,36 +13,12 @@ trigger:
       - docs
       - mkdocs.yml
       - build/build-docs.yaml
-
-# resources:
-#   repositories:
-#     - repository: self
-#       type: github
-#       endpoint: stevebargelt
-#       name: stevebargelt/meatgeek-azure-sessions
-#       trigger:
-#         branches:
-#           include:
-#             - main
-#         paths:
-#           exclude:
-#             - docs
-#             - mkdocs.yml
-#             - build/build-docs.yaml
-
-#     - repository: shared
-#       type: github
-#       endpoint: stevebargelt
-#       name: stevebargelt/MeatGeek-Shared
+      - ".vscode"
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-  # - checkout: self
-  # - checkout: shared
-  #   path: s/shared
-
   # Build the APIs
   - task: DotNetCoreCLI@1
     displayName: Run dotnet restore
