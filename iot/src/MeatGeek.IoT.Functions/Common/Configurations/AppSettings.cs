@@ -2,7 +2,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Configurations.AppSettings.Exte
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Configurations;
 using Microsoft.Extensions.Configuration;
 
-namespace MeatGeek.IoT.Configurations
+namespace MeatGeek.IoT.Functions.Configurations
 {
     public class AppSettings : OpenApiAppSettingsBase
     {
