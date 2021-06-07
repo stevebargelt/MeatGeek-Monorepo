@@ -1,0 +1,29 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "keyVaultName": {
+      "value": "meatgeek"
+    },
+    "applicationInsightsName": {
+      "value": "meatgeekiotapi"
+    },
+    "functionsAppServicePlanName": {
+      "value": "meatgeek-iot-app-service-plan"
+    },
+    "functionsApiAppName": {
+      "value": "meatgeekiotapi"
+    },
+    "storageAccountName": {
+      "value": "mgiotstorage"
+    },
+    "adminPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/resourceGroups/MeatGeek-Shared/providers/Microsoft.KeyVault/vaults/meatgeek-key-vault"
+        },
+        "secretName": "ExamplePassword"
+      }
+    }
+  }
+}

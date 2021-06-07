@@ -1,0 +1,67 @@
+name: $(BuildID)
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - "iot/deploy/*"
+      - "iot/build/build-deploy-resources.yaml"
+
+stages:
+  - stage: Publish
+    jobs:
+      - job: PublishDeployFolder
+        displayName: "Publish Deploy Artifacts"
+        steps:
+          - task: PublishBuildArtifacts@1
+            displayName: Publish Deployment Scripts
+            inputs:
+              pathToPublish: iot/deploy
+              artifactName: deploy
+              artifactType: container
+      - deployment: deployprod
+        displayName: Deploy to Prod
+        dependsOn: DotNetPublish
+        environment: prod
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    buildType: "current"
+                    artifactName: "deploy"
+                    targetPath: "$(System.DefaultWorkingDirectory)"
+                - task: AzureResourceGroupDeployment@2
+                  inputs:
+                    azureSubscription: meatgeek
+                    action: "Create Or Update Resource Group" # Options: create Or Update Resource Group, select Resource Group, start, stop, stopWithDeallocate, restart, delete, deleteRG
+                    resourceGroupName: "MeatGeek"
+                    location: "westus2"
+                    templateLocation: "Linked artifact" # Options: linked Artifact, uRL Of The File
+                    csmFile: "$(System.DefaultWorkingDirectory)/api.json"
+                    csmParametersFile: "$(System.DefaultWorkingDirectory)/api-parameters.json"
+                    deploymentMode: "Incremental" # Options: Incremental, Complete, Validate
+                    #enableDeploymentPrerequisites: 'None' # Optional. Options: none, configureVMwithWinRM, configureVMWithDGAgent
+                    #teamServicesConnection: # Required when enableDeploymentPrerequisites == ConfigureVMWithDGAgent
+                    #teamProject: # Required when enableDeploymentPrerequisites == ConfigureVMWithDGAgent
+                    #deploymentGroupName: # Required when enableDeploymentPrerequisites == ConfigureVMWithDGAgent
+                    #copyAzureVMTags: true # Optional
+                    #runAgentServiceAsUser: # Optional
+                    #userName: # Required when enableDeploymentPrerequisites == ConfigureVMWithDGAgent && RunAgentServiceAsUser == True
+                    #password: # Optional
+                    #outputVariable: # Optional
+                    #deploymentName: # Optional
+                    #deploymentOutputs: # Optional
+                    #addSpnToEnvironment: false # Optional
+                # - task: AzureRmWebAppDeployment@4
+                #   displayName: Azure Functions Deploy
+                #   inputs:
+                #     ConnectionType: "AzureRM"
+                #     azureSubscription: "meatgeek-iot"
+                #     ResourceGroupName: "MeatGeek-IoT"
+                #     appType: functionApp
+                #     package: "$(System.DefaultWorkingDirectory)/MeatGeek.IoT.Functions.zip"
+                #     webAppName: "meatgeekiotapi"

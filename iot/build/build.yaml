@@ -40,15 +40,6 @@ stages:
               zipAfterPublish: "True"
           - publish: $(build.artifactstagingdirectory)
             artifact: functions
-      - job: PublishDeployFolder
-        displayName: "Publish Deploy Artifacts"
-        steps:
-          - task: PublishBuildArtifacts@1
-            displayName: Publish Deployment Scripts
-            inputs:
-              pathToPublish: iot/deploy
-              artifactName: deploy
-              artifactType: container
       - deployment: deployprod
         displayName: Deploy to Prod
         dependsOn: DotNetPublish
