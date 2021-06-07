@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
 
-namespace MeatGeek.Sessions
+namespace MeatGeek.IoT.Functions
 {
     public class CosmosDbConnectionString
     {

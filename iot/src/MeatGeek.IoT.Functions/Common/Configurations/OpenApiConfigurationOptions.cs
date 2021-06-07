@@ -4,7 +4,7 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Configurations;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.OpenApi.Models;
 
-namespace MeatGeek.IoT.Configurations
+namespace MeatGeek.IoT.Functions.Configurations
 {
     public class OpenApiConfigurationOptions : DefaultOpenApiConfigurationOptions
     {

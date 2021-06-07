@@ -4,10 +4,10 @@ using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using MeatGeek.IoT.Configurations;
+using MeatGeek.IoT.Functions.Configurations;
 
-[assembly: FunctionsStartup(typeof(MeatGeek.Sessions.Startup))]
-namespace MeatGeek.Sessions
+[assembly: FunctionsStartup(typeof(MeatGeek.IoT.Functions.Startup))]
+namespace MeatGeek.IoT.Functions
 {
     public class Startup : FunctionsStartup
     {
