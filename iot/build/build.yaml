@@ -8,7 +8,8 @@ trigger:
     include:
       - "iot/src/MeatGeek.IoT.Functions"
       - "iot/build/build.yaml"
-      - "shared/*"
+      - "shared/src/*"
+      - "shared/build/build.yaml"
 
 stages:
   - stage: Build
