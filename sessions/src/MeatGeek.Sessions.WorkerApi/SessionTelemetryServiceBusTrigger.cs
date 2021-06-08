@@ -18,7 +18,7 @@ namespace MeatGeek.Sessions.WorkerApi
 
         [FunctionName("SessionTelemetryServiceBusTrigger")]
         public static void Run(
-            [ServiceBusTrigger("sessiontelemetry", Connection = "SessionsServiceBus")] 
+            [ServiceBusTrigger("sessiontelemetry", "sessiontelemetry", Connection = "SessionsServiceBus")] 
             string myTopicItem,
             Int32 deliveryCount,
             DateTime enqueuedTimeUtc,
