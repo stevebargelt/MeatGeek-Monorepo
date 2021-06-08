@@ -7,8 +7,11 @@ trigger:
       - main
   paths:
     include:
-      - "sessions/*"
-      - "shared/*"
+      - "sessions/src/MeatGeek.Sessions.WorkerApi"
+      - "sessions/src/MeatGeek.Sessions.Services"
+      - "sessions/build/build.yaml"
+      - "shared/src/*"
+      - "shared/build/build.yaml"
     exclude:
       - docs
       - mkdocs.yml

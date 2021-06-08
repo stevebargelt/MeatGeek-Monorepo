@@ -1,0 +1,75 @@
+# Builds the MeatGeek sessions microservice resources
+name: $(BuildID)
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - "sessions/src/MeatGeek.Sessions.WorkerApi"
+      - "sessions/src/MeatGeek.Sessions.Services"
+      - "sessions/build/build-worker-api.yaml"
+      - "shared/src/*"
+      - "shared/build/build.yaml"
+    exclude:
+      - docs
+      - mkdocs.yml
+      - build/build-docs.yaml
+      - ".vscode"
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Build
+    jobs:
+      - job: Build
+        displayName: "DotNet Restore"
+        steps:
+          - task: DotNetCoreCLI@1
+            displayName: Run dotnet restore
+            inputs:
+              command: "restore"
+              projects: "Sessions/src/MeatGeek.Sessions.WorkerApi/*.csproj"
+          - task: DotNetCoreCLI@1
+            displayName: Run dotnet build
+            inputs:
+              projects: "Sessions/src/MeatGeek.Sessions.WorkerApi/*.csproj"
+  - stage: Publish
+    jobs:
+      - job: DotNetPublish
+        displayName: "DotNet Publish"
+        steps:
+          - task: DotNetCoreCLI@1
+            displayName: Run dotnet publish
+            inputs:
+              command: "publish"
+              publishWebProjects: "False"
+              projects: "Sessions/src/MeatGeek.Sessions.WorkerApi/*.csproj"
+              arguments: "--output $(build.artifactstagingdirectory)"
+              zipAfterPublish: "True"
+          - publish: $(build.artifactstagingdirectory)
+            artifact: functions
+      - deployment: deployprod
+        displayName: Deploy to Prod
+        dependsOn: DotNetPublish
+        environment: prod
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    buildType: "current"
+                    artifactName: "functions"
+                    targetPath: "$(System.DefaultWorkingDirectory)"
+                - task: AzureRmWebAppDeployment@4
+                  displayName: Azure Functions Deploy
+                  inputs:
+                    ConnectionType: "AzureRM"
+                    azureSubscription: "meatgeek-iot"
+                    ResourceGroupName: "MeatGeek-Sessions"
+                    appType: functionApp
+                    package: "$(System.DefaultWorkingDirectory)/MeatGeek.Sessions.WorkerApi.zip"
+                    webAppName: "meatgeek-Sessions-workerapi"
