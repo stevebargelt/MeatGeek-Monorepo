@@ -26,6 +26,29 @@
   "variables": {},
   "resources": [
     {
+      "type": "Microsoft.KeyVault/vaults",
+      "name": "parameter()",
+      "apiVersion": "2015-06-01",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "sku": {
+          "family": "A",
+          "name": "Standard"
+        },
+        "tenantId": "[subscription().tenantId]",
+        "accessPolicies": [
+          {
+            "tenantId": "[subscription().tenantId]",
+            "objectId": "CHANGETO-YOUR-USER-GUID-000000000000",
+            "permissions": {
+              "keys": ["All"],
+              "secrets": ["All"]
+            }
+          }
+        ]
+      }
+    },
+    {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-01-01",
       "name": "[parameters('storageAccountName')]",

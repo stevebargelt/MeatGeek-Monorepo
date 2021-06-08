@@ -72,4 +72,4 @@ stages:
                     ResourceGroupName: "MeatGeek-Sessions"
                     appType: functionApp
                     package: "$(System.DefaultWorkingDirectory)/MeatGeek.Sessions.WorkerApi.zip"
-                    webAppName: "meatgeek-sessions-workerapi"
+                    webAppName: "ASP-MeatGeekSessions-9645"
