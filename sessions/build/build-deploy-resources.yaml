@@ -60,7 +60,7 @@ stages:
                 #   displayName: Azure Functions Deploy
                 #   inputs:
                 #     ConnectionType: "AzureRM"
-                #     azureSubscription: "meatgeek-iot"
+                #     azureSubscription: "meatgeek-sessions"
                 #     ResourceGroupName: "MeatGeek-Sessions"
                 #     appType: functionApp
                 #     package: "$(System.DefaultWorkingDirectory)/MeatGeek.Sessions.Api.zip"

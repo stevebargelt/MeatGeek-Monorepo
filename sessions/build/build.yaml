@@ -7,7 +7,7 @@ trigger:
       - main
   paths:
     include:
-      - "sessions/src/MeatGeek.Sessions.WorkerApi"
+      - "sessions/src/MeatGeek.Sessions.Api"
       - "sessions/src/MeatGeek.Sessions.Services"
       - "sessions/build/build.yaml"
       - "shared/src/*"
@@ -21,40 +21,55 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-steps:
-  # Build the APIs
-  - task: DotNetCoreCLI@1
-    displayName: Run dotnet restore
-    inputs:
-      command: "restore"
-      projects: "sessions/src/**/*.csproj"
-
-  - task: DotNetCoreCLI@1
-    displayName: Run dotnet build
-    inputs:
-      projects: "sessions/src/**/*.csproj"
-
-  - task: DotNetCoreCLI@1
-    displayName: Run dotnet publish
-    inputs:
-      command: "publish"
-      publishWebProjects: "False"
-      projects: "sessions/src/**/*Api.csproj"
-      arguments: "--output $(build.artifactstagingdirectory)"
-      zipAfterPublish: "True"
-
-  # Publish the APIs as an artifact
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Azure Functions
-    inputs:
-      pathToPublish: $(build.artifactstagingdirectory)
-      artifactName: functions
-      artifactType: container
-
-  # Publish the `deploy` folder as an artifact
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Deployment Scripts
-    inputs:
-      pathToPublish: sessions/deploy
-      artifactName: deploy
-      artifactType: container
+stages:
+  - stage: Build
+    jobs:
+      - job: Build
+        displayName: "DotNet Restore"
+        steps:
+          - task: DotNetCoreCLI@1
+            displayName: Run dotnet restore
+            inputs:
+              command: "restore"
+              projects: "Sessions/src/MeatGeek.Sessions.WorkerApi/*.csproj"
+          - task: DotNetCoreCLI@1
+            displayName: Run dotnet build
+            inputs:
+              projects: "Sessions/src/MeatGeek.Sessions.WorkerApi/*.csproj"
+  - stage: Publish
+    jobs:
+      - job: DotNetPublish
+        displayName: "DotNet Publish"
+        steps:
+          - task: DotNetCoreCLI@1
+            displayName: Run dotnet publish
+            inputs:
+              command: "publish"
+              publishWebProjects: "False"
+              projects: "Sessions/src/MeatGeek.Sessions.WorkerApi/*.csproj"
+              arguments: "--output $(build.artifactstagingdirectory)"
+              zipAfterPublish: "True"
+          - publish: $(build.artifactstagingdirectory)
+            artifact: functions
+      - deployment: deployprod
+        displayName: Deploy to Prod
+        dependsOn: DotNetPublish
+        environment: prod
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    buildType: "current"
+                    artifactName: "functions"
+                    targetPath: "$(System.DefaultWorkingDirectory)"
+                - task: AzureRmWebAppDeployment@4
+                  displayName: Azure Functions Deploy
+                  inputs:
+                    ConnectionType: "AzureRM"
+                    azureSubscription: "meatgeek-sessions"
+                    ResourceGroupName: "MeatGeek-Sessions"
+                    appType: functionApp
+                    package: "$(System.DefaultWorkingDirectory)/MeatGeek.Sessions.WorkerApi.zip"
+                    webAppName: "meatgeek-Sessions-workerapi"
