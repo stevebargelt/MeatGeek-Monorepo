@@ -46,6 +46,7 @@ namespace MeatGeek.Sessions.Services
                 Title = title,
                 Description = description,
                 SmokerId = smokerId,
+                Type = "session",
                 StartTime = startTime
             };
             var SessionId = await _sessionsRepository.AddSessionAsync(SessionDocument);

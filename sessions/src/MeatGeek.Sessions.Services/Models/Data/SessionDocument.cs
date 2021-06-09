@@ -13,6 +13,8 @@ namespace MeatGeek.Sessions.Services.Models.Data
         public string ETag { get; set; }        
         [JsonProperty("title")] 
         public string Title { get; set; }
+        [JsonProperty("type")] 
+        public string Type { get; set; }
         [JsonProperty("description")] 
         public string Description { get; set; }
         [JsonProperty("starttime")] 
