@@ -22,7 +22,7 @@ namespace MeatGeek.Sessions.WorkerApi
         [FunctionName("SessionTelemetryServiceBusTrigger")]
         public static async Task Run(
             [ServiceBusTrigger("sessiontelemetry", "sessiontelemetry", Connection = "SessionsServiceBus")] 
-            SmokerStatus[] smokerStatuses,
+            SmokerStatus smokerStatus,
             Int32 deliveryCount,
             DateTime enqueuedTimeUtc,
             string messageId,
@@ -35,38 +35,18 @@ namespace MeatGeek.Sessions.WorkerApi
         {
 
             var exceptions = new List<Exception>();
-            log.LogInformation($"IoT Hub trigger function processing {smokerStatuses.Length} events.");
+            log.LogInformation($"SessionTelemetryServiceBusTrigger function processing Message ID = {messageId}");
 
-            foreach (var smokerStatus in smokerStatuses)
-            {
-                try
-                {
-                    //var messageBody = Encoding.UTF8.GetString(smokerStatusData.Body.Array, smokerStatusData.Body.Offset, smokerStatusData.Body.Count);
-                    var smokerStatusString = JsonConvert.SerializeObject(smokerStatus);
-                    log.LogInformation($"SmokerStatus: {smokerStatusString}"); 
-                    log.LogInformation($"SmokerID: {smokerStatus.SmokerId}");
-                    if (smokerStatus.ttl is null || smokerStatus.ttl == 0 || smokerStatus.ttl == -1) {
-                        smokerStatus.ttl = 60 * 60 * 24 * 3;
-                    }
-                    smokerStatus.Type = "status";
-                    await smokerStatusOut.AddAsync(smokerStatus);
-                }
-                catch (Exception e)
-                {
-                    // We need to keep processing the rest of the batch - capture this exception and continue.
-                    // Also, consider capturing details of the message that failed processing so it can be processed again later.
-                    exceptions.Add(e);
-                }
+            //var messageBody = Encoding.UTF8.GetString(smokerStatusData.Body.Array, smokerStatusData.Body.Offset, smokerStatusData.Body.Count);
+            var smokerStatusString = JsonConvert.SerializeObject(smokerStatus);
+            log.LogInformation($"SmokerStatus: {smokerStatusString}"); 
+            log.LogInformation($"SmokerID: {smokerStatus.SmokerId}");
+            if (smokerStatus.ttl is null || smokerStatus.ttl == 0 || smokerStatus.ttl == -1) {
+                smokerStatus.ttl = 60 * 60 * 24 * 3;
             }
+            smokerStatus.Type = "status";
+            await smokerStatusOut.AddAsync(smokerStatus);
  
-            // Once processing of the batch is complete, if any messages in the batch failed processing throw an exception so that 
-            //      there is a record of the failure.
-            if (exceptions.Count > 1)
-                throw new AggregateException(exceptions);
-
-            if (exceptions.Count == 1)
-                throw exceptions.Single();            
-
             // log.LogInformation("SessionTelemetryServiceBusTrigger Called");
             // log.LogInformation($"EnqueuedTimeUtc={enqueuedTimeUtc}");
             // log.LogInformation($"DeliveryCount={deliveryCount}");
