@@ -12,12 +12,12 @@ namespace MeatGeek.Sessions.WorkerApi
 {
     public class SessionTelemetryServiceBusTrigger
     {
-        private readonly CosmosClient _cosmosClient;
+        // private readonly CosmosClient _cosmosClient;
 
-        public SessionTelemetryServiceBusTrigger(CosmosClient cosmosClient)
-        {
-            _cosmosClient = cosmosClient;
-        }
+        // public SessionTelemetryServiceBusTrigger(CosmosClient cosmosClient)
+        // {
+        //     _cosmosClient = cosmosClient;
+        // }
 
         [FunctionName("SessionTelemetryServiceBusTrigger")]
         public static async Task Run(
