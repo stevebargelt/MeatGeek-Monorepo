@@ -5,15 +5,15 @@ namespace MeatGeek.Shared.EventSchemas.Sessions
 {
     public class SessionUpdatedEventData
     {
-        [JsonProperty("Id")]
+        [JsonProperty("id")]
         public string Id { get; set; }
-        [JsonProperty("SmokerId")]
+        [JsonProperty("smokerId")]
         public string SmokerId { get; set; }
-        [JsonProperty("Title")]
+        [JsonProperty("title")]
         public string Title { get; set; }
-        [JsonProperty("Description")]
+        [JsonProperty("description")]
         public string Description { get; set; }
-        [JsonProperty("EndTime")]
+        [JsonProperty("endTime")]
         public DateTime? Endtime { get; set; }
     }
 }

@@ -4,11 +4,11 @@ namespace MeatGeek.Shared.EventSchemas.Sessions
 {
     public class SessionCreatedEventData
     {
-        [JsonProperty("Id")]
+        [JsonProperty("id")]
         public string Id { get; set; }
-        [JsonProperty("SmokerId")]
+        [JsonProperty("smokerId")]
         public string SmokerId { get; set; }
-        [JsonProperty("Title")]
+        [JsonProperty("title")]
         public string Title { get; set; }
     }
 }
