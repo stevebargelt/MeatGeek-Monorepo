@@ -5,9 +5,9 @@ namespace MeatGeek.Sessions.Services.Models.Data
 {
     public class SessionDocument
     {
-        [JsonProperty("id")] 
+        [JsonProperty("id")]
         public string Id { get; set; }
-        [JsonProperty("smokerid")] 
+        [JsonProperty("smokerId")] 
         public string SmokerId { get; set; }
         [JsonProperty("_etag")] 
         public string ETag { get; set; }        
@@ -17,11 +17,11 @@ namespace MeatGeek.Sessions.Services.Models.Data
         public string Type { get; set; }
         [JsonProperty("description")] 
         public string Description { get; set; }
-        [JsonProperty("starttime")] 
+        [JsonProperty("startTime")] 
         public DateTime? StartTime { get; set; }
-        [JsonProperty("endtime")]
+        [JsonProperty("endTime")]
         public DateTime? EndTime { get; set; }
-        [JsonProperty("timestamp")]
+        [JsonProperty("timeStamp")]
         public DateTime TimeStamp { get; set; }
     }
 }
