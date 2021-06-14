@@ -5,13 +5,13 @@ namespace MeatGeek.Sessions.Services.Models.Request
 {
     public class UpdateSessionRequest
     {
-        [JsonProperty("smokerid")] 
+        [JsonProperty("smokerId")] 
         public string SmokerId { get; set; }
         [JsonProperty("title")] 
         public string Title { get; set; }
         [JsonProperty("description")] 
         public string Description { get; set; }
-        [JsonProperty("endtime")]
+        [JsonProperty("endTime")]
         public DateTime? EndTime { get; set; }
     }
 }
