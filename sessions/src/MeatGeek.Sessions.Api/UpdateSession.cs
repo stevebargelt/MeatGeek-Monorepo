@@ -78,7 +78,7 @@ namespace MeatGeek.Sessions
                 log.LogWarning("UpdateSession: data has no smokerId.");
                 return new BadRequestObjectResult(new { error = "Missing required property: smokerId is REQUIRED." });
             }
-            JToken titleToken = data["Title"];
+            JToken titleToken = data["title"];
             if (titleToken != null && titleToken.Type == JTokenType.String && titleToken.ToString() != String.Empty)
             {
                 updateData.Title = titleToken.ToString();
@@ -88,7 +88,7 @@ namespace MeatGeek.Sessions
             {
                 log.LogInformation($"Title will NOT be updated.");
             }
-            JToken descriptionToken = data["Description"];
+            JToken descriptionToken = data["description"];
             if (descriptionToken != null && descriptionToken.Type == JTokenType.String && descriptionToken.ToString() != String.Empty)
             {
                 updateData.Description = descriptionToken.ToString();
@@ -98,7 +98,7 @@ namespace MeatGeek.Sessions
             {
                 log.LogInformation($"Description will NOT be updated");
             }
-            JToken endTimeToken = data["EndTime"];
+            JToken endTimeToken = data["endTime"];
             log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
             if (endTimeToken != null && endTimeToken.Type == JTokenType.Date)
             {
