@@ -42,11 +42,24 @@ namespace MeatGeek.Sessions
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionDetails), Summary = "Session ended.", Description = "Session Ended")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.MethodNotAllowed, Summary = "Invalid input", Description = "Invalid input")]         
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "patch", "put", Route = "endsession/{id}")] HttpRequest req, 
+            [HttpTrigger(AuthorizationLevel.Anonymous, "patch", "put", Route = "endsession/{smokerId}/{id}")] HttpRequest req, 
                 ILogger log,
+                string smokerId,
                 string id)
         {
             log.LogInformation("EndSession Called");
+
+            if (string.IsNullOrEmpty(smokerId))
+            {
+                _log.LogError("EndSession: Missing smokerId - url should be /endsession/{smokerId}/{id}");
+                return new BadRequestObjectResult(new { error = "Missing required property 'smokerid'." });
+            }
+
+            if (string.IsNullOrEmpty(id))
+            {
+                _log.LogError("EndSession: Missing id - url should be /endsession/{smokerId}/{id}");
+                return new BadRequestObjectResult(new { error = "Missing required property 'id'." });
+            }
 
             // get the request body
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
@@ -64,56 +77,48 @@ namespace MeatGeek.Sessions
             log.LogInformation("Made it past data = JObject.Parse(requestBody)");
             if (!data.HasValues)
             {
-                log.LogWarning("EndSession: data has no values.");
-                return new BadRequestObjectResult(new { error = "Missing required properties. Nothing to update." });
-            }
-            JToken smokerIdToken = data["smokerId"];
-            if (smokerIdToken != null && smokerIdToken.Type == JTokenType.String && smokerIdToken.ToString() != String.Empty)
-            {
-                updateData.SmokerId = smokerIdToken.ToString();
-                log.LogInformation($"SmokerId = {updateData.SmokerId}");
-            }
-            else
-            {
-                log.LogWarning("EndSession: data has no smokerId.");
-                return new BadRequestObjectResult(new { error = "Missing required property: smokerId is REQUIRED." });
-            }
-            JToken endTimeToken = data["endTime"];
-            log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
-            if (endTimeToken != null && endTimeToken.Type == JTokenType.Date)
-            {
-                log.LogInformation($"endTime= {endTimeToken.ToString()}");
-                try 
-                {                                   
-                    DateTimeOffset dto = DateTimeOffset.Parse(endTimeToken.ToString());
-                    updateData.EndTime = dto.UtcDateTime;
-                }
-                catch(ArgumentNullException argNullEx)
-                {
-                    log.LogError(argNullEx, $"Argument NUll exception");
-                    throw argNullEx;
-                }
-                catch(ArgumentException argEx)
-                {
-                    log.LogError(argEx, $"Argument exception");
-                    throw argEx;
-                }                
-                catch(FormatException formatEx)
-                {
-                    log.LogError(formatEx, $"Format exception");
-                    throw formatEx;
-                }
-                catch(Exception ex)
-                {
-                    log.LogError(ex, $"Unhandled Exception from DateTimeParse");
-                    throw ex;
-                }
-                log.LogInformation($"EndTime will be updated to {updateData.EndTime.ToString()}");
-            }
-            else
-            {
                 updateData.EndTime = DateTime.UtcNow;
                 log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
+            }
+            else 
+            {
+                JToken endTimeToken = data["endTime"];
+                log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
+                if (endTimeToken != null && endTimeToken.Type == JTokenType.Date)
+                {
+                    log.LogInformation($"endTime= {endTimeToken.ToString()}");
+                    try 
+                    {                                   
+                        DateTimeOffset dto = DateTimeOffset.Parse(endTimeToken.ToString());
+                        updateData.EndTime = dto.UtcDateTime;
+                    }
+                    catch(ArgumentNullException argNullEx)
+                    {
+                        log.LogError(argNullEx, $"Argument NUll exception");
+                        throw argNullEx;
+                    }
+                    catch(ArgumentException argEx)
+                    {
+                        log.LogError(argEx, $"Argument exception");
+                        throw argEx;
+                    }                
+                    catch(FormatException formatEx)
+                    {
+                        log.LogError(formatEx, $"Format exception");
+                        throw formatEx;
+                    }
+                    catch(Exception ex)
+                    {
+                        log.LogError(ex, $"Unhandled Exception from DateTimeParse");
+                        throw ex;
+                    }
+                    log.LogInformation($"EndTime will be updated to {updateData.EndTime.ToString()}");
+                }
+                else
+                {
+                    updateData.EndTime = DateTime.UtcNow;
+                    log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
+                }
             }
             try
             {

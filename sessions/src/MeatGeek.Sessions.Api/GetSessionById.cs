@@ -55,9 +55,20 @@ namespace MeatGeek.Sessions
         {
             log.LogInformation("GetSessionById triggered");
 
+            if (string.IsNullOrEmpty(smokerId))
+            {
+                _log.LogError("GetSessionById: Missing smokerId - url should be /sessions/{smokerId}/{id}");
+                return new BadRequestObjectResult(new { error = "Missing required property 'smokerid'." });
+            }
+
+            if (string.IsNullOrEmpty(id))
+            {
+                _log.LogError("GetSessionById: Missing id - url should be /sessions/{smokerId}/{id}");
+                return new BadRequestObjectResult(new { error = "Missing required property 'smokerid'." });
+            }
+
             try
             {
-                //TODO: Add parameter checks
                 var document = await _sessionsService.GetSessionAsync(id, smokerId);
                 if (document == null)
                 {

@@ -44,44 +44,49 @@ namespace MeatGeek.Sessions
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionDetails), Summary = "New session details added", Description = "New session details added")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.MethodNotAllowed, Summary = "Invalid input", Description = "Invalid input")]        
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sessions")] HttpRequest req)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sessions/{smokerId")] HttpRequest req, 
+            string smokerId)
         {
             _log.LogInformation("CreateSession API Triggered");
+            
+            if (string.IsNullOrEmpty(smokerId))
+            {
+                _log.LogError("CreateSession: Missing smokerId - url should be /sessions/{smokerId}");
+                return new BadRequestObjectResult(new { error = "Missing required property 'smokerid'." });
+            }
+
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            CreateSessionRequest data;
+            CreateSessionRequest newSession;
             try
             {
-                data = JsonConvert.DeserializeObject<CreateSessionRequest>(requestBody);
+                newSession = JsonConvert.DeserializeObject<CreateSessionRequest>(requestBody);
             }
             catch (JsonReaderException)
             {
                 return new BadRequestObjectResult(new { error = "Body should be provided in JSON format." });
             }
             
+            newSession.SmokerId = smokerId;
+
             // validate request
-            if (data == null || string.IsNullOrEmpty(data.Title))
+            if (newSession == null || string.IsNullOrEmpty(newSession.Title))
             {
                 return new BadRequestObjectResult(new { error = "Missing required property 'title'." });
             }
 
-            if (string.IsNullOrEmpty(data.SmokerId))
+            if (!newSession.StartTime.HasValue)
             {
-                return new BadRequestObjectResult(new { error = "Missing required property 'smokerid'." });
-            }
-
-            if (!data.StartTime.HasValue)
-            {
-                data.StartTime = DateTime.UtcNow;
+                newSession.StartTime = DateTime.UtcNow;
             }
 
             // create session
             try
             {
                 _log.LogInformation("BEFORE SessionService Call");
-                _log.LogInformation("data.Title = " + data.Title);
-                _log.LogInformation("data.SmokerId = " + data.SmokerId);
-                _log.LogInformation("data.StartTime = " + data.StartTime.Value);
-                var sessionId = await _sessionsService.AddSessionAsync(data.Title, data.Description, data.SmokerId, data.StartTime.Value);
+                _log.LogInformation("data.Title = " + newSession.Title);
+                _log.LogInformation("data.SmokerId = " + newSession.SmokerId);
+                _log.LogInformation("data.StartTime = " + newSession.StartTime.Value);
+                var sessionId = await _sessionsService.AddSessionAsync(newSession.Title, newSession.Description, newSession.SmokerId, newSession.StartTime.Value);
                 _log.LogInformation("AFTER SessionService Call");
                 return new OkObjectResult(new { id = sessionId });
             }
