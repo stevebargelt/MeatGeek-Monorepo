@@ -42,7 +42,7 @@ namespace MeatGeek.Sessions
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionDetails), Summary = "Session ended.", Description = "Session Ended")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.MethodNotAllowed, Summary = "Invalid input", Description = "Invalid input")]         
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "patch", "put", Route = "sessions/end/{id}")] HttpRequest req, 
+            [HttpTrigger(AuthorizationLevel.Anonymous, "patch", "put", Route = "endsession/{id}")] HttpRequest req, 
                 ILogger log,
                 string id)
         {
