@@ -19,6 +19,7 @@ namespace MeatGeek.Sessions.Services
         Task<string> AddSessionAsync(string title, string description, string smokerId, DateTime startTime);
         Task<DeleteSessionResult> DeleteSessionAsync(string SessionId, string smokerId);
         Task<UpdateSessionResult> UpdateSessionAsync(string SessionId, string smokerId, string title, string description, DateTime? endTime);
+        Task<UpdateSessionResult> EndSessionAsync(string SessionId, string smokerId, DateTime? endTime);
         Task<SessionDetails> GetSessionAsync(string SessionId, string smokerId);
         Task<SessionSummaries> GetSessionsAsync(string smokerId);
     }
@@ -129,6 +130,41 @@ namespace MeatGeek.Sessions.Services
 
             return UpdateSessionResult.Success;
         }
+
+        public async Task<UpdateSessionResult> EndSessionAsync(string sessionId, string smokerId, DateTime? endTime)
+        {
+            _log.LogInformation($"SessionsService: EndSessionAsync Called");
+            // get the current version of the document from Cosmos DB
+            var SessionDocument = await _sessionsRepository.GetSessionAsync(sessionId, smokerId);
+            _log.LogInformation($"SessionsService: EndSessionAsync AFTER GetSessionAsync ");
+            var eventData = new SessionUpdatedEventData{};
+            eventData.Id = sessionId;
+            eventData.SmokerId = smokerId;
+
+            if (SessionDocument == null)
+            {
+                return UpdateSessionResult.NotFound;
+            }
+            if (endTime.HasValue)
+            {
+                SessionDocument.EndTime = endTime;
+                eventData.Endtime = endTime;
+            }
+            else 
+            {
+                //TODO: Update this to incorrect parameter
+                return UpdateSessionResult.NotFound;
+            }
+            
+            await _sessionsRepository.UpdateSessionAsync(SessionDocument);
+
+            // post a SessionNameUpdated event to Event Grid
+            var subject = $"{smokerId}";
+            await _eventGridPublisher.PostEventGridEventAsync(EventTypes.Sessions.SessionUpdated, subject, eventData);
+
+            return UpdateSessionResult.Success;
+        }
+
 
         public async Task<SessionDetails> GetSessionAsync(string sessionId, string smokerId)
         {
