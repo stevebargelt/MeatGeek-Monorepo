@@ -11,7 +11,7 @@
     "sessionsSingle": {
       "matchCondition": {
         "methods": ["GET", "PUT", "PATCH", "DELETE"],
-        "route": "/sessions/{snokerId}/{sessionId}"
+        "route": "/sessions/{smokerId}/{sessionId}"
       },
       "backendUri": "https://%SessionsMicroserviceApiAppName%.azurewebsites.net/api/sessions/{smokerId}/{sessionId}"
     },
