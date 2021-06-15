@@ -44,7 +44,7 @@ namespace MeatGeek.Sessions
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionDetails), Summary = "New session details added", Description = "New session details added")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.MethodNotAllowed, Summary = "Invalid input", Description = "Invalid input")]        
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sessions/{smokerId")] HttpRequest req, 
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sessions/{smokerId}")] HttpRequest req, 
             string smokerId)
         {
             _log.LogInformation("CreateSession API Triggered");
