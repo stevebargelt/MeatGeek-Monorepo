@@ -4,9 +4,9 @@
     "sessions": {
       "matchCondition": {
         "methods": ["GET", "POST"],
-        "route": "/sessions{smokerId}"
+        "route": "/sessions/{smokerId}"
       },
-      "backendUri": "https://%SessionsMicroserviceApiAppName%.azurewebsites.net/api/sessions{smokerId}"
+      "backendUri": "https://%SessionsMicroserviceApiAppName%.azurewebsites.net/api/sessions/{smokerId}"
     },
     "sessionsSingle": {
       "matchCondition": {
