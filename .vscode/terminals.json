@@ -1,0 +1,74 @@
+{
+  "autorun": true,
+  "autokill": true,
+  "terminals": [
+    {
+      "name": "root",
+      "description": "MeatGeek Root",
+      "icon": "code",
+      "cwd": "/Users/stevebargelt/code/MeatGeek-MonoRepo/",
+      "commands": ["ll"],
+      "open": true,
+      "focus": false
+    },
+    {
+      "name": "shared",
+      "description": "MeatGeek.Shared",
+      "icon": "code",
+      "cwd": "/Users/stevebargelt/code/MeatGeek-MonoRepo/shared/src/MeatGeek.Shared",
+      "commands": ["ll"],
+      "open": true,
+      "focus": true
+    },
+    {
+      "name": "iot func",
+      "description": "MeatGeek.IoT.Functions",
+      "icon": "code",
+      "cwd": "/Users/stevebargelt/code/MeatGeek-MonoRepo/iot/src/MeatGeek.IoT.Functions",
+      "commands": ["ll"],
+
+      "open": true,
+      "focus": false
+    },
+    {
+      "name": "iot worker",
+      "description": "MeatGeek.IoT.WorkerApi",
+      "icon": "code",
+      "cwd": "/Users/stevebargelt/code/MeatGeek-MonoRepo/iot/src/MeatGeek.IoT.WorkerApi",
+      "commands": ["ll"],
+
+      "open": true,
+      "focus": false
+    },
+    {
+      "name": "sessions services",
+      "description": "MeatGeek.Sessions.Sservices",
+      "icon": "code",
+      "cwd": "/Users/stevebargelt/code/MeatGeek-MonoRepo/sessions/src/MeatGeek.Sessions.Services",
+      "commands": ["ll"],
+
+      "open": true,
+      "focus": false
+    },
+    {
+      "name": "sessions Api",
+      "description": "MeatGeek.Sessions.Api",
+      "icon": "code",
+      "cwd": "/Users/stevebargelt/code/MeatGeek-MonoRepo/sessions/src/MeatGeek.Sessions.Api",
+      "commands": ["ll"],
+
+      "open": true,
+      "focus": false
+    },
+    {
+      "name": "sessions worker api",
+      "description": "MeatGeek.Sessions.WorkerApi",
+      "icon": "code",
+      "cwd": "/Users/stevebargelt/code/MeatGeek-MonoRepo/sessions/src/MeatGeek.Sessions.WorkerApi",
+      "commands": ["ll"],
+
+      "open": true,
+      "focus": false
+    }
+  ]
+}
