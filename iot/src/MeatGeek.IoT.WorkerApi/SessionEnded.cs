@@ -10,33 +10,33 @@ using Newtonsoft.Json.Linq;
 
 namespace MeatGeek.IoT.WorkerApi
 {
-    public class SessionUpdatedTrigger
+    public class SessionEndedTrigger
     {
         private static ServiceClient _iothubServiceClient = ServiceClient.CreateFromConnectionString(Environment.GetEnvironmentVariable("MeatGeekIoTServiceConnection", EnvironmentVariableTarget.Process));
         private const string METHOD_NAME = "EndSession";
         private const string MODULE_NAME = "Telemetry";
 
-        [FunctionName("SessionUpdated")]
+        [FunctionName("SessionEnded")]
         public static async Task Run(
             [EventGridTrigger]EventGridEvent eventGridEvent,
             ILogger log)
         {
-            log.LogInformation("SessionUpdated Called");
+            log.LogInformation("SessionEnded Called");
             log.LogInformation(eventGridEvent.Data.ToString());
             
             try
             {
-                SessionUpdatedEventData sessionUpdatedEventData;
+                SessionEndedEventData sessionEndedEventData;
 
                 //TODO: Maybe some error/exception handling here??
                 var data = eventGridEvent.Data as JObject;
-                sessionUpdatedEventData = data.ToObject<SessionUpdatedEventData>();
+                sessionEndedEventData = data.ToObject<SessionEndedEventData>();
 
-                var smokerId = sessionUpdatedEventData.SmokerId;
-                var sessionId = sessionUpdatedEventData.Id;
+                var smokerId = sessionEndedEventData.SmokerId;
+                var sessionId = sessionEndedEventData.Id;
                 log.LogInformation("SmokerID = " + smokerId);
                 log.LogInformation("SessionID = " + sessionId);
-                if (sessionUpdatedEventData.EndTime.HasValue) 
+                if (sessionEndedEventData.EndTime.HasValue) 
                 {
                     log.LogInformation("Processing EndSession: EndTime has a value");
                     try
@@ -66,10 +66,14 @@ namespace MeatGeek.IoT.WorkerApi
                         log.LogError(e, $"[{smokerId}/{MODULE_NAME}] Exeception on direct method call");
                     }               
                 }
+                else
+                {
+                    throw new ArgumentException($"Missing EndTime");
+                }
             }
             catch (Exception ex)
             {
-                log.LogError(ex, "<-- SessionUpdated Event Grid Trigger: Unhandled exception");
+                log.LogError(ex, "<-- SessionEnded Event Grid Trigger: Unhandled exception");
             }
         }
         
