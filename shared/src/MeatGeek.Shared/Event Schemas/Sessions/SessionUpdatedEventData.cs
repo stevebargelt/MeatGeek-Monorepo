@@ -14,6 +14,6 @@ namespace MeatGeek.Shared.EventSchemas.Sessions
         [JsonProperty("description")]
         public string Description { get; set; }
         [JsonProperty("endTime")]
-        public DateTime? Endtime { get; set; }
+        public DateTime? EndTime { get; set; }
     }
 }

@@ -10,6 +10,6 @@ namespace MeatGeek.Shared.EventSchemas.Sessions
         [JsonProperty("smokerId")] 
         public string SmokerId { get; set; }
         [JsonProperty("endTime")] 
-        public DateTime EndTime { get; set; }
+        public DateTime? EndTime { get; set; }
     }
 }

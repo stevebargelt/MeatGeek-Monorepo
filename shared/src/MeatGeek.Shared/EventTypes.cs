@@ -8,6 +8,7 @@ namespace MeatGeek.Shared
             public const string SessionCreated = nameof(SessionCreated);
             public const string SessionDeleted = nameof(SessionDeleted);
             public const string SessionUpdated = nameof(SessionUpdated);
+            public const string SessionEnded = nameof(SessionEnded);
         }
         
         // public static class Images
