@@ -7,7 +7,7 @@ namespace MeatGeek.Sessions.Services.Models.Response
     {
         [JsonProperty("id")] 
         public string Id { get; set; }
-        [JsonProperty("smokerid")] 
+        [JsonProperty("smokerId")] 
         public string SmokerId { get; set; }
         [JsonProperty("title")] 
         public string Title { get; set; }
