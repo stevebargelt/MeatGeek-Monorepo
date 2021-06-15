@@ -19,7 +19,7 @@ namespace MeatGeek.Sessions.Services
         Task<string> AddSessionAsync(string title, string description, string smokerId, DateTime startTime);
         Task<DeleteSessionResult> DeleteSessionAsync(string SessionId, string smokerId);
         Task<UpdateSessionResult> UpdateSessionAsync(string SessionId, string smokerId, string title, string description, DateTime? endTime);
-        Task<UpdateSessionResult> EndSessionAsync(string SessionId, string smokerId, DateTime? endTime);
+        Task<EndSessionResult> EndSessionAsync(string SessionId, string smokerId, DateTime? endTime);
         Task<SessionDetails> GetSessionAsync(string SessionId, string smokerId);
         Task<SessionSummaries> GetSessionsAsync(string smokerId);
     }
@@ -119,7 +119,7 @@ namespace MeatGeek.Sessions.Services
             if (endTime.HasValue)
             {
                 SessionDocument.EndTime = endTime;
-                eventData.Endtime = endTime;
+                eventData.EndTime = endTime;
             }
             
             await _sessionsRepository.UpdateSessionAsync(SessionDocument);
