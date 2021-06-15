@@ -131,38 +131,37 @@ namespace MeatGeek.Sessions.Services
             return UpdateSessionResult.Success;
         }
 
-        public async Task<UpdateSessionResult> EndSessionAsync(string sessionId, string smokerId, DateTime? endTime)
+        public async Task<EndSessionResult> EndSessionAsync(string sessionId, string smokerId, DateTime? endTime)
         {
             _log.LogInformation($"SessionsService: EndSessionAsync Called");
             // get the current version of the document from Cosmos DB
             var SessionDocument = await _sessionsRepository.GetSessionAsync(sessionId, smokerId);
             _log.LogInformation($"SessionsService: EndSessionAsync AFTER GetSessionAsync ");
-            var eventData = new SessionUpdatedEventData{};
+            var eventData = new SessionEndedEventData{};
             eventData.Id = sessionId;
             eventData.SmokerId = smokerId;
 
             if (SessionDocument == null)
             {
-                return UpdateSessionResult.NotFound;
+                return EndSessionResult.NotFound;
             }
             if (endTime.HasValue)
             {
                 SessionDocument.EndTime = endTime;
-                eventData.Endtime = endTime;
+                eventData.EndTime = endTime;
             }
             else 
             {
-                //TODO: Update this to incorrect parameter
-                return UpdateSessionResult.NotFound;
+                return EndSessionResult.BadParameter;
             }
             
             await _sessionsRepository.UpdateSessionAsync(SessionDocument);
 
             // post a SessionNameUpdated event to Event Grid
             var subject = $"{smokerId}";
-            await _eventGridPublisher.PostEventGridEventAsync(EventTypes.Sessions.SessionUpdated, subject, eventData);
+            await _eventGridPublisher.PostEventGridEventAsync(EventTypes.Sessions.SessionEnded, subject, eventData);
 
-            return UpdateSessionResult.Success;
+            return EndSessionResult.Success;
         }
 
 
