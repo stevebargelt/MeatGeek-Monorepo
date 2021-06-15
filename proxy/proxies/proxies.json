@@ -4,16 +4,23 @@
     "sessions": {
       "matchCondition": {
         "methods": ["GET", "POST"],
-        "route": "/sessions"
+        "route": "/sessions{smokerId}"
       },
-      "backendUri": "https://%SessionsMicroserviceApiAppName%.azurewebsites.net/api/sessions"
+      "backendUri": "https://%SessionsMicroserviceApiAppName%.azurewebsites.net/api/sessions{smokerId}"
     },
     "sessionsSingle": {
       "matchCondition": {
         "methods": ["GET", "PUT", "PATCH", "DELETE"],
-        "route": "/sessions/{sessionId}"
+        "route": "/sessions/{snokerId}/{sessionId}"
       },
-      "backendUri": "https://%SessionsMicroserviceApiAppName%.azurewebsites.net/api/sessions/{sessionId}"
+      "backendUri": "https://%SessionsMicroserviceApiAppName%.azurewebsites.net/api/sessions/{smokerId}/{sessionId}"
+    },
+    "sessionsEnd": {
+      "matchCondition": {
+        "methods": ["POST", "PUT", "PATCH"],
+        "route": "/sessions/end/{sessionId}"
+      },
+      "backendUri": "https://%SessionsMicroserviceApiAppName%.azurewebsites.net/api/sessions/end/{smokerId}/{sessionId}"
     },
     "sessionsSwagger": {
       "matchCondition": {
