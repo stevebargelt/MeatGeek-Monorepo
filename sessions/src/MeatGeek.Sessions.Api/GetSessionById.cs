@@ -48,25 +48,17 @@ namespace MeatGeek.Sessions
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Summary = "Invalid ID supplied", Description = "Invalid ID supplied")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session not found", Description = "Session not found")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/{smokerid}/{id}")] HttpRequest req, 
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/{smokerId}/{id}")] HttpRequest req, 
+            string smokerId,
             string id,
             ILogger log)
         {
             log.LogInformation("GetSessionById triggered");
 
-            var smokerID = "meatgeek2";
-            //TODO: Need to get SmokerID!!
-            // get the user ID
-            // if (! await UserAuthenticationService.GetUserIdAsync(req, out var userId, out var responseResult))
-            // {
-            //     return responseResult;
-            // }
-
-            // get the category details
             try
             {
-                
-                var document = await _sessionsService.GetSessionAsync(id, smokerID);
+                //TODO: Add parameter checks
+                var document = await _sessionsService.GetSessionAsync(id, smokerId);
                 if (document == null)
                 {
                     return new NotFoundResult();
@@ -76,7 +68,7 @@ namespace MeatGeek.Sessions
             }
             catch (Exception ex)
             {
-                log.LogError("Unhandled exception", ex);
+                log.LogError(ex, "<-- GetSessionById Unhandled exception");
                 return new ExceptionResult(ex, false);
             }
 

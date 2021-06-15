@@ -42,23 +42,15 @@ namespace MeatGeek.Sessions
         [OpenApiOperation(operationId: "GetAllSessions", tags: new[] { "session" }, Summary = "Returns all sessions", Description = "Returns all sessions. Sessions are cooking / BBQ Sessions or cooks.", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionSummaries), Summary = "successful operation", Description = "successful response")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/{smokerId}")] HttpRequest req,
+                string smokerId, 
                 ILogger log)
         {
             log.LogInformation("GetAllSessions triggered");
 
-            var smokerID = "meatgeek2";
-            //TODO: Get SmokerID
-            // get the user ID
-            // if (! await UserAuthenticationService.GetUserIdAsync(req, out var userId, out var responseResult))
-            // {
-            //     return responseResult;
-            // }
-
-            // list the categories
             try
             {
-                var summaries = await _sessionsService.GetSessionsAsync(smokerID);
+                var summaries = await _sessionsService.GetSessionsAsync(smokerId);
                 if (summaries == null)
                 {
                     return new NotFoundResult();
@@ -82,7 +74,7 @@ namespace MeatGeek.Sessions
             }
             catch (Exception ex)
             {
-                log.LogError("Unhandled exception", ex);
+                log.LogError(ex, "<-- GetAllSessions Unhandled exception");
                 return new ExceptionResult(ex, false);
             }
         }
