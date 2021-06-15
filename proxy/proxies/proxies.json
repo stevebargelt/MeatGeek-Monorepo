@@ -18,7 +18,7 @@
     "sessionsEnd": {
       "matchCondition": {
         "methods": ["POST", "PUT", "PATCH"],
-        "route": "/sessions/end/{sessionId}"
+        "route": "/sessions/end/{smokerId}/{sessionId}"
       },
       "backendUri": "https://%SessionsMicroserviceApiAppName%.azurewebsites.net/api/sessions/end/{smokerId}/{sessionId}"
     },
