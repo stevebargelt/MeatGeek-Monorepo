@@ -85,7 +85,7 @@ namespace MeatGeek.Sessions.Services.Repositories
             // create a query to just get the document ids
             var query = DocumentClient
                 .CreateDocumentQuery<SessionSummary>(documentUri)
-                .Where(d => d.SmokerId == smokerId)
+                .Where(d => d.SmokerId == smokerId && d.Type == "session" )
                 .Select(d => new SessionSummary { Id = d.Id, Title = d.Title })
                 .AsDocumentQuery();
             
