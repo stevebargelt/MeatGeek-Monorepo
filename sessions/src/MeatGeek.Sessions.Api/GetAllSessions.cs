@@ -51,7 +51,7 @@ namespace MeatGeek.Sessions
             if (string.IsNullOrEmpty(smokerId))
             {
                 _log.LogError("GetAllSessions: Missing smokerId - url should be /sessions/{smokerId}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'smokerid'." });
+                return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
             }
 
             try

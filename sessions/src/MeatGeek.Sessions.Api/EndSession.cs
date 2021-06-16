@@ -38,7 +38,7 @@ namespace MeatGeek.Sessions
 
         [FunctionName("EndSession")]
         [OpenApiOperation(operationId: "EndSession", tags: new[] { "session" }, Summary = "Ends an existing session.", Description = "Ends a session (sessions are 'cooks' or BBQ sessions).", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(SessionDetails), Required = true, Description = "Session object with optional EndTime")]
+        [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(SessionDetails), Required = true, Description = "Session object with EndTime")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionDetails), Summary = "Session ended.", Description = "Session Ended")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.MethodNotAllowed, Summary = "Invalid input", Description = "Invalid input")]         
         public async Task<IActionResult> Run(
@@ -52,7 +52,7 @@ namespace MeatGeek.Sessions
             if (string.IsNullOrEmpty(smokerId))
             {
                 _log.LogError("EndSession: Missing smokerId - url should be /endsession/{smokerId}/{id}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'smokerid'." });
+                return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
             }
 
             if (string.IsNullOrEmpty(id))
@@ -61,63 +61,70 @@ namespace MeatGeek.Sessions
                 return new BadRequestObjectResult(new { error = "Missing required property 'id'." });
             }
 
-            // get the request body
-            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var updateData = new EndSessionRequest {};
-            JObject data;
-            try
-            {
-                data = JObject.Parse(requestBody);
-            }
-            catch (JsonReaderException)
-            {
-                log.LogWarning("EndSession: Could not parse JSON");
-                return new BadRequestObjectResult(new { error = "Body should be provided in JSON format." });
-            }
-            log.LogInformation("Made it past data = JObject.Parse(requestBody)");
-            if (!data.HasValues)
+            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            if (string.IsNullOrEmpty(requestBody))
             {
                 updateData.EndTime = DateTime.UtcNow;
-                log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
+                log.LogInformation($"No JSON body, EndTime not provided using current time: {updateData.EndTime}");           
             }
             else 
             {
-                JToken endTimeToken = data["endTime"];
-                log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
-                if (endTimeToken != null && endTimeToken.Type == JTokenType.Date)
+                JObject data;
+                try
                 {
-                    log.LogInformation($"endTime= {endTimeToken.ToString()}");
-                    try 
-                    {                                   
-                        DateTimeOffset dto = DateTimeOffset.Parse(endTimeToken.ToString());
-                        updateData.EndTime = dto.UtcDateTime;
-                    }
-                    catch(ArgumentNullException argNullEx)
-                    {
-                        log.LogError(argNullEx, $"Argument NUll exception");
-                        throw argNullEx;
-                    }
-                    catch(ArgumentException argEx)
-                    {
-                        log.LogError(argEx, $"Argument exception");
-                        throw argEx;
-                    }                
-                    catch(FormatException formatEx)
-                    {
-                        log.LogError(formatEx, $"Format exception");
-                        throw formatEx;
-                    }
-                    catch(Exception ex)
-                    {
-                        log.LogError(ex, $"Unhandled Exception from DateTimeParse");
-                        throw ex;
-                    }
-                    log.LogInformation($"EndTime will be updated to {updateData.EndTime.ToString()}");
+                    data = JObject.Parse(requestBody);
                 }
-                else
+                catch (JsonReaderException)
+                {
+                    log.LogWarning("EndSession: Could not parse JSON");
+                    return new BadRequestObjectResult(new { error = "Body should be provided in JSON format." });
+                }
+                log.LogInformation("Made it past data = JObject.Parse(requestBody)");
+                if (!data.HasValues)
                 {
                     updateData.EndTime = DateTime.UtcNow;
                     log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
+                }
+                else 
+                {
+                    JToken endTimeToken = data["endTime"];
+                    log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
+                    if (endTimeToken != null && endTimeToken.Type == JTokenType.Date)
+                    {
+                        log.LogInformation($"endTime= {endTimeToken.ToString()}");
+                        try 
+                        {                                   
+                            DateTimeOffset dto = DateTimeOffset.Parse(endTimeToken.ToString());
+                            updateData.EndTime = dto.UtcDateTime;
+                        }
+                        catch(ArgumentNullException argNullEx)
+                        {
+                            log.LogError(argNullEx, $"Argument NUll exception");
+                            throw argNullEx;
+                        }
+                        catch(ArgumentException argEx)
+                        {
+                            log.LogError(argEx, $"Argument exception");
+                            throw argEx;
+                        }                
+                        catch(FormatException formatEx)
+                        {
+                            log.LogError(formatEx, $"Format exception");
+                            throw formatEx;
+                        }
+                        catch(Exception ex)
+                        {
+                            log.LogError(ex, $"Unhandled Exception from DateTimeParse");
+                            throw ex;
+                        }
+                        log.LogInformation($"EndTime will be updated to {updateData.EndTime.ToString()}");
+                    }
+                    else
+                    {
+                        updateData.EndTime = DateTime.UtcNow;
+                        log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
+                    }
                 }
             }
             try

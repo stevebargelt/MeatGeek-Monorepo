@@ -58,13 +58,13 @@ namespace MeatGeek.Sessions
             if (string.IsNullOrEmpty(smokerId))
             {
                 _log.LogError("GetSessionById: Missing smokerId - url should be /sessions/{smokerId}/{id}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'smokerid'." });
+                return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
             }
 
             if (string.IsNullOrEmpty(id))
             {
                 _log.LogError("GetSessionById: Missing id - url should be /sessions/{smokerId}/{id}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'smokerid'." });
+                return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
             }
 
             try

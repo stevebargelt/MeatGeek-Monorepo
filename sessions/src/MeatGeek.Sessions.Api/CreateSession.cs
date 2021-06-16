@@ -52,7 +52,7 @@ namespace MeatGeek.Sessions
             if (string.IsNullOrEmpty(smokerId))
             {
                 _log.LogError("CreateSession: Missing smokerId - url should be /sessions/{smokerId}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'smokerid'." });
+                return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
             }
 
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
