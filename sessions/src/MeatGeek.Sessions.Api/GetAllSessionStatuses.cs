@@ -66,17 +66,18 @@ namespace MeatGeek.Sessions
                 var statuses = await _sessionsService.GetSessionStatusesAsync(sessionId, smokerId);
                 if (statuses == null)
                 {
+                    _log.LogInformation($"GetAllSessionStatuses no statuses found");
                     return new NotFoundResult();
                 }
-
-                // serialise the summaries using a custom converter
+                _log.LogInformation($"GetAllSessionStatuses Numer of statuses = {statuses.Count}");
+                
                 var settings = new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     Formatting = Formatting.Indented
                 };
                 //settings.Converters.Add(new SessionSummariesConverter());
-                var json = JsonConvert.SerializeObject(statuses);
+                var json = JsonConvert.SerializeObject(statuses, settings);
 
                 return new ContentResult
                 {
