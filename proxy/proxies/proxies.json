@@ -20,7 +20,7 @@
         "methods": ["POST", "PUT", "PATCH"],
         "route": "/sessions/end/{smokerId}/{sessionId}"
       },
-      "backendUri": "https://%SessionsMicroserviceApiAppName%.azurewebsites.net/api/sessions/end/{smokerId}/{sessionId}"
+      "backendUri": "https://%SessionsMicroserviceApiAppName%.azurewebsites.net/api/endsession/{smokerId}/{sessionId}"
     },
     "sessionsSwagger": {
       "matchCondition": {
