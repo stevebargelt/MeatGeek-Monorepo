@@ -40,7 +40,9 @@ namespace MeatGeek.Sessions.Services.Repositories
         public async Task<string> AddSessionAsync(SessionDocument SessionDocument)
         {
             var documentUri = UriFactory.CreateDocumentCollectionUri(DatabaseName, CollectionName);
-            Document doc = await DocumentClient.CreateDocumentAsync(documentUri, SessionDocument);
+            var result = await DocumentClient.CreateDocumentAsync(documentUri, SessionDocument);
+            _log.LogInformation($"AddSessionAsync: RU used: {result.RequestCharge}");
+            Document doc = result.Resource;
             return doc.Id;
         }
 
@@ -79,6 +81,7 @@ namespace MeatGeek.Sessions.Services.Repositories
             try
             {
                 var documentResponse = await DocumentClient.ReadDocumentAsync<SessionDocument>(documentUri, new RequestOptions { PartitionKey = new PartitionKey(smokerId) });
+                _log.LogInformation($"GetSessionAsync: RU used: {documentResponse.RequestCharge}");
                 return documentResponse.Document;
             }
             catch (DocumentClientException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
@@ -106,12 +109,15 @@ namespace MeatGeek.Sessions.Services.Repositories
                 .AsDocumentQuery();
             
             // iterate until we have all of the ids
+            double totalRU = 0;
             var list = new SessionSummaries();
             while (query.HasMoreResults)
             {
                 var summaries = await query.ExecuteNextAsync<SessionSummary>();
+                totalRU += summaries.RequestCharge;
                 list.AddRange(summaries);
             }
+            _log.LogInformation($"GetSessionsAsync: RU used: {totalRU}");
             return list;
         }
     }
