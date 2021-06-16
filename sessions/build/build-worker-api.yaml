@@ -36,6 +36,7 @@ stages:
             displayName: Run dotnet build
             inputs:
               projects: "sessions/src/MeatGeek.Sessions.WorkerApi/*.csproj"
+              arguments: "--no-restore"
   - stage: Publish
     jobs:
       - job: DotNetPublish
