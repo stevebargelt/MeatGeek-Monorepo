@@ -9,6 +9,10 @@ namespace MeatGeek.Sessions.Services.Models.Response
         public string Id { get; set; }
         [JsonProperty("smokerId")] 
         public string SmokerId { get; set; }
+        [JsonProperty("type")] 
+        public string Type { 
+            get { return "session"; }
+        }
         [JsonProperty("title")] 
         public string Title { get; set; }
         [JsonProperty("description")] 
