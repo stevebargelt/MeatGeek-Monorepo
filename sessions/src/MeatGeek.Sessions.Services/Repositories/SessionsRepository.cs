@@ -122,8 +122,9 @@ namespace MeatGeek.Sessions.Services.Repositories
             return list;
         }
 
-        public async Task<SessionStatuses> GetSessionStatusesAsync(string smokerId, string sessionId)
+        public async Task<SessionStatuses> GetSessionStatusesAsync(string sessionId, string smokerId)
         {
+            _log.LogInformation($"GetSessionStatusesAsynccalled with smokerId = {smokerId} and sessioId = {sessionId}");
             var documentUri = UriFactory.CreateDocumentCollectionUri(DatabaseName, CollectionName);
 
             // create a query to just get the document ids
