@@ -20,7 +20,8 @@ namespace MeatGeek.Sessions.Services.Repositories
         Task UpdateSessionAsync(SessionDocument SessionDocument);
         Task<SessionDocument> GetSessionAsync(string SessionId, string smokerId);
         Task<SessionSummaries> GetSessionsAsync(string smokerId);
-        // Task<SessionDocument> FindSessionWithItemAsync(string itemId, ItemType itemType, string userId);
+        //Task<SessionStatusDocument> GetSessionStatusAsync(string SessionId, string smokerId);
+        Task<SessionStatuses> GetSessionStatusesAsync(string SessionId, string smokerId);
     }
 
     public class SessionsRepository : ISessionsRepository
@@ -120,5 +121,28 @@ namespace MeatGeek.Sessions.Services.Repositories
             _log.LogInformation($"GetSessionsAsync: RU used: {totalRU}");
             return list;
         }
+
+        public async Task<SessionStatuses> GetSessionStatusesAsync(string smokerId, string sessionId)
+        {
+            var documentUri = UriFactory.CreateDocumentCollectionUri(DatabaseName, CollectionName);
+
+            // create a query to just get the document ids
+            var query = DocumentClient
+                .CreateDocumentQuery<SessionStatusDocument>(documentUri)
+                .Where(d => d.SmokerId == smokerId && d.Type == "status" && d.SessionId == sessionId)
+                .AsDocumentQuery();
+            
+            // iterate until we have all of the ids
+            double totalRU = 0;
+            var list = new SessionStatuses();
+            while (query.HasMoreResults)
+            {
+                var summaries = await query.ExecuteNextAsync<SessionStatusDocument>();
+                totalRU += summaries.RequestCharge;
+                list.AddRange(summaries);
+            }
+            _log.LogInformation($"GetSessionStatusesAsync: RU used: {totalRU}");
+            return list;
+        }        
     }
 }
