@@ -9,6 +9,7 @@ using MeatGeek.Sessions.Services.Models.Results;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace MeatGeek.Sessions.Services.Repositories
 {
@@ -29,7 +30,13 @@ namespace MeatGeek.Sessions.Services.Repositories
         private static readonly string DatabaseName = Environment.GetEnvironmentVariable("DatabaseName");
         private static readonly string CollectionName = Environment.GetEnvironmentVariable("CollectionName");
         private static readonly DocumentClient DocumentClient = new DocumentClient(new Uri(EndpointUrl), AccountKey);
+        private ILogger<SessionsService> _log;
         
+        public SessionsRepository(ILogger<SessionsService> logger) 
+        {
+            _log = logger;
+        }
+
         public async Task<string> AddSessionAsync(SessionDocument SessionDocument)
         {
             var documentUri = UriFactory.CreateDocumentCollectionUri(DatabaseName, CollectionName);
@@ -65,7 +72,10 @@ namespace MeatGeek.Sessions.Services.Repositories
 
         public async Task<SessionDocument> GetSessionAsync(string SessionId, string smokerId)
         {
+            _log.LogInformation("GetSessionAsync called");
+            _log.LogInformation($"GetSessionAsync: SessionId = {SessionId}, SmokerId = {smokerId}");
             var documentUri = UriFactory.CreateDocumentUri(DatabaseName, CollectionName, SessionId);
+            _log.LogInformation($"documentUri = {documentUri}");
             try
             {
                 var documentResponse = await DocumentClient.ReadDocumentAsync<SessionDocument>(documentUri, new RequestOptions { PartitionKey = new PartitionKey(smokerId) });
@@ -74,7 +84,13 @@ namespace MeatGeek.Sessions.Services.Repositories
             catch (DocumentClientException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
             {
                 // we return null to indicate the document was not found
+                _log.LogError(ex, "<-- exception GetsessionAsync. Not Found");
                 return null;
+            }
+            catch (Exception exc)
+            {
+                _log.LogError(exc, "<-- unhandled exception GetsessionAsync. Throwing...");
+                throw exc;
             }
         }
 
