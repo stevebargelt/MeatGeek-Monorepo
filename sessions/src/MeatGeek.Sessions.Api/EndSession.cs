@@ -62,6 +62,7 @@ namespace MeatGeek.Sessions
             }
 
             var updateData = new EndSessionRequest {};
+            updateData.SmokerId = smokerId;
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             if (string.IsNullOrEmpty(requestBody))
             {
