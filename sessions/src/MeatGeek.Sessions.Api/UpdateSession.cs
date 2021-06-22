@@ -42,15 +42,18 @@ namespace MeatGeek.Sessions
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionDetails), Summary = "Session dtails updated", Description = "Session details updated")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.MethodNotAllowed, Summary = "Invalid input", Description = "Invalid input")]         
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "patch", "put", Route = "sessions/{id}")] HttpRequest req, 
+            [HttpTrigger(AuthorizationLevel.Anonymous, "patch", "put", Route = "sessions/{smokerId}/{id}")] HttpRequest req, 
                 ILogger log,
+                string smokerId,
                 string id)
         {
-            log.LogInformation("UpdateSession Called");
+            log.LogInformation("UpdateSession: Called");
+            log.LogInformation($"UpdateSession: SmokerID = {smokerId} SessionID = {id}");
 
             // get the request body
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             var updateData = new UpdateSessionRequest {};
+            updateData.SmokerId = smokerId;
             JObject data;
             try
             {
@@ -66,17 +69,6 @@ namespace MeatGeek.Sessions
             {
                 log.LogWarning("UpdateSession: data has no values.");
                 return new BadRequestObjectResult(new { error = "Missing required properties. Nothing to update." });
-            }
-            JToken smokerIdToken = data["smokerId"];
-            if (smokerIdToken != null && smokerIdToken.Type == JTokenType.String && smokerIdToken.ToString() != String.Empty)
-            {
-                updateData.SmokerId = smokerIdToken.ToString();
-                log.LogInformation($"SmokerId = {updateData.SmokerId}");
-            }
-            else
-            {
-                log.LogWarning("UpdateSession: data has no smokerId.");
-                return new BadRequestObjectResult(new { error = "Missing required property: smokerId is REQUIRED." });
             }
             JToken titleToken = data["title"];
             if (titleToken != null && titleToken.Type == JTokenType.String && titleToken.ToString() != String.Empty)
