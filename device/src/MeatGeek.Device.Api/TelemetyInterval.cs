@@ -32,13 +32,13 @@ namespace Inferno.Functions
                 return new BadRequestObjectResult("Missing body value. Body should be a single integer.");
             }
             
-            var methodInvocation = new CloudToDeviceMethod("SetTelemetryInterval") { ResponseTimeout = TimeSpan.FromSeconds(30) };
+            var methodInvocation = new CloudToDeviceMethod("SetTelemetryInterval", TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(15));
             methodInvocation.SetPayloadJson(value);
 
             //TODO: smokerID no hardcoded meatgeek2
             // Invoke the direct method asynchronously and get the response from the simulated device.
-            var response = await IoTHubServiceClient.InvokeDeviceMethodAsync("meatgeek2", methodInvocation);
-
+            //var response = await IoTHubServiceClient.InvokeDeviceMethodAsync("meatgeek2", methodInvocation);
+            var response = await IoTHubServiceClient.InvokeDeviceMethodAsync("meatgeek2", "Telemetry", methodInvocation).ConfigureAwait(false);
             Console.WriteLine("Response status: {0}, payload:", response.Status);
             Console.WriteLine(response.GetPayloadAsJson());
 
