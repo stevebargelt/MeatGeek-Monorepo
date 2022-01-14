@@ -22,7 +22,7 @@ namespace Inferno.Functions
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            ServiceConnectionString = Environment.GetEnvironmentVariable("InfernoIoTServiceConnection", EnvironmentVariableTarget.Process);
+            ServiceConnectionString = Environment.GetEnvironmentVariable("MeatGeekIoTServiceConnection", EnvironmentVariableTarget.Process);
             IoTHubServiceClient = ServiceClient.CreateFromConnectionString(ServiceConnectionString);
             log.LogInformation("value = " + value);
           
