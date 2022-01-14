@@ -27,12 +27,10 @@ namespace MeatGeek.Sessions
 {
     public class EndSession
     {
-        private readonly ILogger<EndSession> _log;
         private readonly ISessionsService _sessionsService; 
 
-        public EndSession(ILogger<EndSession> log, ISessionsService sessionsService)
+        public EndSession(ISessionsService sessionsService)
         {
-            _log = log;
             _sessionsService = sessionsService;
         }
 
@@ -51,13 +49,13 @@ namespace MeatGeek.Sessions
 
             if (string.IsNullOrEmpty(smokerId))
             {
-                _log.LogError("EndSession: Missing smokerId - url should be /endsession/{smokerId}/{id}");
+                log.LogError("EndSession: Missing smokerId - url should be /endsession/{smokerId}/{id}");
                 return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
             }
 
             if (string.IsNullOrEmpty(id))
             {
-                _log.LogError("EndSession: Missing id - url should be /endsession/{smokerId}/{id}");
+                log.LogError("EndSession: Missing id - url should be /endsession/{smokerId}/{id}");
                 return new BadRequestObjectResult(new { error = "Missing required property 'id'." });
             }
 
@@ -67,7 +65,7 @@ namespace MeatGeek.Sessions
             if (string.IsNullOrEmpty(requestBody))
             {
                 updateData.EndTime = DateTime.UtcNow;
-                _log.LogInformation($"No JSON body, EndTime not provided using current time: {updateData.EndTime}");           
+                log.LogInformation($"No JSON body, EndTime not provided using current time: {updateData.EndTime}");           
             }
             else 
             {
@@ -78,22 +76,22 @@ namespace MeatGeek.Sessions
                 }
                 catch (JsonReaderException)
                 {
-                    _log.LogWarning("EndSession: Could not parse JSON");
+                    log.LogWarning("EndSession: Could not parse JSON");
                     return new BadRequestObjectResult(new { error = "Body should be provided in JSON format." });
                 }
                 log.LogInformation("Made it past data = JObject.Parse(requestBody)");
                 if (!data.HasValues)
                 {
                     updateData.EndTime = DateTime.UtcNow;
-                    _log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
+                    log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
                 }
                 else 
                 {
                     JToken endTimeToken = data["endTime"];
-                    _log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
+                    log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
                     if (endTimeToken != null && endTimeToken.Type == JTokenType.Date)
                     {
-                        _log.LogInformation($"endTime= {endTimeToken.ToString()}");
+                        log.LogInformation($"endTime= {endTimeToken.ToString()}");
                         try 
                         {                                   
                             DateTimeOffset dto = DateTimeOffset.Parse(endTimeToken.ToString());
@@ -101,22 +99,22 @@ namespace MeatGeek.Sessions
                         }
                         catch(ArgumentNullException argNullEx)
                         {
-                            _log.LogError(argNullEx, $"Argument NUll exception");
+                            log.LogError(argNullEx, $"Argument NUll exception");
                             throw argNullEx;
                         }
                         catch(ArgumentException argEx)
                         {
-                            _log.LogError(argEx, $"Argument exception");
+                            log.LogError(argEx, $"Argument exception");
                             throw argEx;
                         }                
                         catch(FormatException formatEx)
                         {
-                            _log.LogError(formatEx, $"Format exception");
+                            log.LogError(formatEx, $"Format exception");
                             throw formatEx;
                         }
                         catch(Exception ex)
                         {
-                            _log.LogError(ex, $"Unhandled Exception from DateTimeParse");
+                            log.LogError(ex, $"Unhandled Exception from DateTimeParse");
                             throw ex;
                         }
                         log.LogInformation($"EndTime will be updated to {updateData.EndTime.ToString()}");
@@ -124,25 +122,25 @@ namespace MeatGeek.Sessions
                     else
                     {
                         updateData.EndTime = DateTime.UtcNow;
-                        _log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
+                        log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
                     }
                 }
             }
             try
             {
-                _log.LogWarning($"BEFORE: _sessionsService.EndSessionAsync");
+                log.LogWarning($"BEFORE: _sessionsService.EndSessionAsync");
                 var result = await _sessionsService.EndSessionAsync(id, updateData.SmokerId, updateData.EndTime);
                 if (result == EndSessionResult.NotFound)
                 {
-                    _log.LogWarning($"SessionID {id} not found.");
+                    log.LogWarning($"SessionID {id} not found.");
                     return new NotFoundResult();
                 }
-                _log.LogInformation("EndSession completing");
+                log.LogInformation("EndSession completing");
                 return new NoContentResult();
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "EndSession: Unhandled exception");
+                log.LogError(ex, "EndSession: Unhandled exception");
                 return new ExceptionResult(ex, false);
             }
 
