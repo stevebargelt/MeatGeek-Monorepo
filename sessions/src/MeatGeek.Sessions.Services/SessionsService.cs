@@ -33,7 +33,9 @@ namespace MeatGeek.Sessions.Services
         protected IEventGridPublisherService _eventGridPublisher;
 
 
-        public SessionsService(ISessionsRepository sessionsRepository, IEventGridPublisherService eventGridPublisher, ILogger<SessionsService> logger)
+        public SessionsService(ISessionsRepository sessionsRepository, 
+                                IEventGridPublisherService eventGridPublisher, 
+                                ILogger<SessionsService> logger)
         {
             _sessionsRepository = sessionsRepository;
             _eventGridPublisher = eventGridPublisher;
