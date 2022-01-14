@@ -129,7 +129,10 @@ namespace MeatGeek.Sessions
             try
             {
                 log.LogWarning($"BEFORE: _sessionsService.EndSessionAsync");
+                log.LogInformation("updateData.SmokerId = " + updateData.SmokerId);
+                log.LogInformation("updateData.StartTime = " +updateData.EndTime.Value);
                 var result = await _sessionsService.EndSessionAsync(id, updateData.SmokerId, updateData.EndTime);
+                log.LogWarning($"AFTER: _sessionsService.EndSessionAsync");
                 if (result == EndSessionResult.NotFound)
                 {
                     log.LogWarning($"SessionID {id} not found.");
