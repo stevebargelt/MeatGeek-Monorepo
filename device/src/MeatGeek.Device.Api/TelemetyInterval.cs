@@ -24,6 +24,7 @@ namespace Inferno.Functions
 
             ServiceConnectionString = Environment.GetEnvironmentVariable("MeatGeekIoTServiceConnection", EnvironmentVariableTarget.Process);
             IoTHubServiceClient = ServiceClient.CreateFromConnectionString(ServiceConnectionString);
+            log.LogInformation("ServiceConnectionString" + ServiceConnectionString);
             log.LogInformation("value = " + value);
           
             if (string.IsNullOrEmpty(value)) // TODO: Check value for vaild range... 180 - 400 or whatever.
