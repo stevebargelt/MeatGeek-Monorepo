@@ -9,6 +9,31 @@ trigger:
   paths:
     include:
       - "device/*"
+    exclude:
+      - docs
+      - mkdocs.yml
+      - build/build-docs.yaml
+      - ".vscode"
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Build
+    jobs:
+      - job: Build
+        displayName: "DotNet Restore"
+        steps:
+          - task: DotNetCoreCLI@1
+            displayName: Run dotnet restore
+            inputs:
+              command: "restore"
+              projects: "device/src/MeatGeek.Device.Api/*.csproj"
+          - task: DotNetCoreCLI@1
+            displayName: Run dotnet build
+            inputs:
+              projects: "device/src/MeatGeek.Device.Api/*.csproj"
+              arguments: "--no-restore"
 
 steps:
   # Build the APIs
@@ -33,18 +58,40 @@ steps:
       arguments: "--output $(build.artifactstagingdirectory)"
       zipAfterPublish: "True"
 
-  # Publish the APIs as an artifact
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Azure Functions
-    inputs:
-      pathToPublish: $(build.artifactstagingdirectory)
-      artifactName: functions
-      artifactType: container
-
-  # Publish the `deploy` folder as an artifact
-  - task: PublishBuildArtifacts@1
-    displayName: Publish Deployment Scripts
-    inputs:
-      pathToPublish: sevice/deploy
-      artifactName: deploy
-      artifactType: container
+  - stage: Publish
+    jobs:
+      - job: DotNetPublish
+        displayName: "DotNet Publish"
+        steps:
+          - task: DotNetCoreCLI@1
+            displayName: Run dotnet publish
+            inputs:
+              command: "publish"
+              publishWebProjects: "False"
+              projects: "device/src/MeatGeek.Device.Api/*.csproj"
+              arguments: "--output $(build.artifactstagingdirectory)"
+              zipAfterPublish: "True"
+          - publish: $(build.artifactstagingdirectory)
+            artifact: functions
+      - deployment: deployprod
+        displayName: Deploy to Prod
+        dependsOn: DotNetPublish
+        environment: prod
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    buildType: "current"
+                    artifactName: "functions"
+                    targetPath: "$(System.DefaultWorkingDirectory)"
+                - task: AzureRmWebAppDeployment@4
+                  displayName: Azure Functions Deploy
+                  inputs:
+                    ConnectionType: "AzureRM"
+                    azureSubscription: "meatgeek-device"
+                    ResourceGroupName: "MeatGeek-DeviceApi"
+                    appType: functionApp
+                    package: "$(System.DefaultWorkingDirectory)/MeatGeek.Device.Api.zip"
+                    webAppName: "meatgeek-deviceapi"
