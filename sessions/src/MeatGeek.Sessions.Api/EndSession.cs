@@ -27,10 +27,10 @@ namespace MeatGeek.Sessions
 {
     public class EndSession
     {
-        private readonly ILogger<CreateSession> _log;
+        private readonly ILogger<EndSession> _log;
         private readonly ISessionsService _sessionsService; 
 
-        public EndSession(ILogger<CreateSession> log, ISessionsService sessionsService)
+        public EndSession(ILogger<EndSession> log, ISessionsService sessionsService)
         {
             _log = log;
             _sessionsService = sessionsService;
@@ -67,7 +67,7 @@ namespace MeatGeek.Sessions
             if (string.IsNullOrEmpty(requestBody))
             {
                 updateData.EndTime = DateTime.UtcNow;
-                log.LogInformation($"No JSON body, EndTime not provided using current time: {updateData.EndTime}");           
+                _log.LogInformation($"No JSON body, EndTime not provided using current time: {updateData.EndTime}");           
             }
             else 
             {
@@ -78,22 +78,22 @@ namespace MeatGeek.Sessions
                 }
                 catch (JsonReaderException)
                 {
-                    log.LogWarning("EndSession: Could not parse JSON");
+                    _log.LogWarning("EndSession: Could not parse JSON");
                     return new BadRequestObjectResult(new { error = "Body should be provided in JSON format." });
                 }
                 log.LogInformation("Made it past data = JObject.Parse(requestBody)");
                 if (!data.HasValues)
                 {
                     updateData.EndTime = DateTime.UtcNow;
-                    log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
+                    _log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
                 }
                 else 
                 {
                     JToken endTimeToken = data["endTime"];
-                    log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
+                    _log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
                     if (endTimeToken != null && endTimeToken.Type == JTokenType.Date)
                     {
-                        log.LogInformation($"endTime= {endTimeToken.ToString()}");
+                        _log.LogInformation($"endTime= {endTimeToken.ToString()}");
                         try 
                         {                                   
                             DateTimeOffset dto = DateTimeOffset.Parse(endTimeToken.ToString());
@@ -101,22 +101,22 @@ namespace MeatGeek.Sessions
                         }
                         catch(ArgumentNullException argNullEx)
                         {
-                            log.LogError(argNullEx, $"Argument NUll exception");
+                            _log.LogError(argNullEx, $"Argument NUll exception");
                             throw argNullEx;
                         }
                         catch(ArgumentException argEx)
                         {
-                            log.LogError(argEx, $"Argument exception");
+                            _log.LogError(argEx, $"Argument exception");
                             throw argEx;
                         }                
                         catch(FormatException formatEx)
                         {
-                            log.LogError(formatEx, $"Format exception");
+                            _log.LogError(formatEx, $"Format exception");
                             throw formatEx;
                         }
                         catch(Exception ex)
                         {
-                            log.LogError(ex, $"Unhandled Exception from DateTimeParse");
+                            _log.LogError(ex, $"Unhandled Exception from DateTimeParse");
                             throw ex;
                         }
                         log.LogInformation($"EndTime will be updated to {updateData.EndTime.ToString()}");
@@ -124,25 +124,25 @@ namespace MeatGeek.Sessions
                     else
                     {
                         updateData.EndTime = DateTime.UtcNow;
-                        log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
+                        _log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
                     }
                 }
             }
             try
             {
-                log.LogWarning($"BEFORE: _sessionsService.EndSessionAsync");
+                _log.LogWarning($"BEFORE: _sessionsService.EndSessionAsync");
                 var result = await _sessionsService.EndSessionAsync(id, updateData.SmokerId, updateData.EndTime);
                 if (result == EndSessionResult.NotFound)
                 {
-                    log.LogWarning($"SessionID {id} not found.");
+                    _log.LogWarning($"SessionID {id} not found.");
                     return new NotFoundResult();
                 }
-                log.LogInformation("EndSession completing");
+                _log.LogInformation("EndSession completing");
                 return new NoContentResult();
             }
             catch (Exception ex)
             {
-                log.LogError(ex, "EndSession: Unhandled exception");
+                _log.LogError(ex, "EndSession: Unhandled exception");
                 return new ExceptionResult(ex, false);
             }
 
