@@ -41,6 +41,9 @@ namespace MeatGeek.Sessions
         [FunctionName("GetAllSessions")]
         [OpenApiOperation(operationId: "GetAllSessions", tags: new[] { "session" }, Summary = "Returns all sessions", Description = "Returns all sessions. Sessions are cooking / BBQ Sessions or cooks.", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionSummaries), Summary = "successful operation", Description = "successful response")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "application/json", bodyType: typeof(string), Summary = "Invalid input", Description = "Invalid input")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session not found", Description = "Session Not Found")]         
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception occurred", Description = "An exception occurred.")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/{smokerId}")] HttpRequest req,
                 string smokerId, 
@@ -50,7 +53,7 @@ namespace MeatGeek.Sessions
 
             if (string.IsNullOrEmpty(smokerId))
             {
-                _log.LogError("GetAllSessions: Missing smokerId - url should be /sessions/{smokerId}");
+                _log.LogInformation("GetAllSessions: Missing smokerId - url should be /sessions/{smokerId}");
                 return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
             }
 

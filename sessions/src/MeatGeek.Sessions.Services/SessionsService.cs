@@ -19,7 +19,7 @@ namespace MeatGeek.Sessions.Services
         Task<string> AddSessionAsync(string title, string description, string smokerId, DateTime startTime);
         Task<DeleteSessionResult> DeleteSessionAsync(string SessionId, string smokerId);
         Task<UpdateSessionResult> UpdateSessionAsync(string SessionId, string smokerId, string title, string description, DateTime? endTime);
-        Task<EndSessionResult> EndSessionAsync(string SessionId, string smokerId, DateTime? endTime);
+        Task<EndSessionResult> EndSessionAsync(string SessionId, string smokerId, DateTime endTime);
         Task<SessionDetails> GetSessionAsync(string SessionId, string smokerId);
         Task<SessionSummaries> GetSessionsAsync(string smokerId);
         Task<SessionStatuses> GetSessionStatusesAsync(string SessionId, string smokerId);
@@ -134,7 +134,7 @@ namespace MeatGeek.Sessions.Services
             return UpdateSessionResult.Success;
         }
 
-        public async Task<EndSessionResult> EndSessionAsync(string sessionId, string smokerId, DateTime? endTime)
+        public async Task<EndSessionResult> EndSessionAsync(string sessionId, string smokerId, DateTime endTime)
         {
             _log.LogInformation($"SessionsService: EndSessionAsync Called");
             // get the current version of the document from Cosmos DB
@@ -148,15 +148,12 @@ namespace MeatGeek.Sessions.Services
             {
                 return EndSessionResult.NotFound;
             }
-            if (endTime.HasValue)
+            if (SessionDocument.EndTime.HasValue)
             {
-                SessionDocument.EndTime = endTime;
-                eventData.EndTime = endTime;
+                _log.LogWarning("Replacing the End time that was already present in the Session document.");
             }
-            else 
-            {
-                return EndSessionResult.BadParameter;
-            }
+            SessionDocument.EndTime = endTime;
+            eventData.EndTime = endTime;
             
             await _sessionsRepository.UpdateSessionAsync(SessionDocument);
 

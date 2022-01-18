@@ -5,7 +5,6 @@
     "logLevel": {
       "MeatGeek.Sessions": "Information",
       "MeatGeek.Sessions.Services": "Information",
-      "MeatGeek.Sessions.Services.SessionsServicesDI": "Information",
       "default": "Information"
     }
   }

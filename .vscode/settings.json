@@ -19,7 +19,10 @@
     "titleBar.activeBackground": "#df2126",
     "titleBar.activeForeground": "#e7e7e7",
     "titleBar.inactiveBackground": "#df212699",
-    "titleBar.inactiveForeground": "#e7e7e799"
+    "titleBar.inactiveForeground": "#e7e7e799",
+    "sash.hoverBorder": "#e54e52",
+    "statusBarItem.remoteBackground": "#df2126",
+    "statusBarItem.remoteForeground": "#e7e7e7"
   },
   "peacock.color": "#df2126",
   "azureFunctions.projectSubpath": "sessions/src/MeatGeek.Sessions.WorkerApi"
