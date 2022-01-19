@@ -2,15 +2,11 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using MeatGeek.Sessions.Services.Models;
 using MeatGeek.Sessions.Services.Models.Data;
 using MeatGeek.Sessions.Services.Models.Response;
 using MeatGeek.Sessions.Services.Models.Results;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
-// using Microsoft.Azure.Documents;
-// using Microsoft.Azure.Documents.Client;
-// using Microsoft.Azure.Documents.Linq;
 using Microsoft.Extensions.Logging;
 
 namespace MeatGeek.Sessions.Services.Repositories
@@ -22,7 +18,6 @@ namespace MeatGeek.Sessions.Services.Repositories
         Task<SessionDocument> UpdateSessionAsync(SessionDocument SessionDocument);
         Task<SessionDocument> GetSessionAsync(string SessionId, string smokerId);
         Task<SessionSummaries> GetSessionsAsync(string smokerId);
-        //Task<SessionStatusDocument> GetSessionStatusAsync(string SessionId, string smokerId);
         Task<SessionStatuses> GetSessionStatusesAsync(string SessionId, string smokerId);
 
     }
