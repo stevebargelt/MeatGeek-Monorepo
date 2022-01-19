@@ -11,17 +11,11 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
+using Microsoft.OpenApi.Models;
 
 
 using MeatGeek.Sessions.Services;
-using MeatGeek.Sessions.Services.Models;
-using MeatGeek.Sessions.Services.Converters;
 using MeatGeek.Sessions.Services.Models.Data;
-using MeatGeek.Sessions.Services.Models.Request;
-using MeatGeek.Sessions.Services.Models.Results;
-using MeatGeek.Sessions.Services.Models.Response;
-using MeatGeek.Sessions.Services.Repositories;
-using MeatGeek.Shared;
 
 #nullable enable
 namespace MeatGeek.Sessions
@@ -41,6 +35,8 @@ namespace MeatGeek.Sessions
 
         [FunctionName("GetAllSessionStatuses")]
         [OpenApiOperation(operationId: "GetAllSessionStatuses", tags: new[] { "sessionstatus" }, Summary = "Returns all session statuses", Description = "Returns all statues for a given session.", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter(name: "smokerid", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "The ID of the Smoker the session belings to", Description = "The ID of the Smoker the session belings to", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter(name: "id", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "ID of the Session to return", Description = "The ID of the session to return", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionStatuses), Summary = "successful operation", Description = "successful response")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "application/json", bodyType: typeof(string), Summary = "Invalid input", Description = "Invalid input")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session Statuses not found", Description = "Session Statuses Not Found")]         
