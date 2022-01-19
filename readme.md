@@ -85,6 +85,12 @@ To update or add values, edit deploy/app-config.json and push to Github. The Rel
 
 ### Code / Github
 
+### ELMS - Logging and Monitoring
+
+IMPORTANT: ELMS will be configured to capture all logs from the edge modules. To change this behavior, you can go to the Configuration section of the Function App 'iotedgelogsapp-d589c907' and update the regular expression for the app setting 'LogsRegex'.
+
+IMPORTANT: You must update device twin for your IoT edge devices with "tags.logPullEnabled='true'" to collect logs from their modules.
+
 <!-- Undecided:
 
 ## MeatGeek Event Hub

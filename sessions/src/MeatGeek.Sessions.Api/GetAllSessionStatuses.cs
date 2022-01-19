@@ -5,6 +5,8 @@ using System.Web.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
@@ -26,15 +28,17 @@ namespace MeatGeek.Sessions
         private const string JsonContentType = "application/json";
         private readonly ILogger<CreateSession> _log;
         private readonly ISessionsService _sessionsService; 
+        private readonly CosmosClient _cosmosClient;
 
-        public GetAllSessionStatuses(ILogger<CreateSession> log, ISessionsService sessionsService)
+        public GetAllSessionStatuses(ILogger<CreateSession> log, ISessionsService sessionsService, CosmosClient cosmosClient)
         {
             _log = log;
             _sessionsService = sessionsService;
+            _cosmosClient = cosmosClient;
         }
 
         [FunctionName("GetAllSessionStatuses")]
-        [OpenApiOperation(operationId: "GetAllSessionStatuses", tags: new[] { "sessionstatus" }, Summary = "Returns all session statuses", Description = "Returns all statues for a given session.", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiOperation(operationId: "GetAllSessionStatuses", tags: new[] { "Session Status" }, Summary = "Returns all session statuses", Description = "Returns all statues for a given session.", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiParameter(name: "smokerid", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "The ID of the Smoker the session belings to", Description = "The ID of the Smoker the session belings to", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiParameter(name: "id", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "ID of the Session to return", Description = "The ID of the session to return", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionStatuses), Summary = "successful operation", Description = "successful response")]
