@@ -47,9 +47,17 @@ namespace MeatGeek.Sessions.Services.Repositories
 
         public async Task<string> AddSessionAsync(SessionDocument SessionDocument)
         {
-            ItemResponse<SessionDocument> response = await _container.CreateItemAsync<SessionDocument>(SessionDocument, new PartitionKey(SessionDocument.SmokerId));
-            _log.LogInformation($"AddSessionAsync: RU used: {response.RequestCharge}");
-            return response.Resource.Id;
+            try
+            {
+                ItemResponse<SessionDocument> response = await _container.CreateItemAsync<SessionDocument>(SessionDocument, new PartitionKey(SessionDocument.SmokerId));
+                _log.LogInformation($"AddSessionAsync: RU used: {response.RequestCharge}");
+                return response.Resource.Id;
+            }
+            catch (CosmosException ex) 
+            {
+                _log.LogError("Exception in AddSessionAsync StatusCoed=", ex.StatusCode);
+                return null;
+            }
         }
 
         public async Task<DeleteSessionResult> DeleteSessionAsync(string SessionId, string smokerId)
