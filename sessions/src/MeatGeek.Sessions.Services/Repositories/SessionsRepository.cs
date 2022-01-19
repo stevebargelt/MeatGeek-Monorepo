@@ -42,6 +42,8 @@ namespace MeatGeek.Sessions.Services.Repositories
 
         public async Task<string> AddSessionAsync(SessionDocument SessionDocument)
         {
+            SessionDocument.Id = Guid.NewGuid().ToString();// add the line in your code
+            
             try
             {
                 ItemResponse<SessionDocument> response = await _container.CreateItemAsync<SessionDocument>(SessionDocument, new PartitionKey(SessionDocument.SmokerId));
