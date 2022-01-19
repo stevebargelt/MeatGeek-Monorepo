@@ -6,6 +6,8 @@ using MeatGeek.Sessions.Services.Models.Data;
 using MeatGeek.Sessions.Services.Models.Response;
 using MeatGeek.Sessions.Services.Models.Results;
 using Microsoft.Azure.Cosmos;
+
+using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
 
@@ -24,11 +26,8 @@ namespace MeatGeek.Sessions.Services.Repositories
 
     public class SessionsRepository : ISessionsRepository
     {
-        private static readonly string EndpointUrl = Environment.GetEnvironmentVariable("CosmosDBAccountEndpointUrl");
-        private static readonly string AccountKey = Environment.GetEnvironmentVariable("CosmosDBAccountKey");
         private static readonly string DatabaseName = Environment.GetEnvironmentVariable("DatabaseName");
         private static readonly string CollectionName = Environment.GetEnvironmentVariable("CollectionName");
-        //private static readonly DocumentClient DocumentClient = new DocumentClient(new Uri(EndpointUrl), AccountKey);
         private readonly CosmosClient _cosmosClient;
         private ILogger<SessionsService> _log;
         private Container _container;
@@ -43,7 +42,7 @@ namespace MeatGeek.Sessions.Services.Repositories
         public async Task<string> AddSessionAsync(SessionDocument SessionDocument)
         {
             SessionDocument.Id = Guid.NewGuid().ToString();// add the line in your code
-            
+
             try
             {
                 ItemResponse<SessionDocument> response = await _container.CreateItemAsync<SessionDocument>(SessionDocument, new PartitionKey(SessionDocument.SmokerId));
@@ -68,6 +67,12 @@ namespace MeatGeek.Sessions.Services.Repositories
             {
                 ItemResponse<SessionDocument> response = await _container.DeleteItemAsync<SessionDocument>(SessionId, new PartitionKey(smokerId));
                 _log.LogInformation($"DeleteSessionAsync: RU used: {response.RequestCharge}");
+                Scripts scripts = _container.Scripts;
+                StoredProcedureExecuteResponse<string> sprocResponse = await scripts.ExecuteStoredProcedureAsync<string>(
+                        "BulkDelete", 
+                        new PartitionKey(smokerId), 
+                        new dynamic[] {SessionId});
+                _log.LogInformation($"BulkDelete Response:{sprocResponse.Resource}");
                 return DeleteSessionResult.Success;
             }
             catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
