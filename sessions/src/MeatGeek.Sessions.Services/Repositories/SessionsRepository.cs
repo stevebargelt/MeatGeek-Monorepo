@@ -50,8 +50,13 @@ namespace MeatGeek.Sessions.Services.Repositories
             }
             catch (CosmosException ex) 
             {
-                _log.LogError("Exception in AddSessionAsync StatusCoed=", ex.StatusCode);
-                return null;
+                _log.LogError($"Exception in AddSessionAsync StatusCode={ex.StatusCode}");
+                throw ex;
+            }
+            catch (AggregateException ae)
+            {
+                _log.LogError("Caught aggregate exception-Task.Wait behavior.");
+                throw ae;
             }
         }
 
