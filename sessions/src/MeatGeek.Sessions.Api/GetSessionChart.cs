@@ -64,17 +64,17 @@ namespace MeatGeek.Sessions
                 _log.LogError("GetSessionChart: Missing sessionId - url should be /sessions/statuses/{smokerId}/{sessionId}");
                 return new BadRequestObjectResult(new { error = "Missing required property 'sessionId'." });
             }
-            if (timeSeries == 0) {
+            if (!timeSeries.HasValue || timeSeries <= 0) {
                 _log.LogInformation($"GetSessionChart timeSeries not sent or == 0 so setting to 1");
                 timeSeries = 1;
             }
-            if (timeSeries >60) {
+            if (timeSeries > 60) {
                 _log.LogInformation($"GetSessionChart timeSeries > 60 so setting to 60");
                 timeSeries = 60;
             }
             try
             {
-                var statuses = await _sessionsService.GetSessionStatusesAsync(sessionId, smokerId);
+                var statuses = await _sessionsService.GetSessionChartAsync(sessionId, smokerId, timeSeries);
                 if (statuses == null)
                 {
                     _log.LogInformation($"GetSessionChart no statuses found");
