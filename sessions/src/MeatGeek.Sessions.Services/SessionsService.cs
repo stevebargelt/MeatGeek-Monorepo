@@ -1,7 +1,6 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using MeatGeek.Sessions.Services.Models;
 using MeatGeek.Sessions.Services.Models.Data;
 using MeatGeek.Sessions.Services.Models.Response;
 using MeatGeek.Sessions.Services.Models.Results;
@@ -9,8 +8,6 @@ using MeatGeek.Sessions.Services.Repositories;
 using MeatGeek.Shared;
 using MeatGeek.Shared.EventSchemas.Sessions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Azure.Functions.Extensions;
-using Microsoft.Extensions.Http;
 
 namespace MeatGeek.Sessions.Services
 {
@@ -23,7 +20,7 @@ namespace MeatGeek.Sessions.Services
         Task<SessionDetails> GetSessionAsync(string SessionId, string smokerId);
         Task<SessionSummaries> GetSessionsAsync(string smokerId);
         Task<SessionStatuses> GetSessionStatusesAsync(string SessionId, string smokerId);
-        Task<SessionStatuses> GetSessionChartAsync(string SessionId, string smokerId, int? timeSeries);
+        Task<List<SessionStatusDocument>> GetSessionChartAsync(string SessionId, string smokerId, int? timeSeries);
     }
 
     
@@ -197,7 +194,7 @@ namespace MeatGeek.Sessions.Services
             return _sessionsRepository.GetSessionStatusesAsync(SessionId, smokerId);
         }
 
-        public Task<SessionStatuses> GetSessionChartAsync(string SessionId, string smokerId, int? timeSeries)
+        public Task<List<SessionStatusDocument>> GetSessionChartAsync(string SessionId, string smokerId, int? timeSeries)
         {
             return _sessionsRepository.GetSessionChartAsync(SessionId, smokerId, timeSeries);
         }

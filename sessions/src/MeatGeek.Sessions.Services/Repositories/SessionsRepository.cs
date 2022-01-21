@@ -22,7 +22,7 @@ namespace MeatGeek.Sessions.Services.Repositories
         Task<SessionDocument> GetSessionAsync(string SessionId, string smokerId);
         Task<SessionSummaries> GetSessionsAsync(string smokerId);
         Task<SessionStatuses> GetSessionStatusesAsync(string SessionId, string smokerId);
-        Task<SessionStatuses> GetSessionChartAsync(string SessionId, string smokerId, int? timeSeries);
+        Task<List<SessionStatusDocument>> GetSessionChartAsync(string SessionId, string smokerId, int? timeSeries);
     }
 
     public class SessionsRepository : ISessionsRepository
@@ -166,7 +166,7 @@ namespace MeatGeek.Sessions.Services.Repositories
             return list;
 
         }        
-        public async Task<SessionStatuses> GetSessionChartAsync(string sessionId, string smokerId, int? timeSeries)
+        public async Task<List<SessionStatusDocument>> GetSessionChartAsync(string sessionId, string smokerId, int? timeSeries)
         {
             _log.LogInformation($"GetSessionChartAsync with smokerId = {smokerId} and sessionId = {sessionId} and timeSeries = {timeSeries}");
             
@@ -201,7 +201,7 @@ namespace MeatGeek.Sessions.Services.Repositories
                 var result = SortedList.GroupBy(x=> x.CurrentTime.Ticks/interval.Ticks)
                         .Select(x=>x.First());
                 _log.LogInformation($"After GROUP BY timeseries calls: GetSessionChartAsync");
-                return (SessionStatuses)result.ToList();
+                return result.ToList();
             }
             
             _log.LogInformation($"Returning results with no timeSeries: GetSessionChartAsync");
