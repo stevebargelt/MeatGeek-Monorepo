@@ -197,11 +197,11 @@ namespace MeatGeek.Sessions.Services.Repositories
             {
                 _log.LogInformation($"Before GROUP BY timeseries calls: GetSessionChartAsync");
                 TimeSpan interval = new TimeSpan(0, timeSeries.Value, 0); 
-                SessionStatuses SortedList = (SessionStatuses)list.OrderBy(o => o.CurrentTime).ToList();
-                var result = (SessionStatuses)SortedList.GroupBy(x=> x.CurrentTime.Ticks/interval.Ticks)
+                var SortedList = list.OrderBy(o => o.CurrentTime).ToList();
+                var result = SortedList.GroupBy(x=> x.CurrentTime.Ticks/interval.Ticks)
                         .Select(x=>x.First());
                 _log.LogInformation($"After GROUP BY timeseries calls: GetSessionChartAsync");
-                return result;
+                return (SessionStatuses)result.ToList();
             }
             
             _log.LogInformation($"Returning results with no timeSeries: GetSessionChartAsync");
