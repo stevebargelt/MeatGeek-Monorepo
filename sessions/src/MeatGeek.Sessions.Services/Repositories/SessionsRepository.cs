@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -21,7 +22,7 @@ namespace MeatGeek.Sessions.Services.Repositories
         Task<SessionDocument> GetSessionAsync(string SessionId, string smokerId);
         Task<SessionSummaries> GetSessionsAsync(string smokerId);
         Task<SessionStatuses> GetSessionStatusesAsync(string SessionId, string smokerId);
-
+        Task<SessionStatuses> GetSessionChartAsync(string SessionId, string smokerId, int? timeSeries);
     }
 
     public class SessionsRepository : ISessionsRepository
@@ -165,5 +166,48 @@ namespace MeatGeek.Sessions.Services.Repositories
             return list;
 
         }        
+        public async Task<SessionStatuses> GetSessionChartAsync(string sessionId, string smokerId, int? timeSeries)
+        {
+            _log.LogInformation($"GetSessionChartAsync with smokerId = {smokerId} and sessionId = {sessionId} and timeSeries = {timeSeries}");
+            
+            double totalRU = 0;
+            var list = new SessionStatuses();
+
+            // LINQ query generation
+            using (FeedIterator<SessionStatusDocument> setIterator = _container.GetItemLinqQueryable<SessionStatusDocument>()
+                                .Where(s => s.SmokerId == smokerId && s.Type == "status" && s.SessionId == sessionId)
+                                //.Select(d => new SessionSummary { Id = s.Id, Title = s.Title })
+                                .ToFeedIterator())
+            {                   
+                //Asynchronous query execution
+                while (setIterator.HasMoreResults)
+                {
+                    var response = await setIterator.ReadNextAsync();
+                    totalRU += response.RequestCharge;
+                    foreach(var item in response)
+                    {
+                        list.Add(item);
+                    }
+                }
+            }
+
+            _log.LogInformation($"GetSessionChartAsync: RU used: {totalRU}");
+
+            if (timeSeries.HasValue && timeSeries.Value > 0 && timeSeries.Value <=60)
+            {
+                _log.LogInformation($"Before GROUP BY timeseries calls: GetSessionChartAsync");
+                TimeSpan interval = new TimeSpan(0, timeSeries.Value, 0); 
+                SessionStatuses SortedList = (SessionStatuses)list.OrderBy(o => o.CurrentTime).ToList();
+                var result = (SessionStatuses)SortedList.GroupBy(x=> x.CurrentTime.Ticks/interval.Ticks)
+                        .Select(x=>x.First());
+                _log.LogInformation($"After GROUP BY timeseries calls: GetSessionChartAsync");
+                return result;
+            }
+            
+            _log.LogInformation($"Returning results with no timeSeries: GetSessionChartAsync");
+            return list;
+
+        }        
+
     }
 }

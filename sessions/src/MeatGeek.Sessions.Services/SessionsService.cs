@@ -23,6 +23,7 @@ namespace MeatGeek.Sessions.Services
         Task<SessionDetails> GetSessionAsync(string SessionId, string smokerId);
         Task<SessionSummaries> GetSessionsAsync(string smokerId);
         Task<SessionStatuses> GetSessionStatusesAsync(string SessionId, string smokerId);
+        Task<SessionStatuses> GetSessionChartAsync(string SessionId, string smokerId, int? timeSeries);
     }
 
     
@@ -194,6 +195,11 @@ namespace MeatGeek.Sessions.Services
         public Task<SessionStatuses> GetSessionStatusesAsync(string SessionId, string smokerId)
         {
             return _sessionsRepository.GetSessionStatusesAsync(SessionId, smokerId);
+        }
+
+        public Task<SessionStatuses> GetSessionChartAsync(string SessionId, string smokerId, int? timeSeries)
+        {
+            return _sessionsRepository.GetSessionChartAsync(SessionId, smokerId, timeSeries);
         }
 
     }
