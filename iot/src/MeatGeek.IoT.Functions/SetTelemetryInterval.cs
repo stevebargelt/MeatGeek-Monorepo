@@ -21,28 +21,41 @@ namespace MeatGeek.IoT
         }
         
         private static ServiceClient _iothubServiceClient = ServiceClient.CreateFromConnectionString(Environment.GetEnvironmentVariable("MeatGeekIoTServiceConnection", EnvironmentVariableTarget.Process));
-        private const string METHOD_NAME = "TelemetryInterval";
+        private const string METHOD_NAME = "SetTelemetryInterval";
         private const string MODULE_NAME = "Telemetry";
 
         [FunctionName("telemetryinterval")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "telemetryinterval/{device}")][FromBody] string value, 
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "telemetryinterval/{device}")][FromBody] string value, 
             string device)
         {
             _log.LogInformation($"telemetryinterval function executed at: {DateTime.Now}");
-            // TODO: #3 Check value for vaild range... 180 - 400 or whatever.
             if (string.IsNullOrEmpty(value)) 
             {
-                _log.LogInformation("Request Body value IsNullOrEmpty. Returning BadRequest = Missing body value. Body should be a single integer.");
+                _log.LogWarning($"telemetryinterval: Request Body value IsNullOrEmpty. Returning BadRequest = Missing body value. Body should be a single integer.");
                 return new BadRequestObjectResult("Missing body value. Body should be a single integer.");
             }
-            _log.LogInformation("Request Body value = " + value);
+            
+            int interval;
+            bool success = int.TryParse(value, out interval);
+            if (!success)
+            {
+                _log.LogWarning($"telemetryinterval : could not parse body value to integer");
+                return new BadRequestObjectResult("Could not parse body value to integer. Body should be a single integer.");
+            }
+
+            if (interval < 1 || interval > 60) 
+            {
+                _log.LogWarning($"telemetryinterval : interval out of range (1-60)");
+                return new BadRequestObjectResult("Value out of range. Body should be a single integer 1-60.");
+            }
+            _log.LogInformation($"Request Body value = {interval}");
             var methodRequest = new CloudToDeviceMethod(METHOD_NAME, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(15));
 
             // Generate a Guid as the correlationId which we use to track the message through the pipeline
             var correlationId = Guid.NewGuid().ToString();
 
-            methodRequest.SetPayloadJson(value);
+            methodRequest.SetPayloadJson(interval.ToString());
 
             var telemetryProperties = new Dictionary<string, string>
             {
