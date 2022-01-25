@@ -17,30 +17,47 @@ namespace Inferno.Functions
 
         [FunctionName("telemetryinterval")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)][FromBody] string value,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "telemetryinterval/{smokerId}")][FromBody] string value,
+            string smokerId,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            log.LogInformation("TelemetryInterval called");
+
+            if (string.IsNullOrEmpty(smokerId))
+            {
+                log.LogError("TelemetryInterval: Missing smokerId - url should be /telemetryinterval/{smokerId}");
+                return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
+            }
 
             ServiceConnectionString = Environment.GetEnvironmentVariable("MeatGeekIoTServiceConnection", EnvironmentVariableTarget.Process);
             IoTHubServiceClient = ServiceClient.CreateFromConnectionString(ServiceConnectionString);
             log.LogInformation("ServiceConnectionString" + ServiceConnectionString);
             log.LogInformation("value = " + value);
           
-            if (string.IsNullOrEmpty(value)) // TODO: Check value for vaild range... 180 - 400 or whatever.
+            if (string.IsNullOrEmpty(value)) 
             {
+                log.LogWarning($"telemetryinterval : missing body value.");
                 return new BadRequestObjectResult("Missing body value. Body should be a single integer.");
             }
-            
-            var methodInvocation = new CloudToDeviceMethod("SetTelemetryInterval", TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(15));
-            methodInvocation.SetPayloadJson(value);
 
-            //TODO: smokerID no hardcoded meatgeek2
-            // Invoke the direct method asynchronously and get the response from the simulated device.
-            //var response = await IoTHubServiceClient.InvokeDeviceMethodAsync("meatgeek2", methodInvocation);
-            var response = await IoTHubServiceClient.InvokeDeviceMethodAsync("meatgeek2", "Telemetry", methodInvocation).ConfigureAwait(false);
-            Console.WriteLine("Response status: {0}, payload:", response.Status);
-            Console.WriteLine(response.GetPayloadAsJson());
+            int interval;
+            bool success = int.TryParse(value, out interval);
+            if (!success)
+            {
+                log.LogWarning($"telemetryinterval : could not parse body value to integer");
+                return new BadRequestObjectResult("Could not parse body value to integer. Body should be a single integer.");
+            }
+
+            if (interval < 1 || interval > 60) 
+            {
+                log.LogWarning($"telemetryinterval : interval out of range (1-60)");
+                return new BadRequestObjectResult("Value out of range. Body should be a single integer 1-60.");
+            }
+
+            var methodInvocation = new CloudToDeviceMethod("SetTelemetryInterval", TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(15));
+            methodInvocation.SetPayloadJson(interval.ToString());
+
+            var response = await IoTHubServiceClient.InvokeDeviceMethodAsync(smokerId, "Telemetry", methodInvocation).ConfigureAwait(false);
 
             log.LogInformation("Response status: {0}, payload:", response.Status);
             log.LogInformation(response.GetPayloadAsJson());
