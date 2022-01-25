@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Net;
 using System.Web.Http;
 using System.Threading.Tasks;
@@ -14,20 +13,14 @@ using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 
 
 using MeatGeek.Sessions.Services;
-using MeatGeek.Sessions.Services.Models;
 using MeatGeek.Sessions.Services.Converters;
-using MeatGeek.Sessions.Services.Models.Request;
-using MeatGeek.Sessions.Services.Models.Results;
 using MeatGeek.Sessions.Services.Models.Response;
-using MeatGeek.Sessions.Services.Repositories;
-using MeatGeek.Shared;
 
 #nullable enable
 namespace MeatGeek.Sessions
 {
    public class GetAllSessions
     {
-
         private const string JsonContentType = "application/json";
         private readonly ILogger<CreateSession> _log;
         private readonly ISessionsService _sessionsService; 
