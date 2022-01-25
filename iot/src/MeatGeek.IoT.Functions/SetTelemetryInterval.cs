@@ -30,8 +30,8 @@ namespace MeatGeek.IoT
             string device)
         {
             _log.LogInformation($"telemetryinterval function executed at: {DateTime.Now}");
-
-            if (string.IsNullOrEmpty(value)) // TODO: Check value for vaild range... 180 - 400 or whatever.
+            // TODO: #3 Check value for vaild range... 180 - 400 or whatever.
+            if (string.IsNullOrEmpty(value)) 
             {
                 _log.LogInformation("Request Body value IsNullOrEmpty. Returning BadRequest = Missing body value. Body should be a single integer.");
                 return new BadRequestObjectResult("Missing body value. Body should be a single integer.");
