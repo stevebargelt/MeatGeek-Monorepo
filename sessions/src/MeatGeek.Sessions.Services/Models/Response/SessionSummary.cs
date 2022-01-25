@@ -15,5 +15,7 @@ namespace MeatGeek.Sessions.Services.Models.Response
         }        
         [JsonProperty("title")] 
         public string Title { get; set; }
+        [JsonProperty("endTime")]
+        public DateTime? EndTime { get; set; }       
     }
 }
