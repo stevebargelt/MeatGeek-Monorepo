@@ -11,6 +11,9 @@ trigger:
       - "shared/src/*"
       - "shared/build/build.yaml"
 
+pool:
+  vmImage: ubuntu-latest
+
 stages:
   - stage: Build
     jobs:
