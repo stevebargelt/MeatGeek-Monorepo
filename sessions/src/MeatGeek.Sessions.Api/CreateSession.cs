@@ -82,10 +82,12 @@ namespace MeatGeek.Sessions
             try
             {
                 var summaries = await _sessionsService.GetRunningSessionsAsync(smokerId);
-                if (summaries != null || summaries.Count == 0)
+                _log.LogInformation($"summaries.Count={summaries.Count}");
+                _log.LogInformation($"summaries={summaries}");
+                if (summaries != null && summaries.Count > 0)
                 {
-                 _log.LogError($"CreateSession: Will not create a new session when there is already an active session.");
-                return new ConflictObjectResult(summaries);
+                    _log.LogError($"CreateSession: Will not create a new session when there is already an active session.");
+                    return new ConflictObjectResult(summaries);
                 }
             }
             catch (Exception ex)
