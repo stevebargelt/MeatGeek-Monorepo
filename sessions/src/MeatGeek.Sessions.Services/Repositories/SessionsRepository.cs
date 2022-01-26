@@ -21,6 +21,7 @@ namespace MeatGeek.Sessions.Services.Repositories
         Task<SessionDocument> UpdateSessionAsync(SessionDocument SessionDocument);
         Task<SessionDocument> GetSessionAsync(string SessionId, string smokerId);
         Task<SessionSummaries> GetSessionsAsync(string smokerId);
+        Task<SessionSummaries> GetRunningSessionsAsync(string smokerId);
         Task<SessionStatuses> GetSessionStatusesAsync(string SessionId, string smokerId);
         Task<List<SessionStatusDocument>> GetSessionChartAsync(string SessionId, string smokerId, int? timeSeries);
     }
@@ -135,6 +136,32 @@ namespace MeatGeek.Sessions.Services.Repositories
                 }
             }
             _log.LogInformation($"GetSessionsAsync: RU used: {totalRU}");
+            return list;
+        }
+
+
+        public async Task<SessionSummaries> GetRunningSessionsAsync(string smokerId)
+        {
+            double totalRU = 0;
+            var list = new SessionSummaries();
+
+            // LINQ query generation
+            using (FeedIterator<SessionSummary> setIterator = _container.GetItemLinqQueryable<SessionSummary>()
+                                .Where(s => s.SmokerId == smokerId && s.Type == "session" && s.EndTime.IsNull() )
+                                .ToFeedIterator())
+            {                   
+                //Asynchronous query execution
+                while (setIterator.HasMoreResults)
+                {
+                    var response = await setIterator.ReadNextAsync();
+                    totalRU += response.RequestCharge;
+                    foreach(var item in response)
+                    {
+                        list.Add(item);
+                    }
+                }
+            }
+            _log.LogInformation($"GetRunningSessionsAsync: RU used: {totalRU}");
             return list;
         }
 
