@@ -79,6 +79,21 @@ namespace MeatGeek.Sessions
                 newSession.StartTime = DateTime.UtcNow;
             }
 
+            try
+            {
+                var summaries = await _sessionsService.GetRunningSessionsAsync(smokerId);
+                if (summaries != null)
+                {
+                 _log.LogError($"CreateSession: Will not create a new session when there is already an active session.");
+                return new ConflictObjectResult(summaries);
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "<-- From CreateSession -> GetRunningSessionsAsync Unhandled exception");
+                return new ExceptionResult(ex, false);
+            }
+
             // create session
             try
             {
