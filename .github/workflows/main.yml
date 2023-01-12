@@ -5,9 +5,8 @@ on:
       - main
       - develop
     paths:
-      include:
-        - "sessions/deploy/*"
-        - "sessions/build/build-deploy-resources.yaml"
+      - "sessions/deploy/*"
+      - "sessions/build/build-deploy-resources.yaml"
 
 jobs:
   build-and-deploy:
