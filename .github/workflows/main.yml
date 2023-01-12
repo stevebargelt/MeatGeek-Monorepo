@@ -1,5 +1,16 @@
-on: [push, workflow_dispatch]
-name: Azure ARM
+on: 
+  [push, workflow_dispatch]
+    branches: 
+      - main
+      - develop
+    paths:
+      include:
+        - "sessions/deploy/*"
+        - "sessions/build/build-deploy-resources.yaml"
+    # pull_request:
+    #   types: [ opened, synchronize, reopened ]
+
+name: MeatGeek Sessions Deploy Infra
 jobs:
     build-and-deploy:
       runs-on: ubuntu-latest
@@ -20,7 +31,7 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.SESSIONS_RG }}
           template: ./sessions/deploy/microservice.json
-          parameters: storageAccountType=Standard_LRS
+          # parameters: sqlServerPassword=${{ secrets.SQL_SERVER }}
 
         # output containerName variable from template
       - run: echo ${{ steps.deploy.outputs.containerName }}
