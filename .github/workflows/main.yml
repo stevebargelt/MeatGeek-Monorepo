@@ -1,3 +1,4 @@
+name: MeatGeek Sessions Deploy Infra
 on:
   push:
     branches:
@@ -7,10 +8,6 @@ on:
       include:
         - "sessions/deploy/*"
         - "sessions/build/build-deploy-resources.yaml"
-  # pull_request:
-  #   types: [opened, synchronize, reopened]
-
-name: MeatGeek Sessions Deploy Infra
 
 jobs:
   build-and-deploy:
