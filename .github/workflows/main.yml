@@ -5,6 +5,7 @@ on:
       - main
       - develop
     paths:
+      - ".github/workflows/main.yml"
       - "sessions/deploy/*"
       - "sessions/build/build-deploy-resources.yaml"
 
