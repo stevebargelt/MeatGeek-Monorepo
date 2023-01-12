@@ -1,6 +1,6 @@
-on: 
-  [push, workflow_dispatch]
-    branches: 
+on:
+  push:
+    branches:
       - main
       - develop
     paths:
@@ -12,11 +12,10 @@ on:
 
 name: MeatGeek Sessions Deploy Infra
 jobs:
-    build-and-deploy:
-      runs-on: ubuntu-latest
-      steps:
-
-        # Checkout code
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code
       - uses: actions/checkout@main
 
         # Log into Azure
