@@ -13,7 +13,7 @@
       "type": "Microsoft.EventGrid/topics",
       "apiVersion": "2020-10-15-preview",
       "name": "[parameters('topics_meatgeek_name')]",
-      "location": "westus2",
+      "location": "centralus",
       "sku": {
         "name": "Basic"
       },

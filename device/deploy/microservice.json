@@ -13,7 +13,7 @@
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
       "name": "[variables('storageAccountName')]",
-      "location": "westus2",
+      "location": "centralus",
       "sku": {
         "name": "Standard_LRS",
         "tier": "Standard"

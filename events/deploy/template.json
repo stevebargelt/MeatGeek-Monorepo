@@ -20,7 +20,7 @@
       "type": "Microsoft.Devices/IotHubs",
       "apiVersion": "2021-07-01",
       "name": "[parameters('IotHubs_MeatGeek_name')]",
-      "location": "westus2",
+      "location": "centralus",
       "sku": {
         "name": "S1",
         "tier": "Standard",

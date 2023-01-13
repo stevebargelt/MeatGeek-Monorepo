@@ -6,14 +6,14 @@ If we are recreating from scratch, create:
 
 ```shell
 
-az group create -n MeatGeek-Sessions -l westus2
-az group create -n MeatGeek-Proxy -l westus2
-az group create -n MeatGeek-Device -l westus2
-az group create -n MeatGeek-IoT -l westus2
-az group create -n MeatGeek-Shared -l westus2
+az group create -n MeatGeek-Sessions -l centralus
+az group create -n MeatGeek-Proxy -l centralus
+az group create -n MeatGeek-Device -l centralus
+az group create -n MeatGeek-IoT -l centralus
+az group create -n MeatGeek-Shared -l centralus
 
 # Undecided:
-# az group create -n MeatGeek-Events -l westus2
+# az group create -n MeatGeek-Events -l centralus
 # IoT probably replaces Events in our app
 
 ```
