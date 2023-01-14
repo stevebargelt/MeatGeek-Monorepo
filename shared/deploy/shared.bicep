@@ -3,7 +3,7 @@ param tenantId string = subscription().tenantId
 param objectId string
 // objectId is the objectId of the user who has admin permissions for the vault
 param kvName string = 'meatgeek'
-var vaultURL = 'https://${kvName}.${environment().suffixes.keyvaultDns}'
+var vaultURL = 'https://${kvName}${environment().suffixes.keyvaultDns}'
 
 @description('The SKU of the vault to be created.')
 @allowed([
