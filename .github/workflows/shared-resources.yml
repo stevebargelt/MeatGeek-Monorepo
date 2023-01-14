@@ -27,8 +27,9 @@ jobs:
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.SHARED_RG }}
-          template: ./sessions/deploy/microservice.json
-          # parameters: sqlServerPassword=${{ secrets.SQL_SERVER }}
-
+          template: ./shared/deploy/shared.json
+          parameters: $kvName${{ secrets.SHARED_KV }}
+          # parameters: examples/template/parameters.json storageAccountType=Standard_LRS sqlServerPassword=${{ secrets.SQL_SERVER }}
+          # additionalArguments: "--what-if --rollback-on-error --what-if-exclude-change-types Create Ignore"
         # output containerName variable from template
       - run: echo ${{ steps.deploy.outputs.containerName }}

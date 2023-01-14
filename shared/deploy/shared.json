@@ -2,6 +2,14 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "tenantId": {
+      "type": "string",
+      "defaultValue": "[subscription().tenantId]"
+    },
     "cosmosDbAccountName": {
       "type": "string",
       "defaultValue": "meatgeek"
@@ -20,16 +28,16 @@
       "type": "Microsoft.KeyVault/vaults",
       "name": "[parameters('kvName')]",
       "apiVersion": "2015-06-01",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "properties": {
         "sku": {
           "family": "A",
           "name": "Standard"
         },
-        "tenantId": "[subscription().tenantId]",
+        "tenantId": "[parameters('tenantId')]",
         "accessPolicies": [
           {
-            "tenantId": "[subscription().tenantId]",
+            "tenantId": "[parameters('tenantId')]",
             "objectId": "[parameters('userObjectId')]",
             "permissions": {
               "keys": ["All"],
@@ -42,7 +50,7 @@
     {
       "name": "[parameters('cosmosDbAccountName')]",
       "type": "Microsoft.DocumentDB/databaseAccounts",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "apiVersion": "2021-01-15",
       "kind": "GlobalDocumentDB",
       "properties": {
@@ -63,7 +71,7 @@
         },
         "locations": [
           {
-            "locationName": "[resourceGroup().location]",
+            "locationName": "[parameters('location')]",
             "provisioningState": "Succeeded",
             "failoverPriority": 0,
             "isZoneRedundant": false

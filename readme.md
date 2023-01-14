@@ -6,11 +6,11 @@ If we are recreating from scratch, create:
 
 ```shell
 
-az group create -n MeatGeek-Sessions -l centralus
-az group create -n MeatGeek-Proxy -l centralus
-az group create -n MeatGeek-Device -l centralus
-az group create -n MeatGeek-IoT -l centralus
-az group create -n MeatGeek-Shared -l centralus
+az group create -n MeatGeek-Sessions -l northcentralus
+az group create -n MeatGeek-Proxy -l northcentralus
+az group create -n MeatGeek-Device -l northcentralus
+az group create -n MeatGeek-IoT -l northcentralus
+az group create -n MeatGeek-Shared -l northcentralus
 
 # Undecided:
 # az group create -n MeatGeek-Events -l centralus
