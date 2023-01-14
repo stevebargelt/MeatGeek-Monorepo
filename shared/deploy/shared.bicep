@@ -2,8 +2,9 @@ param location string = resourceGroup().location
 param tenantId string = subscription().tenantId
 param objectId string
 // objectId is the objectId of the user who has admin permissions for the vault
-
 param kvName string = 'meatgeek'
+var vaultURL = 'https://${kvName}.${environment().suffixes.keyvaultDns}'
+
 @description('The SKU of the vault to be created.')
 @allowed([
   'standard'
@@ -11,7 +12,7 @@ param kvName string = 'meatgeek'
 ])
 param skuName string = 'standard'
 
-resource vaults_meetgeekkv_name_resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
+resource vaults_meatgeekkv_name_resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: kvName
   location: location
   properties: {
@@ -74,7 +75,7 @@ resource vaults_meetgeekkv_name_resource 'Microsoft.KeyVault/vaults@2022-07-01' 
     enableSoftDelete: true
     softDeleteRetentionInDays: 90
     enableRbacAuthorization: false
-    vaultUri: 'https://${kvName}.vault.azure.net/'
+    vaultUri: vaultURL
     provisioningState: 'Succeeded'
     publicNetworkAccess: 'Enabled'
   }
