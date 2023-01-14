@@ -149,9 +149,8 @@ resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-05-15
   }
 }
 
-
 resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_IoT 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-08-15' = {
-  name: '${iotCollectionName}/${cosmosDatabaseName}'
+  name: '${database.name}/${iotCollectionName}'
   properties: {
     resource: {
       id: iotCollectionName
@@ -188,7 +187,7 @@ resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_IoT 'Micr
 }
 
 resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_sessions 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-08-15' = {
-  name: '${sessionsCollectionName}/${cosmosDatabaseName}'
+  name: '${database.name}/${sessionsCollectionName}'
   properties: {
     resource: {
       id: sessionsCollectionName
