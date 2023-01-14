@@ -21,7 +21,7 @@ param iotPartition string = '/smokerId'
 ])
 param skuName string = 'standard'
 
-resource vaults_meatgeekkv_name_resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
+resource meatgeek_keyvault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: kvName
   location: location
   properties: {
@@ -87,6 +87,14 @@ resource vaults_meatgeekkv_name_resource 'Microsoft.KeyVault/vaults@2022-07-01' 
     vaultUri: vaultURL
     provisioningState: 'Succeeded'
     publicNetworkAccess: 'Enabled'
+  }
+}
+
+resource secret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  parent: meatgeek_keyvault
+  name: 'myPassword'
+  properties: {
+    value: 'correct-horse-battery-staple'
   }
 }
 
