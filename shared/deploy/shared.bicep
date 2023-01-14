@@ -6,6 +6,7 @@ param objectId string
 param kvName string = 'meatgeek'
 var vaultURL = 'https://${kvName}${environment().suffixes.keyvaultDns}'
 
+param cosmosAccountName string = 'meatgeek'
 param cosmosDatabaseName string = 'meatgeek'
 param sessionsCollectionName string = 'sessions'
 param iotCollectionName string = 'IoT'
@@ -90,12 +91,8 @@ resource vaults_meatgeekkv_name_resource 'Microsoft.KeyVault/vaults@2022-07-01' 
 }
 
 resource databaseAccounts_meatgeek_name_resource 'Microsoft.DocumentDB/databaseAccounts@2022-08-15' = {
-  name: cosmosDatabaseName
+  name: toLower(cosmosAccountName)
   location: location
-  tags: {
-    defaultExperience: 'Core (SQL)'
-    'hidden-cosmos-mmspecial': ''
-  }
   kind: 'GlobalDocumentDB'
   identity: {
     type: 'None'
@@ -143,9 +140,8 @@ resource databaseAccounts_meatgeek_name_resource 'Microsoft.DocumentDB/databaseA
   }
 }
 
-resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-08-15' = {
-  parent: databaseAccounts_meatgeek_name_resource
-  name: cosmosDatabaseName
+resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-05-15' = {
+  name: '${cosmosAccountName}/${cosmosDatabaseName}'
   properties: {
     resource: {
       id: cosmosDatabaseName
@@ -155,8 +151,7 @@ resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name 'Microsof
 
 
 resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_IoT 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-08-15' = {
-  parent: databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name
-  name: iotCollectionName
+  name: '${iotCollectionName}/${cosmosDatabaseName}'
   properties: {
     resource: {
       id: iotCollectionName
@@ -193,8 +188,7 @@ resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_IoT 'Micr
 }
 
 resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_sessions 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-08-15' = {
-  parent: databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name
-  name: sessionsCollectionName
+  name: '${sessionsCollectionName}/${cosmosDatabaseName}'
   properties: {
     resource: {
       id: sessionsCollectionName
@@ -224,19 +218,6 @@ resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_sessions 
       conflictResolutionPolicy: {
         mode: 'LastWriterWins'
         conflictResolutionPath: '/_ts'
-      }
-    }
-  }
-}
-
-resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_default 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/throughputSettings@2022-08-15' = {
-  parent: databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name
-  name: 'default'
-  properties: {
-    resource: {
-      throughput: 100
-      autoscaleSettings: {
-        maxThroughput: 1000
       }
     }
   }

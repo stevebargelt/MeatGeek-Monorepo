@@ -30,6 +30,7 @@ jobs:
           template: ./shared/deploy/shared.bicep
           parameters:
             kvName=${{ secrets.SHARED_KV }} objectId=${{ secrets.STEVE_OBJECT_USER_ID }}
+            cosmosAccountName=${{ secrets.SHARED_COSMOS }}
             cosmosDatabaseName=${{ secrets.SHARED_COSMOS }}
             sessionsCollectionName=${{ secrets.SESSIONS_COSMOS_COLLECTION_NAME }}
             sessionsPartition=${{ secrets.SESSIONS_COSMOS_PARTITION_PATH }}
