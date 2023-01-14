@@ -28,8 +28,10 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.SHARED_RG }}
           template: ./shared/deploy/shared.json
-          parameters: $kvName${{ secrets.SHARED_KV }}
-          # parameters: examples/template/parameters.json storageAccountType=Standard_LRS sqlServerPassword=${{ secrets.SQL_SERVER }}
+          parameters: kvName=$kvName${{ secrets.SHARED_KV }}
           # additionalArguments: "--what-if --rollback-on-error --what-if-exclude-change-types Create Ignore"
         # output containerName variable from template
-      - run: echo ${{ steps.deploy.outputs.containerName }}
+      - run:
+          echo ${{ steps.deploy.outputs.containerName }}
+
+          # parameters: examples/template/parameters.json storageAccountType=Standard_LRS sqlServerPassword=${{ secrets.SQL_SERVER }}
