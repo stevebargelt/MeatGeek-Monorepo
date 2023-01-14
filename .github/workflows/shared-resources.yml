@@ -1,4 +1,4 @@
-name: MeatGeek Sessions Deploy Infra
+name: MeatGeek Sessions Deploy Shared Infra
 on:
   push:
     branches:
@@ -27,7 +27,7 @@ jobs:
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.SHARED_RG }}
-          template: ./shared/deploy/shared.json
+          template: ./shared/deploy/shared.bicep
           parameters: kvName=$kvName${{ secrets.SHARED_KV }}
           # additionalArguments: "--what-if --rollback-on-error --what-if-exclude-change-types Create Ignore"
         # output containerName variable from template
