@@ -2,14 +2,14 @@ param location string = resourceGroup().location
 param tenantId string = subscription().tenantId
 param objectId string
 // objectId is the objectId of the user who has admin permissions for the vault
-// TODO: change the param name??
+// TODO: change the param name?? You can get this from the portal in Azure AD / Users
 param kvName string = 'meatgeek'
 var vaultURL = 'https://${kvName}${environment().suffixes.keyvaultDns}'
 
 param cosmosAccountName string = 'meatgeek'
 param cosmosDatabaseName string = 'meatgeek'
-param sessionsCollectionName string = 'sessions'
-param iotCollectionName string = 'IoT'
+param sessionsContainerName string = 'sessions'
+param iotContainerName string = 'IoT'
 param sessionsPartition string = '/smokerId'
 param iotPartition string = '/smokerId'
 
@@ -90,7 +90,7 @@ resource vaults_meatgeekkv_name_resource 'Microsoft.KeyVault/vaults@2022-07-01' 
   }
 }
 
-resource databaseAccounts_meatgeek_name_resource 'Microsoft.DocumentDB/databaseAccounts@2022-08-15' = {
+resource databaseAccount 'Microsoft.DocumentDB/databaseAccounts@2022-08-15' = {
   name: toLower(cosmosAccountName)
   location: location
   kind: 'GlobalDocumentDB'
@@ -141,7 +141,8 @@ resource databaseAccounts_meatgeek_name_resource 'Microsoft.DocumentDB/databaseA
 }
 
 resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-05-15' = {
-  name: '${cosmosAccountName}/${cosmosDatabaseName}'
+  parent: databaseAccount
+  name: cosmosDatabaseName
   properties: {
     resource: {
       id: cosmosDatabaseName
@@ -150,10 +151,11 @@ resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-05-15
 }
 
 resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_IoT 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-08-15' = {
-  name: '${database.name}/${iotCollectionName}'
+  parent: database
+  name: iotContainerName
   properties: {
     resource: {
-      id: iotCollectionName
+      id: iotContainerName
       indexingPolicy: {
         indexingMode: 'consistent'
         automatic: true
@@ -187,10 +189,11 @@ resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_IoT 'Micr
 }
 
 resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_sessions 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-08-15' = {
-  name: '${database.name}/${sessionsCollectionName}'
+  parent: database
+  name: sessionsContainerName
   properties: {
     resource: {
-      id: sessionsCollectionName
+      id: sessionsContainerName
       indexingPolicy: {
         indexingMode: 'consistent'
         automatic: true
