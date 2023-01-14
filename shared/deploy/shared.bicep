@@ -88,6 +88,8 @@ resource vaults_meatgeekkv_name_resource 'Microsoft.KeyVault/vaults@2022-07-01' 
     publicNetworkAccess: 'Enabled'
   }
 }
+//////////////////////////////////////////////////////////////////////////////////
+output stringOutput string = 'ONE'
 
 resource databaseAccounts_meatgeek_name_resource 'Microsoft.DocumentDB/databaseAccounts@2022-08-15' = {
   name: cosmosDatabaseName
@@ -143,6 +145,8 @@ resource databaseAccounts_meatgeek_name_resource 'Microsoft.DocumentDB/databaseA
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+output stringOutput2 string = 'TWO'
 resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-08-15' = {
   parent: databaseAccounts_meatgeek_name_resource
   name: cosmosDatabaseName
@@ -153,6 +157,8 @@ resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name 'Microsof
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+output stringOutput3 string = 'THREE'
 resource databaseAccounts_meatgeek_name_00000000_0000_0000_0000_000000000001 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2022-08-15' = {
   parent: databaseAccounts_meatgeek_name_resource
   name: '00000000-0000-0000-0000-000000000001'
@@ -176,6 +182,8 @@ resource databaseAccounts_meatgeek_name_00000000_0000_0000_0000_000000000001 'Mi
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+output stringOutput4 string = 'FOUR'
 resource databaseAccounts_meatgeek_name_00000000_0000_0000_0000_000000000002 'Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions@2022-08-15' = {
   parent: databaseAccounts_meatgeek_name_resource
   name: '00000000-0000-0000-0000-000000000002'
@@ -198,6 +206,8 @@ resource databaseAccounts_meatgeek_name_00000000_0000_0000_0000_000000000002 'Mi
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+output stringOutput5 string = 'FIVE'
 resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_IoT 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-08-15' = {
   parent: databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name
   name: iotCollectionName
@@ -236,6 +246,8 @@ resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_IoT 'Micr
 
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+output stringOutput6 string = 'SiX'
 resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_sessions 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-08-15' = {
   parent: databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name
   name: sessionsCollectionName
@@ -273,6 +285,8 @@ resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_sessions 
   }
 }
 
+//////////////////////////////////////////////////////////////////////////////////
+output stringOutput7 string = 'SE7EN'
 resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_default 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/throughputSettings@2022-08-15' = {
   parent: databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name
   name: 'default'
