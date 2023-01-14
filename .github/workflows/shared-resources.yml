@@ -28,7 +28,7 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.SHARED_RG }}
           template: ./shared/deploy/shared.bicep
-          parameters: kvName=$kvName${{ secrets.SHARED_KV }}
+          parameters: kvName=${{ secrets.SHARED_KV }}
           # additionalArguments: "--what-if --rollback-on-error --what-if-exclude-change-types Create Ignore"
         # output containerName variable from template
       - run:
