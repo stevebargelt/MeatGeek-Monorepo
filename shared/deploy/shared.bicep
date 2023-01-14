@@ -232,3 +232,11 @@ resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_sessions 
     }
   }
 }
+
+resource setCosmosConnectionString 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
+  parent: meatgeek_keyvault
+  name: 'SharedCosmosConnectionString'
+  properties: {
+    value: databaseAccount.listConnectionStrings().connectionStrings[0].connectionString
+  }
+}
