@@ -32,9 +32,9 @@ jobs:
             kvName=${{ secrets.SHARED_KV }} objectId=${{ secrets.STEVE_OBJECT_USER_ID }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}
             cosmosDatabaseName=${{ secrets.SHARED_COSMOS }}
-            sessionsCollectionName=${{ secrets.SESSIONS_COSMOS_COLLECTION_NAME }}
+            sessionsContainerName=${{ secrets.SESSIONS_COSMOS_COLLECTION_NAME }}
             sessionsPartition=${{ secrets.SESSIONS_COSMOS_PARTITION_PATH }}
-            iotCollectionName=${{ secrets.IOT_COSMOS_COLLECTION_NAME }}
+            iotContainerName=${{ secrets.IOT_COSMOS_COLLECTION_NAME }}
             iotPartition=${{ secrets.IOT_COSMOS_PARTITION_PATH }}
           # additionalArguments: "--what-if --rollback-on-error --what-if-exclude-change-types Create Ignore"
         # output containerName variable from template
