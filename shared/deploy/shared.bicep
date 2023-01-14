@@ -1,6 +1,8 @@
 param location string = resourceGroup().location
 param tenantId string = subscription().tenantId
-// param cosmosDbAccountName string = 'meatgeek'
+param objectId string
+// objectId is the objectId of the user who has admin permissions for the vault
+
 param kvName string = 'meatgeek'
 @description('The SKU of the vault to be created.')
 @allowed([
@@ -9,72 +11,71 @@ param kvName string = 'meatgeek'
 ])
 param skuName string = 'standard'
 
-resource vault 'Microsoft.KeyVault/vaults@2021-11-01-preview' = {
+resource vaults_meetgeekkv_name_resource 'Microsoft.KeyVault/vaults@2022-07-01' = {
   name: kvName
   location: location
   properties: {
-    accessPolicies:[]
-    enableRbacAuthorization: false
-    enableSoftDelete: false
+    sku: {
+      family: 'A'
+      name: skuName
+    }
+    tenantId: tenantId
+    accessPolicies: [
+      {
+        tenantId: tenantId
+        objectId: objectId
+        permissions: {
+          keys: [
+            'Get'
+            'List'
+            'Update'
+            'Create'
+            'Import'
+            'Delete'
+            'Recover'
+            'Backup'
+            'Restore'
+            'GetRotationPolicy'
+            'SetRotationPolicy'
+            'Rotate'
+          ]
+          secrets: [
+            'Get'
+            'List'
+            'Set'
+            'Delete'
+            'Recover'
+            'Backup'
+            'Restore'
+          ]
+          certificates: [
+            'Get'
+            'List'
+            'Update'
+            'Create'
+            'Import'
+            'Delete'
+            'Recover'
+            'Backup'
+            'Restore'
+            'ManageContacts'
+            'ManageIssuers'
+            'GetIssuers'
+            'ListIssuers'
+            'SetIssuers'
+            'DeleteIssuers'
+          ]
+        }
+      }
+    ]
     enabledForDeployment: false
     enabledForDiskEncryption: false
     enabledForTemplateDeployment: false
-    tenantId: tenantId
-    sku: {
-      name: skuName
-      family: 'A'
-    }
-    networkAcls: {
-      defaultAction: 'Allow'
-      bypass: 'AzureServices'
-    }
+    enableSoftDelete: true
+    softDeleteRetentionInDays: 90
+    enableRbacAuthorization: false
+    vaultUri: 'https://${kvName}.vault.azure.net/'
+    provisioningState: 'Succeeded'
+    publicNetworkAccess: 'Enabled'
   }
 }
-
-// resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-01-15' = {
-//   name: cosmosDbAccountName
-//   location: location
-//   kind: 'GlobalDocumentDB'
-//   properties: {
-//     publicNetworkAccess: 'Enabled'
-//     enableAutomaticFailover: false
-//     enableMultipleWriteLocations: false
-//     isVirtualNetworkFilterEnabled: false
-//     virtualNetworkRules: []
-//     disableKeyBasedMetadataWriteAccess: false
-//     enableFreeTier: true
-//     enableAnalyticalStorage: false
-//     databaseAccountOfferType: 'Standard'
-//     consistencyPolicy: {
-//       defaultConsistencyLevel: 'Session'
-//       maxIntervalInSeconds: 5
-//       maxStalenessPrefix: 100
-//     }
-//     locations: [
-//       {
-//         locationName: location
-//         failoverPriority: 0
-//         isZoneRedundant: false
-//       }
-//     ]
-//     cors: []
-//     capabilities: []
-//     ipRules: []
-//     backupPolicy: {
-//       type: 'Periodic'
-//       periodicModeProperties: {
-//         backupIntervalInMinutes: 240
-//         backupRetentionIntervalInHours: 8
-//       }
-//     }
-//   }
-// }
-
-// resource kvName_SHARED_CosmosConnectionString 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {
-//   parent: kv
-//   name: 'SHARED-CosmosConnectionString'
-//   properties: {
-//     contentType: 'text/plain'
-//     value: listConnectionStrings(cosmosDbAccount.id, '2019-12-12').connectionStrings[0].connectionString
-//   }
-// }
