@@ -10,7 +10,7 @@ on:
       - "shared/build/build-deploy-resources.yaml"
 
 jobs:
-  build-and-deploy:
+  deploy-shared-resources:
     runs-on: ubuntu-latest
     steps:
       # Checkout code
