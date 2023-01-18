@@ -1,9 +1,10 @@
-name: MeatGeek Deploy Sessions Infra
+name: MeatGeek Build and Deploy Sessions API
 on:
   push:
     branches:
       - main
     paths:
+      - ".github/workflows/sessions-build-deploy.yml"
       - "sessions/src/MeatGeek.Sessions.Api"
       - "sessions/src/MeatGeek.Sessions.Services"
       - "sessions/build/build.yaml"
