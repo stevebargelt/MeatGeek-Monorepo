@@ -119,16 +119,6 @@ resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
   scope: resourceGroup(subscriptionId, keyVaultResourceGroup)     
 } 
 
-// module setExternalApiKey 'setSecret.bicep' = {
-//   name: '${resourcePrefix}-${resourceProject}-apikey'
-//   params: {
-//     keyVaultName: keyVault.name
-//     secretName: '${resourcePrefix}-${resourceProject}-SomeService-ApiKey'
-//     secretValue: apiKey
-//     //'DefaultEndpointsProtocol=https;AccountName=${storage.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storage.listKeys().keys[0].value}'
-//   }
-// }
-
 module setStorageAccountSecret 'setSecret.bicep' = {
   scope: resourceGroup(subscriptionId, keyVaultResourceGroup)
   name: '${resourcePrefix}-${resourceProject}-storeageaccountsecret'
@@ -211,16 +201,9 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
   parent: functionsApiApp
   name: 'appsettings'
   properties: {
-    //APPLICATIONINSIGHTS_CONNECTION_STRING: 'InstrumentationKey=${reference(applicationInsights.id, '2014-04-01').InstrumentationKey}'
     CosmosDBConnection: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=SharedCosmosConnectionString)'
-    //'@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/CosmosDBConnection/)'
-    //IoTHubConnection: '@Microsoft.KeyVault(SecretUri=https://inferno.vault.azure.net/secrets/IoTHubConnection/)'
-    //EventGridTopicEndpoint: '@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/EventGridTopicEndpoint/)'
-    //EventGridTopicKey: '@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/EventGridTopicKey/)'
     DatabaseName: cosmosDbDatabaseName
     CollectionName: cosmosDbCollectionName
-    //WEBSITE_CONTENTSHARE: 
-    //AzureWebJobsSecretStorageType: 'Files'
   }
 }
 
