@@ -9,7 +9,7 @@ on:
       - "sessions/deploy/*"
 
 jobs:
-  build-and-deploy:
+  deploy-sessions-resources:
     runs-on: ubuntu-latest
     steps:
       # Checkout code
@@ -26,8 +26,14 @@ jobs:
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.SESSIONS_RG }}
-          template: ./sessions/deploy/microservice.json
-          # parameters: sqlServerPassword=${{ secrets.SQL_SERVER }}
+          template: ./sessions/deploy/microservice.bicep
+          parameters: kvName=${{ secrets.SHARED_KV }}
+            cosmosAccountName=${{ secrets.SHARED_COSMOS }}
+            cosmosDatabaseName=${{ secrets.SHARED_COSMOS }}
+            sessionsContainerName=${{ secrets.SESSIONS_COSMOS_COLLECTION_NAME }}
+            sessionsPartition=${{ secrets.SESSIONS_COSMOS_PARTITION_PATH }}
+            iotContainerName=${{ secrets.IOT_COSMOS_COLLECTION_NAME }}
+            iotPartition=${{ secrets.IOT_COSMOS_PARTITION_PATH }}
 
         # output containerName variable from template
       - run: echo ${{ steps.deploy.outputs.containerName }}

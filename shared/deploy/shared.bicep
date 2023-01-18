@@ -13,7 +13,6 @@ param iotContainerName string = 'IoT'
 param sessionsPartition string = '/smokerId'
 param iotPartition string = '/smokerId'
 
-
 @description('The SKU of the vault to be created.')
 @allowed([
   'standard'
@@ -83,7 +82,7 @@ resource meatgeek_keyvault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     enabledForTemplateDeployment: false
     enableSoftDelete: true
     softDeleteRetentionInDays: 90
-    enableRbacAuthorization: false
+    enableRbacAuthorization: true
     vaultUri: vaultURL
     provisioningState: 'Succeeded'
     publicNetworkAccess: 'Enabled'
@@ -240,3 +239,5 @@ resource setCosmosConnectionString 'Microsoft.KeyVault/vaults/secrets@2021-11-01
     value: databaseAccount.listConnectionStrings().connectionStrings[0].connectionString
   }
 }
+
+
