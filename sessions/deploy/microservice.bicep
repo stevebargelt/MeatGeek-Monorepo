@@ -9,7 +9,7 @@ param resourceProject string = 'sessions'
 @description('Location for the resrouces. Defaults to the location of the Resource Group')
 param location string= resourceGroup().location
 @description('Name of the Cosmos DB to use')
-param cosmosDbDatabaseName string = 'meatgeek'
+param cosmosAccountName string = 'meatgeek'
 @description('Name of the Cosmos DB collection to use')
 param cosmosDbCollectionName string = 'sessions'
 @description('ID of a existing keyvault that will be used to store and retrieve keys in this deployment')
@@ -202,7 +202,7 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
   name: 'appsettings'
   properties: {
     CosmosDBConnection: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=SharedCosmosConnectionString)'
-    DatabaseName: cosmosDbDatabaseName
+    DatabaseName: cosmosAccountName
     CollectionName: cosmosDbCollectionName
   }
 }
