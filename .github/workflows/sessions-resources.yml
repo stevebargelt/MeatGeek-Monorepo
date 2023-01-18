@@ -27,13 +27,11 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.SESSIONS_RG }}
           template: ./sessions/deploy/microservice.bicep
-          parameters: keyVaultName=${{ secrets.SHARED_KV }}
+          parameters:
+            keyVaultName=${{ secrets.SHARED_KV }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}
             cosmosDbCollectionName=${{ secrets.SHARED_COSMOS }}
-            sessionsContainerName=${{ secrets.SESSIONS_COSMOS_COLLECTION_NAME }}
-            sessionsPartition=${{ secrets.SESSIONS_COSMOS_PARTITION_PATH }}
-            iotContainerName=${{ secrets.IOT_COSMOS_COLLECTION_NAME }}
-            iotPartition=${{ secrets.IOT_COSMOS_PARTITION_PATH }}
-
+            # TODO: set KV RG
+            # keyVaultResourceGroup
         # output containerName variable from template
       - run: echo ${{ steps.deploy.outputs.containerName }}
