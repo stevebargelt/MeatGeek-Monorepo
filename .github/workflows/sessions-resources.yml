@@ -27,7 +27,7 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.SESSIONS_RG }}
           template: ./sessions/deploy/microservice.bicep
-          parameters: kvName=${{ secrets.SHARED_KV }}
+          parameters: keyVaultName=${{ secrets.SHARED_KV }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}
             cosmosDatabaseName=${{ secrets.SHARED_COSMOS }}
             sessionsContainerName=${{ secrets.SESSIONS_COSMOS_COLLECTION_NAME }}
