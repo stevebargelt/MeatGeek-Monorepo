@@ -13,7 +13,7 @@ on:
       - "!sessions/docs"/**
       - "!sessions/mkdocs.yml"
       - "!sessions/build/build-docs.yaml"
-      - "!.vscode/**"
+      - "!.vscode"
 env:
   app-name: "meatgeeksessionsapi"
   rg-name: "MeatGeek-Sessions"
