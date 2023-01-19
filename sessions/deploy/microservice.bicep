@@ -181,7 +181,8 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
     FUNCTIONS_WORKER_RUNTIME: 'dotnet'
     AzureWebJobsStorage: storageConnectionString
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
-    WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: storageConnectionString
+    // WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: storageConnectionString
+    // WEBSITE_CONTENTSHARE: 
     // APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.
     // InstrumentationKey=94c2114d-e55a-4cc1-99ed-8361052f892f;IngestionEndpoint=https://northcentralus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://northcentralus.livediagnostics.monitor.azure.com/
     
