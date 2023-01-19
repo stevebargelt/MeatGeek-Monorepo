@@ -34,10 +34,10 @@ jobs:
       # - name: Test
       #   run: dotnet test --no-build --verbosity normal
       - name: Publish
-        run: dotnet publish "./sessions/src/MeatGeek.Sessions.Api/MeatGeek.Sessions.Api.csproj" -c Release -o functions
+        run: dotnet publish "./sessions/src/MeatGeek.Sessions.Api/MeatGeek.Sessions.Api.csproj" --configuration Release /property:GenerateFullPaths=true --output functions
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3
         with:
           name: functions
-          path: ./sessions/functions/**
+          path: /home/runner/work/MeatGeek-Monorepo/MeatGeek-Monorepo/functions/**
           if-no-files-found: error
