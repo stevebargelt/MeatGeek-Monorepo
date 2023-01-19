@@ -23,11 +23,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Setup .NET
+      - name: "Setup .NET"
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 6.0.x
-      - name: Restore dependencies
+      - name: "Restore Dependencies"
         run: dotnet restore "./sessions/src/MeatGeek.Sessions.Api" --verbosity detailed
       - name: Build
         run: dotnet build --no-restore "./sessions/src/MeatGeek.Sessions.Api"
@@ -47,7 +47,6 @@ jobs:
 
     environment:
       name: PRE-PROD
-      url: ${{ steps.deploywebapp.outputs.webapp-url }}
 
     steps:
       - name: Download a Build Artifact
@@ -64,7 +63,7 @@ jobs:
         id: fa
         with:
           app-name: "${{ env.appName }}"
-          slot-name: "production"
+          slot-name: ${{ env.name }}
           package: /home/runner/work/MeatGeek-Monorepo/MeatGeek-Monorepo/functions
           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
       - name: az cli logout
