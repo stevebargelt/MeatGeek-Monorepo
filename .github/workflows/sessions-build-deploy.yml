@@ -6,6 +6,7 @@
 # and
 #
 # https://learn.microsoft.com/en-us/azure/azure-functions/functions-how-to-github-actions?tabs=dotnet#deploy-the-function-app
+#
 
 name: Sessions API Build and Deploy API
 on:
