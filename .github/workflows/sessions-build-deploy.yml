@@ -41,3 +41,31 @@ jobs:
           name: functions
           path: /home/runner/work/MeatGeek-Monorepo/MeatGeek-Monorepo/functions/**
           if-no-files-found: error
+  deploy_staging:
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: PRE-PROD
+      url: ${{ steps.deploywebapp.outputs.webapp-url }}
+
+    steps:
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: functions
+          path: /home/runner/work/MeatGeek-Monorepo/MeatGeek-Monorepo/functions/**
+      - name: Login via Azure CLI
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: "Deploy to Azure Functions"
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: app-name
+          slot-name: "production"
+          package: /home/runner/work/MeatGeek-Monorepo/MeatGeek-Monorepo/functions
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+      - name: az cli logout
+        run: az logout
