@@ -6,9 +6,9 @@ on:
     paths:
       - ".github/workflows/sessions-build-deploy.yml"
       - "sessions/src/MeatGeek.Sessions.Api/**"
-      - "sessions/src/MeatGeek.Sessions.Services"
+      - "sessions/src/MeatGeek.Sessions.Services/**"
       - "sessions/build/build.yaml"
-      - "shared/src"
+      - "shared/src/**"
       - "shared/build/build.yaml"
       - "!sessions/docs"
       - "!sessions/mkdocs.yml"
