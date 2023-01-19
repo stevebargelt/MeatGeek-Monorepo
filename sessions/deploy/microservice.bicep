@@ -105,6 +105,9 @@ resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
 resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
   name: appInsightsName
   location: location
+  tags: {
+    'hidden-link:${resourceId('Microsoft.Web/sites', appInsightsName)}': 'Resource'
+  }
   kind: 'web'
   properties: {
     Application_Type: 'web'
@@ -126,7 +129,6 @@ module setStorageAccountSecret 'setSecret.bicep' = {
     keyVaultName: keyVault.name
     secretName: '${storage.name}-${resourcePrefix}-${resourceProject}-ConnectionString'
     secretValue: storageConnectionString
-    //'DefaultEndpointsProtocol=https;AccountName=${storage.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storage.listKeys().keys[0].value}'
   }
 }
 
@@ -159,38 +161,7 @@ resource functionsApiApp 'Microsoft.Web/sites@2021-02-01' = {
       minTlsVersion: '1.2'
       netFrameworkVersion: 'v6.0'
       appSettings: [
-        {
-          name: 'AzureWebJobsStorage'
-          value: storageConnectionString
-        }
-        // {
-        //   name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-        //   value: storageConnectionString
-        // }
-        {
-          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
-          value: appInsights.properties.InstrumentationKey
-        }
-        {
-          name: 'FUNCTIONS_WORKER_RUNTIME'
-          value: 'dotnet'
-        }
-        {
-          name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~4'
-        }
-        // {
-        //   name: 'ApiKey'
-        //   value: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=${keyVault::storageNameSecret.name})'
-        // }
-        {
-          name: 'ContentStorageAccount'
-          value: storage.name
-        }
-        {
-          name: 'ContentContainer'
-          value: blobService::content.name
-        }
+
       ]
     }
   }
@@ -204,6 +175,17 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
     CosmosDBConnection: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=SharedCosmosConnectionString)'
     DatabaseName: cosmosAccountName
     CollectionName: cosmosDbCollectionName
+    ContentStorageAccount: storage.name
+    ContentContainer: blobService::content.name
+    FUNCTIONS_EXTENSION_VERSION: '~4'
+    FUNCTIONS_WORKER_RUNTIME: 'dotnet'
+    AzureWebJobsStorage: storageConnectionString
+    APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
+    WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: storageConnectionString
+    // APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.
+    // InstrumentationKey=94c2114d-e55a-4cc1-99ed-8361052f892f;IngestionEndpoint=https://northcentralus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://northcentralus.livediagnostics.monitor.azure.com/
+    
+
   }
 }
 
