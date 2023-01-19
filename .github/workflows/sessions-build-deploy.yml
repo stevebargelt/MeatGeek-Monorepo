@@ -31,5 +31,13 @@ jobs:
         run: dotnet restore "./sessions/src/MeatGeek.Sessions.Api" --verbosity detailed
       - name: Build
         run: dotnet build --no-restore "./sessions/src/MeatGeek.Sessions.Api"
-    # - name: Test
-    #   run: dotnet test --no-build --verbosity normal
+      # - name: Test
+      #   run: dotnet test --no-build --verbosity normal
+      - name: Publish
+        run: dotnet publish "./sessions/src/MeatGeek.Sessions.Api/*.csproj" -c Release -o website
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: website
+          path: SimpleFeedReader/website/**
+          if-no-files-found: error
