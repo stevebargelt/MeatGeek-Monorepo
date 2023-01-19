@@ -1,4 +1,4 @@
-name: MeatGeek Build and Deploy Sessions API
+name: Sessions API Build and Deploy API
 on:
   push:
     branches:

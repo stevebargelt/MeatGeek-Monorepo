@@ -1,4 +1,4 @@
-name: MeatGeek Deploy Sessions Infra
+name: Sessions Deploy Infra
 on:
   push:
     branches:

@@ -1,4 +1,4 @@
-name: MeatGeek Deploy Shared Infra
+name: Shared Deploy Infra
 on:
   push:
     branches:
