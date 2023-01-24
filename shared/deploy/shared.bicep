@@ -12,6 +12,7 @@ param sessionsContainerName string = 'sessions'
 param iotContainerName string = 'IoT'
 param sessionsPartition string = '/smokerId'
 param iotPartition string = '/smokerId'
+param topics_meatgeek_name string = 'meatgeek-session'
 
 @description('The SKU of the vault to be created.')
 @allowed([
@@ -240,4 +241,19 @@ resource setCosmosConnectionString 'Microsoft.KeyVault/vaults/secrets@2021-11-01
   }
 }
 
+resource topics_meatgeek_name_resource 'Microsoft.EventGrid/topics@2020-10-15-preview' = {
+  name: topics_meatgeek_name
+  location: location
+  sku: {
+    name: 'Basic'
+  }
+  kind: 'Azure'
+  identity: {
+    type: 'None'
+  }
+  properties: {
+    inputSchema: 'EventGridSchema'
+    publicNetworkAccess: 'Enabled'
+  }
+}
 
