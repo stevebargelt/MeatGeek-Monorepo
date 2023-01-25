@@ -1,18 +1,21 @@
 param location string = resourceGroup().location
 param tenantId string = subscription().tenantId
 param objectId string
-// objectId is the objectId of the user who has admin permissions for the vault
-// TODO: change the param name?? You can get this from the portal in Azure AD / Users
-param kvName string = 'meatgeek'
+@description('Prefixes to be used by all resources deployed by this template')
+param resourcePrefix string = 'meatgeek'
+@description('Project Name to be used by all resources deployed by this template (sessions, shared, device, iot)')
+param resourceProject string = 'shared'
+
+param kvName string = '${resourcePrefix}kv'
 var vaultURL = 'https://${kvName}${environment().suffixes.keyvaultDns}'
 
-param cosmosAccountName string = 'meatgeek'
-param cosmosDatabaseName string = 'meatgeek'
+param cosmosAccountName string = resourcePrefix
+param cosmosDatabaseName string = resourcePrefix
 param sessionsContainerName string = 'sessions'
 param iotContainerName string = 'IoT'
 param sessionsPartition string = '/smokerId'
 param iotPartition string = '/smokerId'
-param topics_meatgeek_name string = 'meatgeek-session'
+param topics_meatgeek_name string = '${resourcePrefix}-session'
 
 @description('The SKU of the vault to be created.')
 @allowed([
@@ -257,3 +260,24 @@ resource topics_meatgeek_name_resource 'Microsoft.EventGrid/topics@2020-10-15-pr
   }
 }
 
+
+@minLength(5)
+@maxLength(50)
+@description('Provide a globally unique name of your Azure Container Registry')
+param acrName string = 'acr${resourcePrefix}-${uniqueString(resourceGroup().id)}'
+@description('Provide a tier of your Azure Container Registry.')
+param acrSku string = 'Basic'
+
+resource acrResource 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' = {
+  name: acrName
+  location: location
+  sku: {
+    name: acrSku
+  }
+  properties: {
+    adminUserEnabled: false
+  }
+}
+
+@description('Output the login server property for later use')
+output loginServer string = acrResource.properties.loginServer
