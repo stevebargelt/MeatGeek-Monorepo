@@ -14,97 +14,27 @@ on: # yamllint disable-line rule:truthy
 
 env:
   ACR_IMAGE_PATH_TELEMETRY: ${{ secrets.ACR_LOGIN_SERVER }}/telemetry:1.0.${{ github.run_number }}-amd64
-  # ACR_IMAGE_PATH_BACKEND: ${{ secrets.ACR_LOGIN_SERVER }}/backendmodule:1.0.${{ github.run_number }}-amd64
+  DOTNET_VERSION: "6.0.x"
+  AZURE_RESOURCEGROUP_NAME: "MeatGeek-IoT"
+  APP_PACKAGE_PATH: "." # set this to the path to your function app project, defaults to the repository root
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-
-      - name: Install dependencies
-        run: |
-          make install
-
-      # - name: MegaLinter
-      #   id: ml
-      #   uses: megalinter/megalinter@v5.7.1
-      #   continue-on-error: true
-      #   env:
-      #     VALIDATE_ALL_CODEBASE: true
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     SHOW_ELAPSED_TIME: true
-      #     GITHUB_STATUS_REPORTER: false
-
-      # - name: Archive production artifacts
-      #   if: ${{ success() }} || ${{ failure() }}
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: MegaLinter reports
-      #     path: |
-      #       report
-      #       mega-linter.log
-
-      # - name: Executing unittests for backend
-      #   id: unittests-backend
-      #   continue-on-error: true
-      #   run: |
-      #     make backend_tests
-
-      # - name: Executing unittests for frontend
-      #   id: unittests-frontend
-      #   continue-on-error: true
-      #   run: |
-      #     make frontend_tests
-
-      # - name: Publish Unit Test Results
-      #   uses: EnricoMi/publish-unit-test-result-action@v1.32
-      #   if: always()
-      #   with:
-      #     files: ./EdgeSolution/modules/**/nose2-junit.xml
-      #     report_individual_runs: true
-
-      # - name: Upload coverage report for backend
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: code-coverage-report
-      #     path: ./EdgeSolution/modules/BackendModule/htmlcov
-
-      # - name: Upload coverage report for frontend
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: code-coverage-report
-      #     path: ./EdgeSolution/modules/FrontendModule/coverage
-
-      # - name: Check on failures
-      #   if: steps.ml.outcome != 'success' || steps.unittests-backend.outcome != 'success' || steps.unittests-frontend.outcome != 'success'
-      #   run: exit 1
-
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
       - name: Login to ACR
         uses: Azure/docker-login@v1
         with:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
           login-server: ${{ secrets.ACR_LOGIN_SERVER }}
-
-      # - name: Build backend docker image
-      #   run: |
-      #     cd ./EdgeSolution/modules/Telemetry
-      #     docker build -t ${{env.ACR_IMAGE_PATH_BACKEND}} -f Dockerfile.amd64 .
-
-      - name: Build telemetry docker image
-        run: |
-          cd ./EdgeSolution/modules/FrontendModule
-          docker build -t ${{env.ACR_IMAGE_PATH_TELEMETRY}} -f Dockerfile.amd64 .
-
-      # - name: Push backend docker image
-      #   run: |
-      #     docker push ${{env.ACR_IMAGE_PATH_BACKEND}}
-
-      - name: Push Telemetry docker image
-        run: |
-          docker push ${{env.ACR_IMAGE_PATH_TELEMETRY}}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          push: true
+          tags: :1.0.${{ github.run_number }}-amd64
+          file: ./modules/Telemetry/Dockerfile.amd64
