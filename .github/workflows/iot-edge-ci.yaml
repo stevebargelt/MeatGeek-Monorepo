@@ -39,4 +39,4 @@ jobs:
         with:
           push: true
           tags: 1.0.${{ github.run_number }}-amd64
-          file: ./modules/Telemetry/Dockerfile.amd64
+          file: .iot-edge/modules/Telemetry/Dockerfile.amd64
