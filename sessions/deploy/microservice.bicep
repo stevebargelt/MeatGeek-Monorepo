@@ -35,7 +35,7 @@ var keyVaultSecretsUserRole = subscriptionResourceId('Microsoft.Authorization/ro
 //   AppName: '${appName}-${appInternalServiceName}'
 // }
 
-resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+resource storage 'Microsoft.Storage/storageAccounts@2021-01-01' = {
   name: storageAccountName
   location: location
   sku: {
