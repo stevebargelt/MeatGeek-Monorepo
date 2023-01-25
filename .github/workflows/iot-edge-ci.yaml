@@ -38,5 +38,5 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: :1.0.${{ github.run_number }}-amd64
+          tags: 1.0.${{ github.run_number }}-amd64
           file: ./modules/Telemetry/Dockerfile.amd64
