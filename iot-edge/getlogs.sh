@@ -1,0 +1,1 @@
+scp pi@10.0.20.30:/home/pi/support_bundle.zip ./support_bundle.zip
