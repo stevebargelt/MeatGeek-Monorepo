@@ -258,7 +258,6 @@ resource topics_meatgeek_name_resource 'Microsoft.EventGrid/topics@2020-10-15-pr
   }
 }
 
-
 @minLength(5)
 @maxLength(50)
 @description('Provide a globally unique name of your Azure Container Registry')
