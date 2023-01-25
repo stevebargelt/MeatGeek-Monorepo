@@ -3,8 +3,6 @@ param tenantId string = subscription().tenantId
 param objectId string
 @description('Prefixes to be used by all resources deployed by this template')
 param resourcePrefix string = 'meatgeek'
-@description('Project Name to be used by all resources deployed by this template (sessions, shared, device, iot)')
-param resourceProject string = 'shared'
 
 param kvName string = '${resourcePrefix}kv'
 var vaultURL = 'https://${kvName}${environment().suffixes.keyvaultDns}'
