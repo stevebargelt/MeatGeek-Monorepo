@@ -23,15 +23,15 @@ jobs:
 
       - name: Read variables from env file
         run: |
-          cp ./EdgeSolution/.env_template ./EdgeSolution/.env
-          cat ./EdgeSolution/.env
-          sed -i 's/^#.*//' ./EdgeSolution/.env
-          sed -i '/^$/d' ./EdgeSolution/.env
-          sed -i 's%^ACR_USERNAME=.*%ACR_USERNAME=${{ secrets.ACR_USERNAME }}%' ./EdgeSolution/.env
-          sed -i 's%^ACR_PASSWORD=.*%ACR_PASSWORD=${{ secrets.ACR_PASSWORD }}%' ./EdgeSolution/.env
-          sed -i 's%^ACR_ADDRESS=.*%ACR_ADDRESS=${{ secrets.ACR_LOGIN_SERVER }}%' ./EdgeSolution/.env
-          sed -i 's%^IOT_HUB_RESOURCE_ID=.*%IOT_HUB_RESOURCE_ID=${{ secrets.IOT_HUB_RESOURCE_ID }}%' ./EdgeSolution/.env
-          cat ./EdgeSolution/.env
+          cp ./iot-edge/.env_template ./iot-edge/.env
+          cat ./iot-edge/.env
+          sed -i 's/^#.*//' ./iot-edge/.env
+          sed -i '/^$/d' ./iot-edge/.env
+          sed -i 's%^ACR_USERNAME=.*%ACR_USERNAME=${{ secrets.ACR_USERNAME }}%' ./iot-edge/.env
+          sed -i 's%^ACR_PASSWORD=.*%ACR_PASSWORD=${{ secrets.ACR_PASSWORD }}%' ./iot-edge/.env
+          sed -i 's%^ACR_ADDRESS=.*%ACR_ADDRESS=${{ secrets.ACR_LOGIN_SERVER }}%' ./iot-edge/.env
+          sed -i 's%^IOT_HUB_RESOURCE_ID=.*%IOT_HUB_RESOURCE_ID=${{ secrets.IOT_HUB_RESOURCE_ID }}%' ./iot-edge/.env
+          cat ./iot-edge/.env
 
       # install iotedgedev
       - name: install iotedgedev
