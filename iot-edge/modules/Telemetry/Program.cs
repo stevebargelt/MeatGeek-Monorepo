@@ -18,12 +18,14 @@ namespace Telemetry
 
     class Program
     {
+
         static TimeSpan telemetryInterval { get; set; } = TimeSpan.FromSeconds(10);
         static string SessionID { get; set; }
         private static CancellationTokenSource _cts;
         static string deviceId {get; set; } 
         private static HttpClient _httpClient = new HttpClient();
         public static int Main() => MainAsync().Result;
+
 
         static async Task<int> MainAsync()
         {
@@ -136,7 +138,7 @@ namespace Telemetry
             string moduleId = Environment.GetEnvironmentVariable("IOTEDGE_MODULEID");
              
             int count = 1;
-            string url = "http://localhost:5000/api/status";
+            string url = "http://localhost:3000/api/robots/MeatGeekBot/commands/get_status";
             string json;
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -152,7 +154,7 @@ namespace Telemetry
                 }
 
                 // Log.Information($"Device sending Event/Telemetry to IoT Hub...");
-                SmokerStatus status = JsonConvert.DeserializeObject<SmokerStatus>(await _httpClient.GetStringAsync("http://localhost:5000/api/status"));
+                SmokerStatus status = JsonConvert.DeserializeObject<SmokerStatus>(await _httpClient.GetStringAsync("http://localhost:3000/api/robots/MeatGeekBot/commands/get_status"));
                 if (!string.IsNullOrEmpty(SessionID)) 
                 {
                    status.SessionId = SessionID;

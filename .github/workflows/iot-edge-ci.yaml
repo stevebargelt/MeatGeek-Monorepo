@@ -13,7 +13,8 @@ on: # yamllint disable-line rule:truthy
   workflow_dispatch:
 
 env:
-  ACR_IMAGE_PATH_TELEMETRY: ${{ secrets.ACR_LOGIN_SERVER }}/telemetry:1.0.${{ github.run_number }}-amd64
+  # ACR_IMAGE_PATH_FRONTEND: ${{ secrets.ACR_LOGIN_SERVER }}/frontendmodule:1.0.${{ github.run_number }}-arm64v8
+  ACR_IMAGE_PATH_TELEMETRY: ${{ secrets.ACR_LOGIN_SERVER }}/telemetry:1.0.${{ github.run_number }}-arm64v8
   DOTNET_VERSION: "6.0.x"
   AZURE_RESOURCEGROUP_NAME: "MeatGeek-IoT"
   APP_PACKAGE_PATH: "." # set this to the path to your function app project, defaults to the repository root
@@ -34,6 +35,24 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
           login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+      # - name: Inject username secret into deployment.template.json locally
+      #   uses: maxgfr/github-change-json@main
+      #   with:
+      #     key: "username"
+      #     value: ${{ secrets.ACR_USERNAME }}
+      #     path: deployment.template.json
+      # - name: Inject password secret into deployment.template.json locally
+      #   uses: maxgfr/github-change-json@main
+      #   with:
+      #     key: "password"
+      #     value: ${{ secrets.ACR_PASSWORD }}
+      #     path: deployment.template.json
+      # - name: Inject login server / host secret into deployment.template.json locally
+      #   uses: maxgfr/github-change-json@main
+      #   with:
+      #     key: "address"
+      #     value: ${{ secrets.ACR_LOGIN_SERVER }}
+      #     path: deployment.template.json
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
