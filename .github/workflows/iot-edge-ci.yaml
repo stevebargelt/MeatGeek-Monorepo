@@ -13,11 +13,11 @@ on: # yamllint disable-line rule:truthy
   workflow_dispatch:
 
 env:
-  # ACR_IMAGE_PATH_FRONTEND: ${{ secrets.ACR_LOGIN_SERVER }}/frontendmodule:1.0.${{ github.run_number }}-arm64v8
-  ACR_IMAGE_PATH_TELEMETRY: ${{ secrets.ACR_LOGIN_SERVER }}/telemetry:1.0.${{ github.run_number }}-arm64v8
+  ACR_IMAGE_PATH_TELEMETRY: ${{ secrets.ACR_LOGIN_SERVER }}/telemetry:1.0.${{ github.run_number }}-amd64
   DOTNET_VERSION: "6.0.x"
   AZURE_RESOURCEGROUP_NAME: "MeatGeek-IoT"
   APP_PACKAGE_PATH: "." # set this to the path to your function app project, defaults to the repository root
+  # DOCKER_TARGET_PLATFORM: linux/arm/v7
 
 jobs:
   build:
@@ -25,37 +25,32 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+
       - name: Login to ACR
         uses: Azure/docker-login@v1
         with:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
           login-server: ${{ secrets.ACR_LOGIN_SERVER }}
-      # - name: Inject username secret into deployment.template.json locally
-      #   uses: maxgfr/github-change-json@main
-      #   with:
-      #     key: "username"
-      #     value: ${{ secrets.ACR_USERNAME }}
-      #     path: deployment.template.json
-      # - name: Inject password secret into deployment.template.json locally
-      #   uses: maxgfr/github-change-json@main
-      #   with:
-      #     key: "password"
-      #     value: ${{ secrets.ACR_PASSWORD }}
-      #     path: deployment.template.json
-      # - name: Inject login server / host secret into deployment.template.json locally
-      #   uses: maxgfr/github-change-json@main
-      #   with:
-      #     key: "address"
-      #     value: ${{ secrets.ACR_LOGIN_SERVER }}
-      #     path: deployment.template.json
-      - name: Build and push
-        uses: docker/build-push-action@v3
-        with:
-          push: true
-          tags: 1.0.${{ github.run_number }}-amd64
-          file: ./iot-edge/modules/Telemetry/Dockerfile.amd64
+
+      - name: Build Telemetry docker image
+        run: |
+          cd ./modules/Telemetry
+          docker buildx build --platform linux/arm64 -t ${{env.ACR_IMAGE_PATH_TELEMETRY}} -f Dockerfile.arm64v8 .
+
+      - name: Push backend docker image
+        run: |
+          docker push ${{env.ACR_IMAGE_PATH_TELEMETRY}}
+
+      # - name: Build the frontend image and push it to ACR
+      #     uses: docker/build-push-action@v2
+      #     with:
+      #       push: true
+      #       tags: ${ACR_IMAGE_PATH_TELEMETRY}
+      #       file: aspnet-core-dotnet-core/Dockerfile
