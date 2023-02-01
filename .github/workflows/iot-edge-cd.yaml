@@ -36,6 +36,7 @@ jobs:
       # install iotedgedev
       - name: install iotedgedev
         run: |
+          cd ./iot-edge
           make install_iotedgedev
           make install_azure_iot
 
