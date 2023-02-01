@@ -26,6 +26,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: "Setup DotNet ${{ env.DOTNET_VERSION }} Environment"
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -44,7 +49,7 @@ jobs:
           cd ./iot-edge/modules/Telemetry
           docker buildx build --platform linux/arm64 -t ${{env.ACR_IMAGE_PATH_TELEMETRY}} -f Dockerfile.arm64v8 .
 
-      - name: Push backend docker image
+      - name: Push Telemetry docker image
         run: |
           docker push ${{env.ACR_IMAGE_PATH_TELEMETRY}}
 
