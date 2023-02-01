@@ -53,17 +53,3 @@ jobs:
       - name: Push Telemetry docker image
         run: |
           docker push ${{env.ACR_IMAGE_PATH_TELEMETRY}}
-
-      - name: Create modules deployment
-        env:
-          IOTHUB_CONN_STRING: ${{ secrets.IOTHUB_CONN_STRING}}
-        run: |
-          cd ./EdgeSolution/config
-          az iot edge deployment create -d "${{ github.run_number }}" -l "${{env.IOTHUB_CONN_STRING}}" -k deployment.arm64v8.json -t "tags.environment='${{env.DEPLOYMENT_TAG}}'"
-
-      # - name: Build the frontend image and push it to ACR
-      #     uses: docker/build-push-action@v2
-      #     with:
-      #       push: true
-      #       tags: ${ACR_IMAGE_PATH_TELEMETRY}
-      #       file: aspnet-core-dotnet-core/Dockerfile

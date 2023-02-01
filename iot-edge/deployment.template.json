@@ -10,10 +10,10 @@
             "minDockerVersion": "v1.25",
             "loggingOptions": "",
             "registryCredentials": {
-              "meatgeek": {
-                "username": "acrmeatgeekbadsb2opzrqyk",
-                "password": "iXZ89xp3OMTo0MVnGCyNNbGbTMSgy4sAfZg0iA81ze+ACRBIPpk4",
-                "address": "acrmeatgeekbadsb2opzrqyk.azurecr.io"
+              "acr": {
+                "username": "${ACR_USERNAME}",
+                "password": "${ACR_PASSWORD}",
+                "address": "${ACR_ADDRESS}"
               }
             }
           }
