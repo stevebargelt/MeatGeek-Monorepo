@@ -1,5 +1,5 @@
 ---
-name: IoT Edge CI
+name: IoT Edge CD
 
 on: # yamllint disable-line rule:truthy
   workflow_dispatch:
