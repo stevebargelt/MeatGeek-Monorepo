@@ -41,7 +41,7 @@ jobs:
 
       - name: Build Telemetry docker image
         run: |
-          cd ./modules/Telemetry
+          cd ./iot-edge/modules/Telemetry
           docker buildx build --platform linux/arm64 -t ${{env.ACR_IMAGE_PATH_TELEMETRY}} -f Dockerfile.arm64v8 .
 
       - name: Push backend docker image
