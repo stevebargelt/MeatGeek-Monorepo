@@ -24,7 +24,7 @@ jobs:
       - name: Read variables from env file
         run: |
           cp ./iot-edge/.env_template ./iot-edge/.env
-          cat ./iot-edge/.env
+          # cat ./iot-edge/.env
           sed -i 's/^#.*//' ./iot-edge/.env
           sed -i '/^$/d' ./iot-edge/.env
           sed -i 's%^ACR_USERNAME=.*%ACR_USERNAME=${{ secrets.ACR_USERNAME }}%' ./iot-edge/.env
