@@ -59,4 +59,5 @@ jobs:
           IOTHUB_CONN_STRING: ${{ secrets.IOTHUB_CONN_STRING}}
         run: |
           cd ./iot-edge/config
+          cat deployment.arm64v8.json 
           az iot edge deployment create -d "${{ github.run_number }}" -l "${{env.IOTHUB_CONN_STRING}}" -k deployment.arm64v8.json -t "tags.environment='${{env.DEPLOYMENT_TAG}}'"
