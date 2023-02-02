@@ -154,7 +154,7 @@ namespace Telemetry
                 }
 
                 // Log.Information($"Device sending Event/Telemetry to IoT Hub...");
-                var test = await _httpClient.GetStringAsync("http://host.docker.internal:3000/api/robots/MeatGeekBot/commands/get_status")
+                var test = await _httpClient.GetStringAsync("http://host.docker.internal:3000/api/robots/MeatGeekBot/commands/get_status");
                 Log.Information($"raw string response from get_status call = {test}");
                 SmokerStatus status = JsonConvert.DeserializeObject<SmokerStatus>(await _httpClient.GetStringAsync("http://host.docker.internal:3000/api/robots/MeatGeekBot/commands/get_status"));
                 if (!string.IsNullOrEmpty(SessionID)) 
