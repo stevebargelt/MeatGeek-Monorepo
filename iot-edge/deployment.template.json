@@ -43,7 +43,6 @@
               "image": "mcr.microsoft.com/azureiotedge-hub:1.4",
               "createOptions": {
                 "HostConfig": {
-                  "ExtraHosts": ["host.docker.internal:host-gateway"],
                   "PortBindings": {
                     "5671/tcp": [
                       {
@@ -59,13 +58,7 @@
                       {
                         "HostPort": "443"
                       }
-                    ],
-                    "3000/tcp": [
-                      {
-                        "HostPort": "3000"
-                      }
                     ]
-                  }
                 }
               }
             }
@@ -78,7 +71,19 @@
             "status": "running",
             "restartPolicy": "always",
             "settings": {
-              "image": "${MODULES.Telemetry}"
+              "image": "${MODULES.Telemetry}",
+              "createOptions": {
+                "HostConfig": {
+                  "NetworkMode": "host",
+                  "PortBindings": {
+                    "3000/tcp": [
+                      {
+                        "HostPort": "3000"
+                      }
+                    ]
+                  }
+                }
+              }              
             }
           }
         }
