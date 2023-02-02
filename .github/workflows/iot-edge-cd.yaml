@@ -31,6 +31,8 @@ jobs:
           sed -i 's%^ACR_PASSWORD=.*%ACR_PASSWORD=${{ secrets.ACR_PASSWORD }}%' ./iot-edge/.env
           sed -i 's%^ACR_ADDRESS=.*%ACR_ADDRESS=${{ secrets.ACR_LOGIN_SERVER }}%' ./iot-edge/.env
           sed -i 's%^IOT_HUB_RESOURCE_ID=.*%IOT_HUB_RESOURCE_ID=${{ secrets.IOT_HUB_RESOURCE_ID }}%' ./iot-edge/.env
+          sed -i 's%^LOG_ANALYTICS_WORKSPACE_ID=.*%LOG_ANALYTICS_WORKSPACE_ID=${{ secrets.IOT_LOG_ANALYTICS_WORKSPACE_ID }}%' ./iot-edge/.env
+          sed -i 's%^LOG_ANALYTICS_SHARED_KEY=.*%LOG_ANALYTICS_SHARED_KEY=${{ secrets.IOT_LOG_ANALYTICS_SHARED_KEY }}%' ./iot-edge/.env
           cat ./iot-edge/.env
 
       # install iotedgedev
