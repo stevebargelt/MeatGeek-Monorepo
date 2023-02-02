@@ -59,6 +59,7 @@
                         "HostPort": "443"
                       }
                     ]
+                  }
                 }
               }
             }
@@ -74,7 +75,6 @@
               "image": "${MODULES.Telemetry}",
               "createOptions": {
                 "HostConfig": {
-                  "NetworkMode": "host",
                   "PortBindings": {
                     "3000/tcp": [
                       {
@@ -83,7 +83,7 @@
                     ]
                   }
                 }
-              }              
+              }
             }
           }
         }
