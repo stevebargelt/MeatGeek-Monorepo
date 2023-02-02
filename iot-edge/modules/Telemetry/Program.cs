@@ -138,7 +138,7 @@ namespace Telemetry
             string moduleId = Environment.GetEnvironmentVariable("IOTEDGE_MODULEID");
              
             int count = 1;
-            string url = "http://localhost:3000/api/robots/MeatGeekBot/commands/get_status";
+            string url = "http://host.docker.internal:3000/api/robots/MeatGeekBot/commands/get_status";
             string json;
             while (!cancellationToken.IsCancellationRequested)
             {
@@ -154,7 +154,7 @@ namespace Telemetry
                 }
 
                 // Log.Information($"Device sending Event/Telemetry to IoT Hub...");
-                SmokerStatus status = JsonConvert.DeserializeObject<SmokerStatus>(await _httpClient.GetStringAsync("http://localhost:3000/api/robots/MeatGeekBot/commands/get_status"));
+                SmokerStatus status = JsonConvert.DeserializeObject<SmokerStatus>(await _httpClient.GetStringAsync("http://host.docker.internal:3000/api/robots/MeatGeekBot/commands/get_status"));
                 if (!string.IsNullOrEmpty(SessionID)) 
                 {
                    status.SessionId = SessionID;

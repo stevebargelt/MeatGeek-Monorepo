@@ -43,6 +43,7 @@
               "image": "mcr.microsoft.com/azureiotedge-hub:1.4",
               "createOptions": {
                 "HostConfig": {
+                  "ExtraHosts": ["host.docker.internal:host-gateway"],
                   "PortBindings": {
                     "5671/tcp": [
                       {
