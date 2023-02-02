@@ -75,6 +75,7 @@
               "image": "${MODULES.Telemetry}",
               "createOptions": {
                 "HostConfig": {
+                  "ExtraHosts": ["host.docker.internal:host-gateway"],
                   "PortBindings": {
                     "3000/tcp": [
                       {
