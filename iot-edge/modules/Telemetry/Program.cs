@@ -154,6 +154,8 @@ namespace Telemetry
                 }
 
                 // Log.Information($"Device sending Event/Telemetry to IoT Hub...");
+                var test = await _httpClient.GetStringAsync("http://host.docker.internal:3000/api/robots/MeatGeekBot/commands/get_status")
+                Log.Information($"raw string response from get_status call = {test}");
                 SmokerStatus status = JsonConvert.DeserializeObject<SmokerStatus>(await _httpClient.GetStringAsync("http://host.docker.internal:3000/api/robots/MeatGeekBot/commands/get_status"));
                 if (!string.IsNullOrEmpty(SessionID)) 
                 {
@@ -163,7 +165,7 @@ namespace Telemetry
                 status.Type = "status";
                 
                 json = JsonConvert.SerializeObject(status);
-                //Log.Information($"Device sending Event/Telemetry to IoT Hub| SmokerStaus.SmokerId = {status.SmokerId}, SmokerStaus.Type = {status.Type} || {json}");
+                // Log.Information($"Device sending Event/Telemetry to IoT Hub| SmokerStaus.SmokerId = {status.SmokerId}, SmokerStaus.Type = {status.Type} || {json}");
                 Message eventMessage = new Message(Encoding.UTF8.GetBytes(json));
                 eventMessage.ContentType = "application/json";
                 eventMessage.ContentEncoding = "UTF-8";
