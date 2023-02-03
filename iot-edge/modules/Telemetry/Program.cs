@@ -154,6 +154,7 @@ namespace Telemetry
                         var jsonResult = await response.Content.ReadAsStringAsync();
                         Log.Information($"raw string response from get_status call = {jsonResult}");
                         var jsonObj = JObject.Parse(jsonResult);
+                        Log.Information($"jsonObj = {jsonObj.ToString()}");
                         var statusString = jsonObj["result"].ToString();
                         status = JsonConvert.DeserializeObject<SmokerStatus>(statusString);
                     }
