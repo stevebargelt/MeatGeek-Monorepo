@@ -11,6 +11,7 @@ namespace Telemetry
     using Microsoft.Azure.Devices.Client.Transport.Mqtt;
     using Microsoft.Azure.Devices.Shared;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using Serilog;
     using Serilog.Configuration;
     using Serilog.Core;
@@ -145,18 +146,21 @@ namespace Telemetry
                 var correlationId = Guid.NewGuid().ToString();
                 Log.Information($"New status message - CorrelationId={correlationId}");
                 
+                SmokerStatus status = null;
                 using (HttpResponseMessage response = _httpClient.GetAsync(url).Result)
                 {
-                    using (HttpContent content = response.Content)
-                    {
-                        json = content.ReadAsStringAsync().Result;
+                   if (response.IsSuccessStatusCode)
+                   {
+                        var jsonResult = await response.Content.ReadAsStringAsync();
+                        Log.Information($"raw string response from get_status call = {jsonResult}");
+                        status = JsonConvert.DeserializeObject<SmokerStatus>(await _httpClient.GetStringAsync(jsonResult));
                     }
                 }
 
                 // Log.Information($"Device sending Event/Telemetry to IoT Hub...");
-                var test = await _httpClient.GetStringAsync("http://host.docker.internal:3000/api/robots/MeatGeekBot/commands/get_status");
-                Log.Information($"raw string response from get_status call = {test}");
-                SmokerStatus status = JsonConvert.DeserializeObject<SmokerStatus>(await _httpClient.GetStringAsync("http://host.docker.internal:3000/api/robots/MeatGeekBot/commands/get_status"));
+                // var test = await _httpClient.GetStringAsync("http://host.docker.internal:3000/api/robots/MeatGeekBot/commands/get_status");
+                // Log.Information($"raw string response from get_status call = {test}");
+                // SmokerStatus status = JsonConvert.DeserializeObject<SmokerStatus>(await _httpClient.GetStringAsync("http://host.docker.internal:3000/api/robots/MeatGeekBot/commands/get_status"));
                 if (!string.IsNullOrEmpty(SessionID)) 
                 {
                    status.SessionId = SessionID;
@@ -310,6 +314,11 @@ namespace Telemetry
             Log.Information($"Initializied logger with log level {logLevel}");
         }
 
+    public class RootObject
+    {
+        [JsonProperty("result")]
+        public SmokerStatus SmokerStatus { get; set; }
+    }
 
     public class SmokerStatus
     {
