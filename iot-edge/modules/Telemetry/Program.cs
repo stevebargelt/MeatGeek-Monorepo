@@ -152,19 +152,15 @@ namespace Telemetry
                    if (response.IsSuccessStatusCode)
                    {
                         var jsonResult = await response.Content.ReadAsStringAsync();
-                        Log.Information($"raw string response from get_status call = {jsonResult}");
+                        // Log.Information($"raw string response from get_status call = {jsonResult}");
                         var jsonObj = JObject.Parse(jsonResult);
-                        Log.Information($"jsonObj = {jsonObj.ToString()}");
-                        Log.Information($"jsonObj[result] = {jsonObj["result"].ToString()}");
+                        // Log.Information($"jsonObj = {jsonObj.ToString()}");
+                        // Log.Information($"jsonObj[result] = {jsonObj["result"].ToString()}");
                         var statusString = jsonObj["result"].ToString();
                         status = JsonConvert.DeserializeObject<SmokerStatus>(statusString);
                     }
                 }
 
-                // Log.Information($"Device sending Event/Telemetry to IoT Hub...");
-                // var test = await _httpClient.GetStringAsync("http://host.docker.internal:3000/api/robots/MeatGeekBot/commands/get_status");
-                // Log.Information($"raw string response from get_status call = {test}");
-                // SmokerStatus status = JsonConvert.DeserializeObject<SmokerStatus>(await _httpClient.GetStringAsync("http://host.docker.internal:3000/api/robots/MeatGeekBot/commands/get_status"));
                 if (!string.IsNullOrEmpty(SessionID)) 
                 {
                    status.SessionId = SessionID;
