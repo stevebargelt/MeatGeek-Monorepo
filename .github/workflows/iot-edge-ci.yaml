@@ -18,7 +18,7 @@ env:
   DOTNET_VERSION: "6.0.x"
   AZURE_RESOURCEGROUP_NAME: "MeatGeek-IoT"
   APP_PACKAGE_PATH: "." # set this to the path to your function app project, defaults to the repository root
-  # DOCKER_TARGET_PLATFORM: linux/arm/v7
+  DEPLOYMENT_TAG: "demodevice"
 
 jobs:
   build:
@@ -53,3 +53,50 @@ jobs:
       - name: Push Telemetry docker image
         run: |
           docker push ${{env.ACR_IMAGE_PATH_TELEMETRY}}
+Deploy:
+  runs-on: ubuntu-latest
+  steps:
+    - uses: actions/checkout@v3
+
+    - name: Read variables from env file
+      run: |
+        cp ./iot-edge/.env_template ./iot-edge/.env
+        # cat ./iot-edge/.env
+        sed -i 's/^#.*//' ./iot-edge/.env
+        sed -i '/^$/d' ./iot-edge/.env
+        sed -i 's%^ACR_USERNAME=.*%ACR_USERNAME=${{ secrets.ACR_USERNAME }}%' ./iot-edge/.env
+        sed -i 's%^ACR_PASSWORD=.*%ACR_PASSWORD=${{ secrets.ACR_PASSWORD }}%' ./iot-edge/.env
+        sed -i 's%^ACR_ADDRESS=.*%ACR_ADDRESS=${{ secrets.ACR_LOGIN_SERVER }}%' ./iot-edge/.env
+        sed -i 's%^IOT_HUB_RESOURCE_ID=.*%IOT_HUB_RESOURCE_ID=${{ secrets.IOT_HUB_RESOURCE_ID }}%' ./iot-edge/.env
+        sed -i 's%^LOG_ANALYTICS_WORKSPACE_ID=.*%LOG_ANALYTICS_WORKSPACE_ID=${{ secrets.IOT_LOG_ANALYTICS_WORKSPACE_ID }}%' ./iot-edge/.env
+        sed -i 's%^LOG_ANALYTICS_SHARED_KEY=.*%LOG_ANALYTICS_SHARED_KEY=${{ secrets.IOT_LOG_ANALYTICS_SHARED_KEY }}%' ./iot-edge/.env
+        cat ./iot-edge/.env
+
+    # install iotedgedev
+    - name: install iotedgedev
+      run: |
+        cd ./iot-edge
+        make install_iotedgedev
+        make install_azure_iot
+
+    # Changing the docker image version based on the current build number
+    - name: Change docker image versions
+      run: |
+        cd ${GITHUB_WORKSPACE}/iot-edge/modules/Telemetry
+        cat module.json | jq '.image.tag.version =  $v' --arg v '1.0.${{ github.run_number }}' | sponge module.json
+
+    # generating iotedge config file
+    - name: generate deployment config json
+      run: |
+        cd ./iot-edge
+        cat .env
+        iotedgedev genconfig -f ./deployment.template.json -P arm64v8
+
+    # Creating the deployment of the modules using the config file generated in the above step
+    - name: Create modules deployment
+      env:
+        IOTHUB_CONN_STRING: ${{ secrets.IOTHUB_CONN_STRING}}
+      run: |
+        cd ./iot-edge/config
+        cat deployment.arm64v8.json 
+        az iot edge deployment create -d "${{ github.run_number }}" -l "${{env.IOTHUB_CONN_STRING}}" -k deployment.arm64v8.json -t "tags.environment='${{env.DEPLOYMENT_TAG}}'"
