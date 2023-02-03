@@ -51,7 +51,6 @@ namespace Telemetry
             }
             ModuleClient userContext = moduleClient;      
             await moduleClient.SetDesiredPropertyUpdateCallbackAsync(OnDesiredPropertiesUpdated, userContext);
-            //await moduleClient.SetInputMessageHandlerAsync("control", ControlMessageHandle, userContext);
             await moduleClient.SetMethodHandlerAsync("SetTelemetryInterval", SetTelemetryInterval, userContext);
             await moduleClient.SetMethodHandlerAsync("SetSessionId", SetSessionId, userContext);
             await moduleClient.SetMethodHandlerAsync("EndSession", EndSession, userContext);
@@ -152,10 +151,7 @@ namespace Telemetry
                    if (response.IsSuccessStatusCode)
                    {
                         var jsonResult = await response.Content.ReadAsStringAsync();
-                        // Log.Information($"raw string response from get_status call = {jsonResult}");
                         var jsonObj = JObject.Parse(jsonResult);
-                        // Log.Information($"jsonObj = {jsonObj.ToString()}");
-                        // Log.Information($"jsonObj[result] = {jsonObj["result"].ToString()}");
                         var statusString = jsonObj["result"].ToString();
                         status = JsonConvert.DeserializeObject<SmokerStatus>(statusString);
                     }
@@ -181,7 +177,6 @@ namespace Telemetry
                 {
                     await moduleClient.SendEventAsync("output1", eventMessage);
                     //telemetry.TrackEvent("81-Heartbeat-Sent-MessageForwarder", telemetryProperties);
-                    //Log.Information("Smoker Status message sent");
                     Log.Information($"Telemetry sent | SmokerStaus.SmokerId = {status.SmokerId}, SmokerStaus.Type = {status.Type} || {json}");
 
                 }
@@ -313,12 +308,6 @@ namespace Telemetry
             Log.Logger = loggerConfiguration.CreateLogger();
             Log.Information($"Initializied logger with log level {logLevel}");
         }
-
-    public class RootObject
-    {
-        [JsonProperty("result")]
-        public SmokerStatus SmokerStatus { get; set; }
-    }
 
     public class SmokerStatus
     {
