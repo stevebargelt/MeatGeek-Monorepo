@@ -153,7 +153,9 @@ namespace Telemetry
                    {
                         var jsonResult = await response.Content.ReadAsStringAsync();
                         Log.Information($"raw string response from get_status call = {jsonResult}");
-                        status = JsonConvert.DeserializeObject<SmokerStatus>(jsonResult);
+                        var jsonObj = JObject.Parse(jsonResult);
+                        var statusString = jsonObj["result"].ToString();
+                        status = JsonConvert.DeserializeObject<SmokerStatus>(statusString);
                     }
                 }
 
@@ -169,7 +171,7 @@ namespace Telemetry
                 status.Type = "status";
                 
                 json = JsonConvert.SerializeObject(status);
-                // Log.Information($"Device sending Event/Telemetry to IoT Hub| SmokerStaus.SmokerId = {status.SmokerId}, SmokerStaus.Type = {status.Type} || {json}");
+                Log.Information($"Device sending Event/Telemetry to IoT Hub| SmokerStaus.SmokerId = {status.SmokerId}, SmokerStaus.Type = {status.Type} || {json}");
                 Message eventMessage = new Message(Encoding.UTF8.GetBytes(json));
                 eventMessage.ContentType = "application/json";
                 eventMessage.ContentEncoding = "UTF-8";
