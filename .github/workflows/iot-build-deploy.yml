@@ -41,7 +41,7 @@ jobs:
         shell: bash
         run: |
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet build "./iot/src/MeatGeek.IoT.Api" --configuration Release --output ./output
+          dotnet build "./iot/src/MeatGeek.IoT.Functions" --configuration Release --output ./output
           popd
 
       - name: "Run Azure Functions Action"
