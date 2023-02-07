@@ -11,7 +11,7 @@ param location string= resourceGroup().location
 @description('Name of the Cosmos DB to use')
 param cosmosAccountName string = 'meatgeek'
 @description('Name of the Cosmos DB collection to use')
-param cosmosDbCollectionName string = 'sessions'
+param cosmosDbCollectionName string = 'meatgeek'
 @description('ID of a existing keyvault that will be used to store and retrieve keys in this deployment')
 param keyVaultName string = 'meatgeekkv'
 @description('Shared Key Vault Resource Group')

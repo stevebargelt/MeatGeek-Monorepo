@@ -11,12 +11,13 @@ param location string= resourceGroup().location
 @description('Name of the Cosmos DB to use')
 param cosmosAccountName string = 'meatgeek'
 @description('Name of the Cosmos DB collection to use')
-param cosmosDbCollectionName string = 'sessions'
+param cosmosDbCollectionName string = 'meatgeek'
 @description('ID of a existing keyvault that will be used to store and retrieve keys in this deployment')
 param keyVaultName string = 'meatgeekkv'
 @description('Shared Key Vault Resource Group')
 param keyVaultResourceGroup string = 'MeatGeek-Shared'
-// param deploymentDate string = utcNow()
+param eventGridTopicEndpoint string 
+param eventGridTopicKey string
 
 var functionsAppServicePlanName = '${resourcePrefix}-${resourceProject}-app-service-plan'
 var functionsApiAppName = '${resourcePrefix}${resourceProject}api'
@@ -176,13 +177,14 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
     ContentContainer: blobService::content.name
     FUNCTIONS_EXTENSION_VERSION: '~4'
     FUNCTIONS_WORKER_RUNTIME: 'dotnet'
-    AzureWebJobsStorage: storageConnectionString
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
     destinationmodules: 'meatgeek2/Telemetry'
     IoTHubConnection: '@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/IoTHubConnection-MeatGeek/)'
     MeatGeekIoTServiceConnection: '@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/MeatGeekIoTServiceConnection/)'
-    // WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: storageConnectionString
-    // WEBSITE_CONTENTSHARE: 
+    WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: storageConnectionString
+    WEBSITE_CONTENTSHARE: '${functionsApiAppName}102269'
+    EventGridTopicEndpoint: eventGridTopicEndpoint
+    EventGridTopicKey: eventGridTopicKey  
     // APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.
     // InstrumentationKey=94c2114d-e55a-4cc1-99ed-8361052f892f;IngestionEndpoint=https://northcentralus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://northcentralus.livediagnostics.monitor.azure.com/
   }
