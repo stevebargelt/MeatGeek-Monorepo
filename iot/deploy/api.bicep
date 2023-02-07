@@ -179,8 +179,8 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
     FUNCTIONS_WORKER_RUNTIME: 'dotnet'
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
     destinationmodules: 'meatgeek2/Telemetry'
-    IoTHubConnection: '@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/IoTHubConnection-MeatGeek/)'
-    MeatGeekIoTServiceConnection: '@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/MeatGeekIoTServiceConnection/)'
+    IoTHubConnection: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=IoTHubConnection-MeatGeek/)'
+    MeatGeekIoTServiceConnection: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=MeatGeekIoTServiceConnection/)'
     WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: storageConnectionString
     WEBSITE_CONTENTSHARE: '${functionsApiAppName}102269'
     EventGridTopicEndpoint: eventGridTopicEndpoint
