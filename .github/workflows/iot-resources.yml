@@ -1,0 +1,54 @@
+name: IoT Deploy Infra
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - ".github/workflows/iot-resources.yml"
+      - "iot/deploy/*"
+
+jobs:
+  deploy-iot-resources:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code
+      - uses: actions/checkout@main
+
+        # Log into Azure
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Run Bicep Deploy for Worker API
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ secrets.IOT_RG }}
+          template: ./iot/deploy/microservice-worker.bicep
+          parameters:
+            keyVaultName=${{ secrets.SHARED_KV }}
+            cosmosAccountName=${{ secrets.SHARED_COSMOS }}
+            cosmosDbCollectionName=${{ secrets.SHARED_COSMOS }}
+            eventGridTopicEndpoint=${{ secrets.EVENTGRID_TOPIC_ENDPOINT }}
+            eventGridTopicKey=${{ secrets.EVENTGRID_TOPIC_KEY }}
+            # TODO: set KV RG
+            # keyVaultResourceGroup
+
+      # Deploy ARM template
+      - name: Run Bicep Deploy For API
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ secrets.IOT_RG }}
+          template: ./iot/deploy/api.bicep
+          parameters:
+            keyVaultName=${{ secrets.SHARED_KV }}
+            cosmosAccountName=${{ secrets.SHARED_COSMOS }}
+            cosmosDbCollectionName=${{ secrets.SHARED_COSMOS }}
+            eventGridTopicEndpoint=${{ secrets.EVENTGRID_TOPIC_ENDPOINT }}
+            eventGridTopicKey=${{ secrets.EVENTGRID_TOPIC_KEY }}
+            # TODO: set KV RG
+            # keyVaultResourceGroup
+      #   # output containerName variable from template
+      # - run: echo ${{ steps.deploy.outputs.containerName }}
