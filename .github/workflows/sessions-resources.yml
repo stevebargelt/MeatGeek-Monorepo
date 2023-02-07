@@ -30,6 +30,8 @@ jobs:
             keyVaultName=${{ secrets.SHARED_KV }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}
             cosmosDbCollectionName=${{ secrets.SHARED_COSMOS }}
+            eventGridTopicEndpoint=${{ secrets.EVENTGRID_TOPIC_ENDPOINT }}
+            eventGridTopicKey=${{ secrets.EVENTGRID_TOPIC_KEY }}
             # TODO: set KV RG
             # keyVaultResourceGroup
       #   # output containerName variable from template
@@ -46,6 +48,8 @@ jobs:
             keyVaultName=${{ secrets.SHARED_KV }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}
             cosmosDbCollectionName=${{ secrets.SHARED_COSMOS }}
+            eventGridTopicEndpoint=${{ secrets.EVENTGRID_TOPIC_ENDPOINT }}
+            eventGridTopicKey=${{ secrets.EVENTGRID_TOPIC_KEY }}
             # TODO: set KV RG
             # keyVaultResourceGroup
       #   # output containerName variable from template

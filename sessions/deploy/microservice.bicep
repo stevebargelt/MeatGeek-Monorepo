@@ -16,7 +16,8 @@ param cosmosDbCollectionName string = 'sessions'
 param keyVaultName string = 'meatgeekkv'
 @description('Shared Key Vault Resource Group')
 param keyVaultResourceGroup string = 'MeatGeek-Shared'
-// param deploymentDate string = utcNow()
+param eventGridTopicEndpoint string 
+param eventGridTopicKey string
 
 var functionsAppServicePlanName = '${resourcePrefix}-${resourceProject}-app-service-plan'
 var functionsApiAppName = '${resourcePrefix}${resourceProject}api'
@@ -183,12 +184,10 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
     WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: storageConnectionString
     WEBSITE_CONTENTSHARE: '${functionsApiAppName}102269'
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
-    // WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: storageConnectionString
-    // WEBSITE_CONTENTSHARE: 
-    // APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.
+    EventGridTopicEndpoint: eventGridTopicEndpoint
+    EventGridTopicKey: eventGridTopicKey    
     // InstrumentationKey=94c2114d-e55a-4cc1-99ed-8361052f892f;IngestionEndpoint=https://northcentralus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://northcentralus.livediagnostics.monitor.azure.com/
     
-
   }
 }
 
