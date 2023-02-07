@@ -29,6 +29,8 @@ namespace MeatGeek.Sessions.WorkerApi
 
             log.LogInformation(eventGridEvent.Data.ToString());
 
+            //we could also try the JObject version 
+            
             //var messageBody = Encoding.UTF8.GetString(smokerStatusData.Body.Array, smokerStatusData.Body.Offset, smokerStatusData.Body.Count);
             // var smokerStatusString = JsonConvert.SerializeObject(smokerStatus);
             // log.LogInformation($"SmokerStatus: {smokerStatusString}"); 
