@@ -21,12 +21,27 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
         # Deploy ARM template
-      - name: Run ARM deploy
+      - name: Run Bicep Deploy For API
         uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.SESSIONS_RG }}
           template: ./sessions/deploy/microservice.bicep
+          parameters:
+            keyVaultName=${{ secrets.SHARED_KV }}
+            cosmosAccountName=${{ secrets.SHARED_COSMOS }}
+            cosmosDbCollectionName=${{ secrets.SHARED_COSMOS }}
+            # TODO: set KV RG
+            # keyVaultResourceGroup
+        # output containerName variable from template
+      - run: echo ${{ steps.deploy.outputs.containerName }}
+
+      - name: Run Bicep Deploy for Worker API
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ secrets.SESSIONS_RG }}
+          template: ./sessions/deploy/microservice-worker.bicep
           parameters:
             keyVaultName=${{ secrets.SHARED_KV }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}

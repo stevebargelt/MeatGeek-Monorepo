@@ -62,7 +62,7 @@ namespace MeatGeek.IoT
             DateTime StartDateTime = DateTime.Parse(starttime, null, System.Globalization.DateTimeStyles.RoundtripKind);
             
             //TODO: Sent SmokerID as a parameter to function call
-            var SmokerId = "meatgeek2";
+            var SmokerId = "meatgeek3";
             log.LogInformation("SmokerId = " + SmokerId);
 
             DateTime EndDateTime;
