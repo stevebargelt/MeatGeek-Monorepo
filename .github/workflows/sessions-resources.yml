@@ -26,16 +26,13 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.SESSIONS_RG }}
           template: ./sessions/deploy/microservice-worker.bicep
-          parameters:
-            keyVaultName=${{ secrets.SHARED_KV }}
+          parameters: keyVaultName=${{ secrets.SHARED_KV }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}
             cosmosDbCollectionName=${{ secrets.SHARED_COSMOS }}
             eventGridTopicEndpoint=${{ secrets.EVENTGRID_TOPIC_ENDPOINT }}
             eventGridTopicKey=${{ secrets.EVENTGRID_TOPIC_KEY }}
-            # TODO: set KV RG
-            # keyVaultResourceGroup
-      #   # output containerName variable from template
-      # - run: echo ${{ steps.deploy.outputs.containerName }}
+            iotEventHubEndpoint=${{ secrets.IOT_EVENTHUB_ENDPOINT }}
+            iotServiceConnection=${{ secrets.IOT_SERVICE_CONNECTION }}
 
       # Deploy ARM template
       - name: Run Bicep Deploy For API
@@ -44,13 +41,10 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.SESSIONS_RG }}
           template: ./sessions/deploy/microservice.bicep
-          parameters:
-            keyVaultName=${{ secrets.SHARED_KV }}
+          parameters: keyVaultName=${{ secrets.SHARED_KV }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}
             cosmosDbCollectionName=${{ secrets.SHARED_COSMOS }}
             eventGridTopicEndpoint=${{ secrets.EVENTGRID_TOPIC_ENDPOINT }}
             eventGridTopicKey=${{ secrets.EVENTGRID_TOPIC_KEY }}
-            # TODO: set KV RG
-            # keyVaultResourceGroup
-      #   # output containerName variable from template
-      # - run: echo ${{ steps.deploy.outputs.containerName }}
+            iotEventHubEndpoint=${{ secrets.IOT_EVENTHUB_ENDPOINT }}
+            iotServiceConnection=${{ secrets.IOT_SERVICE_CONNECTION }}

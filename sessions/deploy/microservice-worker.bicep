@@ -20,6 +20,7 @@ param keyVaultResourceGroup string = 'MeatGeek-Shared'
 param eventGridTopicEndpoint string 
 param eventGridTopicKey string
 param iotEventHubEndpoint string
+param iotServiceConnection string
 
 var functionsAppServicePlanName = '${resourcePrefix}-${resourceProject}-app-service-plan'
 var functionsApiAppName = '${resourcePrefix}${resourceProject}api'
@@ -188,8 +189,8 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
     EventGridTopicEndpoint: eventGridTopicEndpoint
     EventGridTopicKey: eventGridTopicKey
-    IOT_SERVICE_CONNECTION: iotEventHubEndpoint
-
+    IOT_SERVICE_CONNECTION: iotServiceConnection
+    IOT_EVENTHUB_ENDPOINT: iotEventHubEndpoint
   }
 }
 
