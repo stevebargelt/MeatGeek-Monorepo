@@ -191,25 +191,6 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
   }
 }
 
-// resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01' = {
-//   parent: functionsApiApp
-//   name: 'appsettings'
-//   properties: {
-//     FUNCTIONS_EXTENSION_VERSION: '~3'
-//     FUNCTIONS_WORKER_RUNTIME: 'dotnet'
-//     APPINSIGHTS_INSTRUMENTATIONKEY: reference(applicationInsights.id, '2014-04-01').InstrumentationKey
-//     APPLICATIONINSIGHTS_CONNECTION_STRING: 'InstrumentationKey=${reference(applicationInsights.id, '2014-04-01').InstrumentationKey}'
-//     CosmosDBConnection: '@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/CosmosDBConnection/)'
-//     IoTHubConnection: '@Microsoft.KeyVault(SecretUri=https://inferno.vault.azure.net/secrets/IoTHubConnection/)'
-//     AzureWebJobStorage: '@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/AzureWebJobStorage/)'
-//     EventGridTopicEndpoint: '@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/EventGridTopicEndpoint/)'
-//     EventGridTopicKey: '@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/EventGridTopicKey/)'
-//     DatabaseName: cosmosDbDatabaseName
-//     CollectionName: cosmosDbCollectionName
-//     AzureWebJobsSecretStorageType: 'Files'
-//   }
-// }
-
 resource storageFunctionAppPermissions 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(storage.id, functionsApiApp.name, storageBlobDataContributorRole)
   scope: storage

@@ -20,7 +20,7 @@ namespace MeatGeek.IoT
             _telemetry = telemetry;
         }
         
-        private static ServiceClient _iothubServiceClient = ServiceClient.CreateFromConnectionString(Environment.GetEnvironmentVariable("MeatGeekIoTServiceConnection", EnvironmentVariableTarget.Process));
+        private static ServiceClient _iothubServiceClient = ServiceClient.CreateFromConnectionString(Environment.GetEnvironmentVariable("IOT_SERVICE_CONNECTION", EnvironmentVariableTarget.Process));
         private const string METHOD_NAME = "SetTelemetryInterval";
         private const string MODULE_NAME = "Telemetry";
 

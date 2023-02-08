@@ -29,7 +29,7 @@ namespace Inferno.Functions
             var RelayKeyName = Environment.GetEnvironmentVariable("RelayKeyName", EnvironmentVariableTarget.Process);
             var RelayKey = Environment.GetEnvironmentVariable("RelayKey", EnvironmentVariableTarget.Process);
             var IoTServiceConnection = Environment.GetEnvironmentVariable("InfernoIoTServiceConnection", EnvironmentVariableTarget.Process);
-            var MeatGeekIoTServiceConnection = Environment.GetEnvironmentVariable("MeatGeekIoTServiceConnection", EnvironmentVariableTarget.Process);
+            var IOT_SERVICE_CONNECTION = Environment.GetEnvironmentVariable("IOT_SERVICE_CONNECTION", EnvironmentVariableTarget.Process);
 
             var variableList = new List<string>();
             if (string.IsNullOrWhiteSpace(RelayNamespace)) variableList.Add("RelayNamespace");
@@ -37,7 +37,7 @@ namespace Inferno.Functions
             if (string.IsNullOrWhiteSpace(RelayKeyName)) variableList.Add("RelayKeyName");
             if (string.IsNullOrWhiteSpace(RelayKey)) variableList.Add("RelayKey");
             if (string.IsNullOrWhiteSpace(IoTServiceConnection)) variableList.Add("IoTServiceConnection");
-            if (string.IsNullOrWhiteSpace(MeatGeekIoTServiceConnection)) variableList.Add("MeatGTeekIoTServiceConnection");
+            if (string.IsNullOrWhiteSpace(IOT_SERVICE_CONNECTION)) variableList.Add("MeatGTeekIoTServiceConnection");
 
             if (variableList.Count > 0)
             {

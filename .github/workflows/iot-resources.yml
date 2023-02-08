@@ -32,6 +32,8 @@ jobs:
             cosmosDbCollectionName=${{ secrets.SHARED_COSMOS }}
             eventGridTopicEndpoint=${{ secrets.EVENTGRID_TOPIC_ENDPOINT }}
             eventGridTopicKey=${{ secrets.EVENTGRID_TOPIC_KEY }}
+            iotEventHubEndpoint=${{ secrets.IOT_EVENTHUB_ENDPOINT }}
+            iotServiceConnection=${{ secrets.IOT_SERVICE_CONNECTION }}
             # TODO: set KV RG
             # keyVaultResourceGroup
 

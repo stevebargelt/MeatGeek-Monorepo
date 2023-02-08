@@ -22,7 +22,7 @@ namespace MeatGeek.IoT
     public static class MeatGeekIoTHubTrigger
     {
         [FunctionName("MeatGeekIoTHubTrigger")]
-        public static async Task IoTHubTrigger([IoTHubTrigger("messages", Connection = "IoTHubConnection", ConsumerGroup = "smokerstatusreceiver")] SmokerStatus[] smokerStatuses,
+        public static async Task IoTHubTrigger([IoTHubTrigger("messages", Connection = "IOT_SERVICE_CONNECTION", ConsumerGroup = "smokerstatusreceiver")] SmokerStatus[] smokerStatuses,
             [CosmosDB(
                 databaseName: "iot",
                 collectionName: "telemetry",

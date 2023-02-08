@@ -29,7 +29,7 @@ namespace Inferno.Functions
                 return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
             }
 
-            ServiceConnectionString = Environment.GetEnvironmentVariable("MeatGeekIoTServiceConnection", EnvironmentVariableTarget.Process);
+            ServiceConnectionString = Environment.GetEnvironmentVariable("IOT_SERVICE_CONNECTION", EnvironmentVariableTarget.Process);
             IoTHubServiceClient = ServiceClient.CreateFromConnectionString(ServiceConnectionString);
             log.LogInformation("ServiceConnectionString" + ServiceConnectionString);
             log.LogInformation("value = " + value);

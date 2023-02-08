@@ -19,6 +19,7 @@ param keyVaultResourceGroup string = 'MeatGeek-Shared'
 // param deploymentDate string = utcNow()
 param eventGridTopicEndpoint string 
 param eventGridTopicKey string
+param iotEventHubEndpoint string
 
 var functionsAppServicePlanName = '${resourcePrefix}-${resourceProject}-app-service-plan'
 var functionsApiAppName = '${resourcePrefix}${resourceProject}api'
@@ -187,32 +188,10 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
     EventGridTopicEndpoint: eventGridTopicEndpoint
     EventGridTopicKey: eventGridTopicKey
-
-    // APPLICATIONINSIGHTS_CONNECTION_STRING: appInsights.
-    // InstrumentationKey=94c2114d-e55a-4cc1-99ed-8361052f892f;IngestionEndpoint=https://northcentralus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://northcentralus.livediagnostics.monitor.azure.com/
-    
+    IOT_SERVICE_CONNECTION: iotEventHubEndpoint
 
   }
 }
-
-// resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01' = {
-//   parent: functionsApiApp
-//   name: 'appsettings'
-//   properties: {
-//     FUNCTIONS_EXTENSION_VERSION: '~3'
-//     FUNCTIONS_WORKER_RUNTIME: 'dotnet'
-//     APPINSIGHTS_INSTRUMENTATIONKEY: reference(applicationInsights.id, '2014-04-01').InstrumentationKey
-//     APPLICATIONINSIGHTS_CONNECTION_STRING: 'InstrumentationKey=${reference(applicationInsights.id, '2014-04-01').InstrumentationKey}'
-//     CosmosDBConnection: '@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/CosmosDBConnection/)'
-//     IoTHubConnection: '@Microsoft.KeyVault(SecretUri=https://inferno.vault.azure.net/secrets/IoTHubConnection/)'
-//     AzureWebJobStorage: '@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/AzureWebJobStorage/)'
-//     EventGridTopicEndpoint: '@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/EventGridTopicEndpoint/)'
-//     EventGridTopicKey: '@Microsoft.KeyVault(SecretUri=https://meatgeek-key-vault.vault.azure.net/secrets/EventGridTopicKey/)'
-//     DatabaseName: cosmosDbDatabaseName
-//     CollectionName: cosmosDbCollectionName
-//     AzureWebJobsSecretStorageType: 'Files'
-//   }
-// }
 
 resource storageFunctionAppPermissions 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(storage.id, functionsApiApp.name, storageBlobDataContributorRole)

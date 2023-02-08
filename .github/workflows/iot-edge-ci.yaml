@@ -91,8 +91,8 @@ jobs:
       # Creating the deployment of the modules using the config file generated in the above step
       - name: Create modules deployment
         env:
-          IOTHUB_CONN_STRING: ${{ secrets.IOTHUB_CONN_STRING}}
+          IOT_SERVICE_CONNECTION: ${{ secrets.IOT_SERVICE_CONNECTION}}
         run: |
           cd ./iot-edge/config
           cat deployment.arm64v8.json 
-          az iot edge deployment create -d "${{ github.run_number }}" -l "${{env.IOTHUB_CONN_STRING}}" -k deployment.arm64v8.json -t "tags.environment='${{env.DEPLOYMENT_TAG}}'"
+          az iot edge deployment create -d "${{ github.run_number }}" -l "${{env.IOT_SERVICE_CONNECTION}}" -k deployment.arm64v8.json -t "tags.environment='${{env.DEPLOYMENT_TAG}}'"

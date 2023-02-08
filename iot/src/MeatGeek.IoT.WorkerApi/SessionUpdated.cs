@@ -12,7 +12,7 @@ namespace MeatGeek.IoT.WorkerApi
 {
     public class SessionUpdatedTrigger
     {
-        private static ServiceClient _iothubServiceClient = ServiceClient.CreateFromConnectionString(Environment.GetEnvironmentVariable("MeatGeekIoTServiceConnection", EnvironmentVariableTarget.Process));
+        private static ServiceClient _iothubServiceClient = ServiceClient.CreateFromConnectionString(Environment.GetEnvironmentVariable("IOT_SERVICE_CONNECTION", EnvironmentVariableTarget.Process));
         private const string METHOD_NAME = "EndSession";
         private const string MODULE_NAME = "Telemetry";
 

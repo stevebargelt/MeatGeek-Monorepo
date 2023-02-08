@@ -35,7 +35,7 @@ namespace Inferno.Functions
             log.LogInformation("END: Inferno IoT");
 
             // log.LogInformation("START: MeatGeek IoT");
-            // MeatGeekServiceConnectionString = Environment.GetEnvironmentVariable("MeatGeekIoTServiceConnection", EnvironmentVariableTarget.Process);
+            // MeatGeekServiceConnectionString = Environment.GetEnvironmentVariable("IOT_SERVICE_CONNECTION", EnvironmentVariableTarget.Process);
             // MeatGeekIoTHubServiceClient = ServiceClient.CreateFromConnectionString(MeatGeekServiceConnectionString);
             // var methodInvocationMeatGeek = new CloudToDeviceMethod("SmokerGetTemps") { ResponseTimeout = TimeSpan.FromSeconds(30) };
             // // Invoke the direct method asynchronously and get the response from the device.

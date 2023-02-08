@@ -19,6 +19,8 @@ param keyVaultResourceGroup string = 'MeatGeek-Shared'
 // param deploymentDate string = utcNow()
 param eventGridTopicEndpoint string 
 param eventGridTopicKey string
+param iotEventHubEndpoint string
+param iotServiceConnection string 
 
 var functionsAppServicePlanName = '${resourcePrefix}-${resourceProject}-app-service-plan'
 var functionsApiAppName = '${resourcePrefix}${resourceProject}api'
@@ -185,10 +187,10 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
     WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: storageConnectionString
     WEBSITE_CONTENTSHARE: '${functionsApiAppName}102269'
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
-    IoTHubConnection: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=IoTHubConnection-MeatGeek/)'
     EventGridTopicEndpoint: eventGridTopicEndpoint
     EventGridTopicKey: eventGridTopicKey
-    // InstrumentationKey=94c2114d-e55a-4cc1-99ed-8361052f892f;IngestionEndpoint=https://northcentralus-0.in.applicationinsights.azure.com/;LiveEndpoint=https://northcentralus.livediagnostics.monitor.azure.com/
+    IOT_EVENTHUB_ENDPOINT: iotEventHubEndpoint
+    IOT_SERVICE_CONNECTION: iotServiceConnection
 
   }
 }
