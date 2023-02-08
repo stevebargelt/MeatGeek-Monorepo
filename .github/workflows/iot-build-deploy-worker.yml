@@ -8,26 +8,20 @@
 # https://learn.microsoft.com/en-us/azure/azure-functions/functions-how-to-github-actions?tabs=dotnet#deploy-the-function-app
 #
 
-name: Sessions Worker API Build and Deploy
+name: IoT Worker API Build and Deploy
 on:
   push:
     branches:
       - main
     paths:
-      - ".github/workflows/sessions-build-deploy-worker.yml"
-      - "sessions/src/MeatGeek.Sessions.WorkerApi/**"
-      - "sessions/src/MeatGeek.Sessions.Services/**"
-      - "sessions/build/build.yaml"
-      - "shared/src/**"
-      - "shared/build/build.yaml"
-      - "!sessions/docs"
-      - "!sessions/mkdocs.yml"
-      - "!sessions/build/build-docs.yaml"
+      - ".github/workflows/iot-build-deploy-worker.yml"
+      - "iot/src/MeatGeek.IoT.WorkerApi/**"
+      - "iot/build/build.yaml"
       - "!.vscode"
 env:
-  AZURE_FUNCTIONAPP_NAME: "meatgeeksessions-workerapi"
+  AZURE_FUNCTIONAPP_NAME: "meatgeekiot-workerapi"
   DOTNET_VERSION: "6.0.x"
-  AZURE_RESOURCEGROUP_NAME: "MeatGeek-Sessions"
+  AZURE_RESOURCEGROUP_NAME: "MeatGeek-IoT"
   AZURE_FUNCTIONAPP_PACKAGE_PATH: "." # set this to the path to your function app project, defaults to the repository root
 
 jobs:
@@ -46,7 +40,7 @@ jobs:
         shell: bash
         run: |
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet build "./sessions/src/MeatGeek.Sessions.WorkerApi" --configuration Release --output ./output
+          dotnet build "./iot/src/MeatGeek.IoT.WorkerApi" --configuration Release --output ./output
           popd
 
       - name: "Run Azure Functions Action"
@@ -55,4 +49,4 @@ jobs:
         with:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
           package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
-          publish-profile: ${{ secrets.AZURE_SESSION_WORKER_API_PUBLISH_PROFILE }}
+          publish-profile: ${{ secrets.AZURE_IOT_WORKER_API_PUBLISH_PROFILE }}
