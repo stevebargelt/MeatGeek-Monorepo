@@ -15,7 +15,7 @@ on:
       - main
     paths:
       - ".github/workflows/iot-build-deploy.yml"
-      - "iot/src/MeatGeek.IoT.Api/**"
+      - "iot/src/MeatGeek.IoT.Functions/**"
       - "iot/build/build.yaml"
       - "!.vscode"
 env:
