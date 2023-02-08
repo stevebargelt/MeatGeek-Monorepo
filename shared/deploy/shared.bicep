@@ -9,10 +9,8 @@ var vaultURL = 'https://${kvName}${environment().suffixes.keyvaultDns}'
 
 param cosmosAccountName string = resourcePrefix
 param cosmosDatabaseName string = resourcePrefix
-param sessionsContainerName string = 'sessions'
-param iotContainerName string = 'IoT'
-param sessionsPartition string = '/smokerId'
-param iotPartition string = '/smokerId'
+param cosmosContainerName string = 'meatgeek'
+param cosmosPartition string = '/smokerId'
 param topics_meatgeek_name string = '${resourcePrefix}-session'
 
 @description('The SKU of the vault to be created.')
@@ -161,10 +159,10 @@ resource database 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2022-05-15
 
 resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_IoT 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-08-15' = {
   parent: database
-  name: iotContainerName
+  name: cosmosContainerName
   properties: {
     resource: {
-      id: iotContainerName
+      id: cosmosContainerName
       indexingPolicy: {
         indexingMode: 'consistent'
         automatic: true
@@ -181,7 +179,7 @@ resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_IoT 'Micr
       }
       partitionKey: {
         paths: [
-          iotPartition
+          cosmosPartition
         ]
         kind: 'Hash'
       }
@@ -195,43 +193,6 @@ resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_IoT 'Micr
     }
   }
 
-}
-
-resource databaseAccounts_meatgeek_name_databaseAccounts_meatgeek_name_sessions 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2022-08-15' = {
-  parent: database
-  name: sessionsContainerName
-  properties: {
-    resource: {
-      id: sessionsContainerName
-      indexingPolicy: {
-        indexingMode: 'consistent'
-        automatic: true
-        includedPaths: [
-          {
-            path: '/*'
-          }
-        ]
-        excludedPaths: [
-          {
-            path: '/"_etag"/?'
-          }
-        ]
-      }
-      partitionKey: {
-        paths: [
-          sessionsPartition
-        ]
-        kind: 'Hash'
-      }
-      uniqueKeyPolicy: {
-        uniqueKeys: []
-      }
-      conflictResolutionPolicy: {
-        mode: 'LastWriterWins'
-        conflictResolutionPath: '/_ts'
-      }
-    }
-  }
 }
 
 resource setCosmosConnectionString 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {

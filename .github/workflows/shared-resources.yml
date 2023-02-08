@@ -32,10 +32,8 @@ jobs:
             kvName=${{ secrets.SHARED_KV }} objectId=${{ secrets.STEVE_OBJECT_USER_ID }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}
             cosmosDatabaseName=${{ secrets.SHARED_COSMOS }}
-            sessionsContainerName=${{ secrets.SESSIONS_COSMOS_COLLECTION_NAME }}
-            sessionsPartition=${{ secrets.SESSIONS_COSMOS_PARTITION_PATH }}
-            iotContainerName=${{ secrets.IOT_COSMOS_COLLECTION_NAME }}
-            iotPartition=${{ secrets.IOT_COSMOS_PARTITION_PATH }}
+            cosmosContainerName=${{ secrets.SHARED_COSMOS }}
+            cosmosPartition=${{ secrets.SHARED_COSMOS_PARTITION_PATH }}
           # additionalArguments: "--what-if --rollback-on-error --what-if-exclude-change-types Create Ignore"
         # output containerName variable from template
       - run: echo ${{ steps.deploy.outputs.containerName }}
