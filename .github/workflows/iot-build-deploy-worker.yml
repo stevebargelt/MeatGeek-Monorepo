@@ -43,10 +43,10 @@ jobs:
           dotnet build "./iot/src/MeatGeek.IoT.WorkerApi" --configuration Release --output ./output
           popd
 
-      - name: "Run Azure Functions Action"
+      - name: "Deploy IoT Worker API Functions App"
         uses: Azure/functions-action@v1
         id: fa
         with:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
           package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
-          publish-profile: ${{ secrets.AZURE_IOT_WORKER_API_PUBLISH_PROFILE }}
+          publish-profile: ${{ secrets.PUBLISH_PROFILE_IOT_WORKER_FUNCTION_APP }}
