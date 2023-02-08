@@ -29,6 +29,7 @@ jobs:
           resourceGroupName: ${{ secrets.SHARED_RG }}
           template: ./shared/deploy/shared.bicep
           parameters:
+            cosmosConnectionString=${{ secrets.SHARED_COSMOS_CONNECTION_STRING }}
             kvName=${{ secrets.SHARED_KV }} objectId=${{ secrets.STEVE_OBJECT_USER_ID }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}
             cosmosDatabaseName=${{ secrets.SHARED_COSMOS }}

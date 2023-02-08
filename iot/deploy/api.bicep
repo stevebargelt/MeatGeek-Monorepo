@@ -19,7 +19,8 @@ param keyVaultResourceGroup string = 'MeatGeek-Shared'
 param eventGridTopicEndpoint string 
 param eventGridTopicKey string
 param iotEventHubEndpoint string
-param iotServiceConnection string 
+param iotServiceConnection string
+param cosmosConnectionString string
 
 var functionsAppServicePlanName = '${resourcePrefix}-${resourceProject}-app-service-plan'
 var functionsApiAppName = '${resourcePrefix}${resourceProject}api'
@@ -172,7 +173,7 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
   parent: functionsApiApp
   name: 'appsettings'
   properties: {
-    CosmosDBConnection: '@Microsoft.KeyVault(VaultName=${keyVault.name};SecretName=SharedCosmosConnectionString)'
+    CosmosDBConnection: cosmosConnectionString
     DatabaseName: cosmosAccountName
     CollectionName: cosmosDbCollectionName
     ContentStorageAccount: storage.name

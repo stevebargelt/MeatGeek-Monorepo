@@ -27,6 +27,7 @@ jobs:
           resourceGroupName: ${{ secrets.IOT_RG }}
           template: ./iot/deploy/microservice-worker.bicep
           parameters: keyVaultName=${{ secrets.SHARED_KV }}
+            cosmosConnectionString=${{ secrets.SHARED_COSMOS_CONNECTION_STRING }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}
             cosmosDbCollectionName=${{ secrets.SHARED_COSMOS }}
             eventGridTopicEndpoint=${{ secrets.EVENTGRID_TOPIC_ENDPOINT }}
@@ -42,6 +43,7 @@ jobs:
           resourceGroupName: ${{ secrets.IOT_RG }}
           template: ./iot/deploy/api.bicep
           parameters: keyVaultName=${{ secrets.SHARED_KV }}
+            cosmosConnectionString=${{ secrets.SHARED_COSMOS_CONNECTION_STRING }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}
             cosmosDbCollectionName=${{ secrets.SHARED_COSMOS }}
             eventGridTopicEndpoint=${{ secrets.EVENTGRID_TOPIC_ENDPOINT }}
