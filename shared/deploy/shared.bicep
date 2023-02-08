@@ -9,7 +9,7 @@ var vaultURL = 'https://${kvName}${environment().suffixes.keyvaultDns}'
 
 param cosmosAccountName string = resourcePrefix
 param cosmosDatabaseName string = resourcePrefix
-param cosmosContainerName string = 'meatgeek'
+param cosmosContainerName string = resourcePrefix
 param cosmosPartition string = '/smokerId'
 param topics_meatgeek_name string = '${resourcePrefix}-session'
 
