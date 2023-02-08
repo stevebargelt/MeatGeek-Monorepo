@@ -56,7 +56,7 @@ jobs:
         with:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
           package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
-          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+          publish-profile: ${{ secrets.PUBLISH_PROFILE_SESSIONS_API_FUNCTION_APP }}
 
       - uses: act10ns/slack@v1
         with:
@@ -107,6 +107,6 @@ jobs:
   #         app-name: "${{ env.AZURE_FUNCTIONAPP_NAME }}"
   #         slot-name: ${{ env.name }}
   #         package: /home/runner/work/MeatGeek-Monorepo/MeatGeek-Monorepo/functions
-  #         publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+  #         publish-profile: ${{ secrets.PUBLISH_PROFILE_SESSIONS_API_FUNCTION_APP }}
   #     - name: az cli logout
   #       run: az logout
