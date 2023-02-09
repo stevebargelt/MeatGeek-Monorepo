@@ -13,6 +13,9 @@ param cosmosContainerName string = resourcePrefix
 param cosmosPartition string = '/smokerId'
 param topics_meatgeek_name string = '${resourcePrefix}-session'
 
+// TODO: Parameterize the following... or pass from elsewhere? 
+param meatgeekiot_workerapi_externalid string = '/subscriptions/c7e800cb-0ee6-4175-9605-a6b97c6f419f/resourceGroups/MeatGeek-IoT/providers/Microsoft.Web/sites/meatgeekiot-workerapi'
+
 @description('The SKU of the vault to be created.')
 @allowed([
   'standard'
@@ -203,19 +206,121 @@ resource setCosmosConnectionString 'Microsoft.KeyVault/vaults/secrets@2021-11-01
   }
 }
 
-resource topics_meatgeek_name_resource 'Microsoft.EventGrid/topics@2020-10-15-preview' = {
+resource meatgeek_eventgrid_session_topic 'Microsoft.EventGrid/topics@2022-06-15' = {
   name: topics_meatgeek_name
   location: location
-  sku: {
-    name: 'Basic'
-  }
-  kind: 'Azure'
   identity: {
     type: 'None'
   }
   properties: {
     inputSchema: 'EventGridSchema'
     publicNetworkAccess: 'Enabled'
+    dataResidencyBoundary: 'WithinGeopair'
+  }
+}
+
+resource topics_meatgeek_session_name_meatgeekeventviewer 'Microsoft.EventGrid/topics/eventSubscriptions@2022-06-15' = {
+  parent: meatgeek_eventgrid_session_topic
+  name: 'meatgeekeventviewer'
+  properties: {
+    destination: {
+      properties: {
+        maxEventsPerBatch: 1
+        preferredBatchSizeInKilobytes: 64
+      }
+      endpointType: 'WebHook'
+    }
+    filter: {
+      enableAdvancedFilteringOnArrays: true
+    }
+    labels: []
+    eventDeliverySchema: 'EventGridSchema'
+    retryPolicy: {
+      maxDeliveryAttempts: 30
+      eventTimeToLiveInMinutes: 1440
+    }
+  }
+}
+
+resource topics_meatgeek_session_name_SessionCreated 'Microsoft.EventGrid/topics/eventSubscriptions@2022-06-15' = {
+  parent: meatgeek_eventgrid_session_topic
+  name: 'SessionCreated'
+  properties: {
+    destination: {
+      properties: {
+        resourceId: '${meatgeekiot_workerapi_externalid}/functions/SessionCreated'
+        maxEventsPerBatch: 1
+        preferredBatchSizeInKilobytes: 64
+      }
+      endpointType: 'AzureFunction'
+    }
+    filter: {
+      includedEventTypes: [
+        'SessionCreated'
+        'session'
+      ]
+      enableAdvancedFilteringOnArrays: true
+    }
+    labels: []
+    eventDeliverySchema: 'EventGridSchema'
+    retryPolicy: {
+      maxDeliveryAttempts: 30
+      eventTimeToLiveInMinutes: 1440
+    }
+  }
+}
+
+resource topics_meatgeek_session_name_SessionEnded 'Microsoft.EventGrid/topics/eventSubscriptions@2022-06-15' = {
+  parent: meatgeek_eventgrid_session_topic
+  name: 'SessionEnded'
+  properties: {
+    destination: {
+      properties: {
+        resourceId: '${meatgeekiot_workerapi_externalid}/functions/SessionEnded'
+        maxEventsPerBatch: 1
+        preferredBatchSizeInKilobytes: 64
+      }
+      endpointType: 'AzureFunction'
+    }
+    filter: {
+      includedEventTypes: [
+        'SessionEnded'
+      ]
+      enableAdvancedFilteringOnArrays: true
+    }
+    labels: []
+    eventDeliverySchema: 'EventGridSchema'
+    retryPolicy: {
+      maxDeliveryAttempts: 30
+      eventTimeToLiveInMinutes: 1440
+    }
+  }
+}
+
+resource topics_meatgeek_session_name_SessionUpdated 'Microsoft.EventGrid/topics/eventSubscriptions@2022-06-15' = {
+  parent: meatgeek_eventgrid_session_topic
+  name: 'SessionUpdated'
+  properties: {
+    destination: {
+      properties: {
+        resourceId: '${meatgeekiot_workerapi_externalid}/functions/SessionUpdated'
+        maxEventsPerBatch: 1
+        preferredBatchSizeInKilobytes: 64
+      }
+      endpointType: 'AzureFunction'
+    }
+    filter: {
+      includedEventTypes: [
+        'SessionCreated'
+      ]
+      enableAdvancedFilteringOnArrays: true
+    }
+    labels: []
+    eventDeliverySchema: 'EventGridSchema'
+    retryPolicy: {
+      maxDeliveryAttempts: 30
+      eventTimeToLiveInMinutes: 1440
+    }
   }
 }
 
