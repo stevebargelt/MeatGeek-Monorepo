@@ -21,6 +21,8 @@ namespace MeatGeek.Sessions.Services.Models.Data
         public DateTime? StartTime { get; set; }
         [JsonProperty("endTime")]
         public DateTime? EndTime { get; set; }
+        [JsonProperty("ttl")]
+        public int TTL { get; set; }
         [JsonProperty("timeStamp")]
         public DateTime TimeStamp { get; set; }
     }

@@ -20,7 +20,7 @@ namespace Telemetry
     class Program
     {
 
-        static TimeSpan telemetryInterval { get; set; } = TimeSpan.FromSeconds(10);
+        static TimeSpan telemetryInterval { get; set; } = TimeSpan.FromSeconds(30);
         static string SessionID { get; set; }
         private static CancellationTokenSource _cts;
         static string deviceId {get; set; } 
@@ -163,6 +163,7 @@ namespace Telemetry
                 }
                 status.SmokerId = deviceId;
                 status.Type = "status";
+                status.ttl = -1; //status as part of a session needs to live 'forever'
                 
                 json = JsonConvert.SerializeObject(status);
                 // Log.Information($"Device sending Event/Telemetry to IoT Hub| SmokerStaus.SmokerId = {status.SmokerId}, SmokerStaus.Type = {status.Type} || {json}");
