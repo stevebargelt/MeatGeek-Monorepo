@@ -12,6 +12,15 @@
       "focus": false
     },
     {
+      "name": ".github/workflows",
+      "description": "Github Workflows",
+      "icon": "code",
+      "cwd": "/Users/stevebargelt/code/MeatGeek-MonoRepo/.github/workflows",
+      "commands": ["ll"],
+      "open": true,
+      "focus": false
+    },
+    {
       "name": "shared",
       "description": "MeatGeek.Shared",
       "icon": "code",
@@ -19,6 +28,16 @@
       "commands": ["ll"],
       "open": true,
       "focus": true
+    },
+    {
+      "name": "iot-edge",
+      "description": "IoT Edge",
+      "icon": "code",
+      "cwd": "/Users/stevebargelt/code/MeatGeek-MonoRepo/iot-edge/modules/Telemetry",
+      "commands": ["ll"],
+
+      "open": true,
+      "focus": false
     },
     {
       "name": "iot func",
