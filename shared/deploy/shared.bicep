@@ -15,6 +15,7 @@ param topics_meatgeek_name string = '${resourcePrefix}-session'
 
 // TODO: Parameterize the following... or pass from elsewhere? 
 param meatgeekiot_workerapi_externalid string = '/subscriptions/c7e800cb-0ee6-4175-9605-a6b97c6f419f/resourceGroups/MeatGeek-IoT/providers/Microsoft.Web/sites/meatgeekiot-workerapi'
+var sessionCreatedId = '${meatgeekiot_workerapi_externalid}/functions/SessionCreated'
 
 @description('The SKU of the vault to be created.')
 @allowed([
@@ -248,7 +249,7 @@ resource topics_meatgeek_session_name_SessionCreated 'Microsoft.EventGrid/topics
   properties: {
     destination: {
       properties: {
-        resourceId: '${meatgeekiot_workerapi_externalid}/functions/SessionCreated'
+        resourceId: sessionCreatedId
         maxEventsPerBatch: 1
         preferredBatchSizeInKilobytes: 64
       }
@@ -338,8 +339,10 @@ resource acrResource 'Microsoft.ContainerRegistry/registries@2021-06-01-preview'
     name: acrSku
   }
   properties: {
-    adminUserEnabled: false
+    adminUserEnabled: true
   }
-}
+},
+
+
 @description('Output the login server property for later use')
 output loginServer string = acrResource.properties.loginServer
