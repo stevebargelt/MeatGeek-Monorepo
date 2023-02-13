@@ -174,7 +174,7 @@ namespace MeatGeek.Sessions.Services.Repositories
 
             // LINQ query generation
             using (FeedIterator<SessionStatusDocument> setIterator = _container.GetItemLinqQueryable<SessionStatusDocument>()
-                                .Where(s => s.smokerId == smokerId && s.Body.type == "status" && s.Body.sessionId == sessionId)
+                                .Where(s => s.SmokerId == smokerId && s.Type == "status" && s.SessionId == sessionId)
                                 //.Select(d => new SessionSummary { Id = s.Id, Title = s.Title })
                                 .ToFeedIterator())
             {                   
@@ -202,7 +202,7 @@ namespace MeatGeek.Sessions.Services.Repositories
 
             // LINQ query generation
             using (FeedIterator<SessionStatusDocument> setIterator = _container.GetItemLinqQueryable<SessionStatusDocument>()
-                                .Where(s => s.Body.smokerId == smokerId && s.Body.type == "status" && s.Body.sessionId == sessionId)
+                                .Where(s => s.SmokerId == smokerId && s.Type == "status" && s.SessionId == sessionId)
                                 //.Select(d => new SessionSummary { Id = s.Id, Title = s.Title })
                                 .ToFeedIterator())
             {                   
@@ -224,8 +224,8 @@ namespace MeatGeek.Sessions.Services.Repositories
             {
                 _log.LogInformation($"Before GROUP BY timeseries calls: GetSessionChartAsync");
                 TimeSpan interval = new TimeSpan(0, timeSeries.Value, 0); 
-                var SortedList = list.OrderBy(o => o.Body.currentTime).ToList();
-                var result = SortedList.GroupBy(x=> x.Body.currentTime.Ticks/interval.Ticks)
+                var SortedList = list.OrderBy(o => o.CurrentTime).ToList();
+                var result = SortedList.GroupBy(x=> x.CurrentTime.Ticks/interval.Ticks)
                         .Select(x=>x.First());
                 _log.LogInformation($"After GROUP BY timeseries calls: GetSessionChartAsync");
                 return result.ToList();
