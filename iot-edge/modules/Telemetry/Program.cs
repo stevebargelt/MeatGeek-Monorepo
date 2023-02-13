@@ -157,13 +157,23 @@ namespace Telemetry
                     }
                 }
 
+                status.SmokerId = deviceId;
                 if (!string.IsNullOrEmpty(SessionID)) 
                 {
-                   status.SessionId = SessionID;
+                    status.SessionId = SessionID;
+                    status.Type = "status";
+                    status.ttl = -1; //status as part of a session needs to live 'forever'
                 }
-                status.SmokerId = deviceId;
-                status.Type = "status";
-                status.ttl = -1; //status as part of a session needs to live 'forever'
+                else
+                {
+                    status.Type = "telemetry";
+                    status.ttl = 60*60*24*3; //3 days TTL for non session-related messages
+                }
+                
+                if (string.IsNullOrEmpty(status.Id))
+                {
+                    status.Id = Guid.NewGuid().ToString();
+                }
                 
                 json = JsonConvert.SerializeObject(status);
                 // Log.Information($"Device sending Event/Telemetry to IoT Hub| SmokerStaus.SmokerId = {status.SmokerId}, SmokerStaus.Type = {status.Type} || {json}");
