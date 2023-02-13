@@ -21,10 +21,10 @@
       "focus": false
     },
     {
-      "name": "shared",
-      "description": "MeatGeek.Shared",
+      "name": "device",
+      "description": "MeatGeek,Device",
       "icon": "code",
-      "cwd": "/Users/stevebargelt/code/MeatGeek-MonoRepo/shared/src/MeatGeek.Shared",
+      "cwd": "/Users/stevebargelt/code/MeatGeek-MonoRepo/device/src/MeatGeek.Device.Api",
       "commands": ["ll"],
       "open": true,
       "focus": true
@@ -58,6 +58,15 @@
 
       "open": true,
       "focus": false
+    },
+    {
+      "name": "shared",
+      "description": "MeatGeek.Shared",
+      "icon": "code",
+      "cwd": "/Users/stevebargelt/code/MeatGeek-MonoRepo/shared/src/MeatGeek.Shared",
+      "commands": ["ll"],
+      "open": true,
+      "focus": true
     },
     {
       "name": "sessions services",
