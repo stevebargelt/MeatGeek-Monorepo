@@ -33,12 +33,19 @@ namespace Telemetry
             InitLogging();
 
             Log.Information($"Module {Environment.GetEnvironmentVariable("IOTEDGE_MODULEID")} starting up...");
+
             var moduleClient = await Init();
            
             _cts = new CancellationTokenSource();
             AssemblyLoadContext.Default.Unloading += (ctx) => _cts.Cancel();
             Console.CancelKeyPress += (sender, cpe) => _cts.Cancel();
             deviceId = Environment.GetEnvironmentVariable("IOTEDGE_DEVICEID");
+            SessionID = Environment.GetEnvironmentVariable("SESSION_ID");
+            if (!string.IsNullOrEmpty(SessionID))
+            {
+                Log.Warning($"On Startup SessionID found {SessionID}...");
+                Log.Warning($"We do not check that session ended while module was down");
+            }
             
             Twin currentTwinProperties = await moduleClient.GetTwinAsync();
             if (currentTwinProperties.Properties.Desired.Contains("TelemetryInterval"))
@@ -254,6 +261,7 @@ namespace Telemetry
             {
                 var sessionID = data.Replace("\"", "");
                 SessionID = sessionID;
+                Environment.SetEnvironmentVariable("SESSION_ID", SessionID);
                 Log.Information($"SessionID set to {sessionID}");
                 // Acknowlege the direct method call with a 200 success message
                 string result = "{\"result\":\"Executed direct method: " + methodRequest.Name + "\"}";
@@ -272,6 +280,7 @@ namespace Telemetry
             var data = Encoding.UTF8.GetString(methodRequest.Data);
 
             SessionID = "";
+            Environment.SetEnvironmentVariable("SESSION_ID", SessionID);
             Log.Information($"Session Ended");
             string result = "{\"result\":\"Executed direct method: " + methodRequest.Name + "\"}";
             return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(result), 200));
