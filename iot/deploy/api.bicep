@@ -20,6 +20,7 @@ param eventGridTopicEndpoint string
 param eventGridTopicKey string
 param iotEventHubEndpoint string
 param iotServiceConnection string
+param iotSharedAccessConnString string
 param cosmosConnectionString string
 
 var functionsAppServicePlanName = '${resourcePrefix}-${resourceProject}-app-service-plan'
@@ -188,6 +189,7 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
     EventGridTopicKey: eventGridTopicKey
     IOT_EVENTHUB_ENDPOINT: iotEventHubEndpoint
     IOT_SERVICE_CONNECTION: iotServiceConnection
+    IOT_HUB_SHARED_ACCESS_CONN_STRING: iotSharedAccessConnString
   }
 }
 

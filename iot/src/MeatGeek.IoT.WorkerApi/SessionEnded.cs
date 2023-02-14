@@ -63,7 +63,7 @@ namespace MeatGeek.IoT.WorkerApi
                     }
                     catch (Exception e)
                     {
-                        log.LogError(e, $"[{smokerId}/{MODULE_NAME}] Exeception on direct method call");
+                        log.LogError(e, $"[{smokerId}/{MODULE_NAME}] Exeception on direct method call: {e.Message} | {e.InnerException}");
                     }               
                 }
                 else

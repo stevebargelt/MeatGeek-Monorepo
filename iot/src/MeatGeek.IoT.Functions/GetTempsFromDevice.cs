@@ -27,13 +27,14 @@ namespace MeatGeek.IoT
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "temps/{device}")] HttpRequest req,
             string device)
         {
-            _log.LogInformation($"HTTP trigger function processed a request. GetTempsFromDevice which calls {METHOD_NAME}.");
-            var methodInvocation = new CloudToDeviceMethod(METHOD_NAME) { ResponseTimeout = TimeSpan.FromSeconds(30) };
+            _log.LogInformation($"HTTP trigger function processed a request. GetTempsFromDevice which calls {METHOD_NAME} in module {MODULE_NAME}.");
             if (string.IsNullOrEmpty(device))
             {
                 _log.LogError($"Must include the deviceid / name in route - https://address.com/api/temps/deviceid");
                 return new BadRequestObjectResult("deviceid was not included in the route | https://address.com/api/temps/deviceid");
             }
+            _log.LogInformation($"DeviceId = {device}");
+            var methodInvocation = new CloudToDeviceMethod(METHOD_NAME) { ResponseTimeout = TimeSpan.FromSeconds(30) };
             try
             {
                 _log.LogInformation($"Invoking method {METHOD_NAME} on module {device}/{MODULE_NAME}.");
@@ -50,7 +51,7 @@ namespace MeatGeek.IoT
             }
             catch (Exception e)
             {
-                _log.LogError(e, $"[{device}/{MODULE_NAME}] Exeception on direct method call");
+                _log.LogError(e, $"[{device}/{MODULE_NAME}] Exeception on direct method call: {e.Message} | {e.InnerException}");
                 return new BadRequestObjectResult("Exception was caught in function app.");
             }
         }

@@ -34,6 +34,7 @@ jobs:
             eventGridTopicKey=${{ secrets.EVENTGRID_TOPIC_KEY }}
             iotEventHubEndpoint=${{ secrets.IOT_EVENTHUB_ENDPOINT }}
             iotServiceConnection=${{ secrets.IOT_SERVICE_CONNECTION }}
+            iotSharedAccessConnString=${{ secrets.IOT_HUB_SHARED_ACCESS_CONN_STRING }}
 
       # Deploy ARM template
       - name: Run Bicep Deploy For API
