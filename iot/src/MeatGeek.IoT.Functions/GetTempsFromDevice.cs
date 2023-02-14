@@ -18,7 +18,7 @@ namespace MeatGeek.IoT
             _log = log;
         }
 
-        private static ServiceClient _iotHubServiceClient = ServiceClient.CreateFromConnectionString(Environment.GetEnvironmentVariable("IOT_SERVICE_CONNECTION", EnvironmentVariableTarget.Process));
+        private static ServiceClient _iotHubServiceClient = ServiceClient.CreateFromConnectionString(Environment.GetEnvironmentVariable("IOT_HUB_SHARED_ACCESS_CONN_STRING", EnvironmentVariableTarget.Process));
         private const string METHOD_NAME = "GetTemps";
         private const string MODULE_NAME = "Telemetry";
         
@@ -36,7 +36,7 @@ namespace MeatGeek.IoT
             }
             try
             {
-                _log.LogInformation($"Invoking method telemetryinterval on module {device}/{MODULE_NAME}.");
+                _log.LogInformation($"Invoking method {METHOD_NAME} on module {device}/{MODULE_NAME}.");
                 var result = await _iotHubServiceClient.InvokeDeviceMethodAsync(device, MODULE_NAME, methodInvocation).ConfigureAwait(false);
                 if (IsSuccessStatusCode(result.Status))
                 {
