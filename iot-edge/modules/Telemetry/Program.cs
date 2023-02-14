@@ -22,6 +22,7 @@ namespace Telemetry
 
         static TimeSpan telemetryInterval { get; set; } = TimeSpan.FromSeconds(30);
         static string SessionID { get; set; }
+        static SmokerStatus smokerStatus { get; set; }
         private static CancellationTokenSource _cts;
         static string deviceId {get; set; } 
         private static HttpClient _httpClient = new HttpClient();
@@ -181,7 +182,7 @@ namespace Telemetry
                 {
                     status.Id = Guid.NewGuid().ToString();
                 }
-                
+                smokerStatus = status;
                 json = JsonConvert.SerializeObject(status);
                 // Log.Information($"Device sending Event/Telemetry to IoT Hub| SmokerStaus.SmokerId = {status.SmokerId}, SmokerStaus.Type = {status.Type} || {json}");
                 Message eventMessage = new Message(Encoding.UTF8.GetBytes(json));
@@ -273,6 +274,20 @@ namespace Telemetry
                 string result = "{\"result\":\"Payload Missing. Need the SessionId\"}";
                 return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(result), 400));
             }
+        }
+
+        private static Task<MethodResponse> GetTemps(MethodRequest methodRequest, object userContext)
+        {
+            Log.Information($"GetTemps Called");
+            var json = JsonConvert.SerializeObject(smokerStatus.Temps);
+            return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(json), 200));
+        }
+
+        private static Task<MethodResponse> GetStatus(MethodRequest methodRequest, object userContext)
+        {
+            Log.Information($"GetStatus Called");
+            var json = JsonConvert.SerializeObject(smokerStatus);
+            return Task.FromResult(new MethodResponse(Encoding.UTF8.GetBytes(json), 200));
         }
 
         private static Task<MethodResponse> EndSession(MethodRequest methodRequest, object userContext)
