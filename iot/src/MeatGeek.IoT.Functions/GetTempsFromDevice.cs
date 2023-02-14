@@ -22,13 +22,17 @@ namespace MeatGeek.IoT
         private const string METHOD_NAME = "GetTemps";
         private const string MODULE_NAME = "Telemetry";
         
-        [FunctionName("temps")]
+        [FunctionName("GetTempsFromDevice")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "temps/{device}")]
-            [FromBody] string device)
+            [FromRoute] string device)
         {
             _log.LogInformation($"C# HTTP trigger function processed a request. {METHOD_NAME}.");
             var methodInvocation = new CloudToDeviceMethod(METHOD_NAME) { ResponseTimeout = TimeSpan.FromSeconds(30) };
+            if (string.IsNullOrEmpty(device))
+            {
+                _log.LogError($"must include the deviceid / name in route - https://address.com/api/temps/deviceid");
+            }
           try
             {
                 _log.LogInformation($"Invoking method telemetryinterval on module {device}/{MODULE_NAME}.");
