@@ -24,16 +24,17 @@ namespace MeatGeek.IoT
         
         [FunctionName("GetTempsFromDevice")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "temps/{device}")]
-            [FromRoute] string device)
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "temps/{device}")] HttpRequest req,
+            string device)
         {
-            _log.LogInformation($"C# HTTP trigger function processed a request. {METHOD_NAME}.");
+            _log.LogInformation($"HTTP trigger function processed a request. GetTempsFromDevice which calls {METHOD_NAME}.");
             var methodInvocation = new CloudToDeviceMethod(METHOD_NAME) { ResponseTimeout = TimeSpan.FromSeconds(30) };
             if (string.IsNullOrEmpty(device))
             {
-                _log.LogError($"must include the deviceid / name in route - https://address.com/api/temps/deviceid");
+                _log.LogError($"Must include the deviceid / name in route - https://address.com/api/temps/deviceid");
+                return new BadRequestObjectResult("deviceid was not included in the route | https://address.com/api/temps/deviceid");
             }
-          try
+            try
             {
                 _log.LogInformation($"Invoking method telemetryinterval on module {device}/{MODULE_NAME}.");
                 var result = await _iotHubServiceClient.InvokeDeviceMethodAsync(device, MODULE_NAME, methodInvocation).ConfigureAwait(false);
