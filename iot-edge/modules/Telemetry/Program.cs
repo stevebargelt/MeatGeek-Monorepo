@@ -62,6 +62,8 @@ namespace Telemetry
             await moduleClient.SetMethodHandlerAsync("SetTelemetryInterval", SetTelemetryInterval, userContext);
             await moduleClient.SetMethodHandlerAsync("SetSessionId", SetSessionId, userContext);
             await moduleClient.SetMethodHandlerAsync("EndSession", EndSession, userContext);
+            await moduleClient.SetMethodHandlerAsync("GetTemps", GetTemps, userContext);
+            await moduleClient.SetMethodHandlerAsync("GetStatus", GetStatus, userContext);
             
             await SendEvents(moduleClient, _cts.Token);
 
