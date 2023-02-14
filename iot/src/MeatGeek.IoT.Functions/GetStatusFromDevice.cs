@@ -10,28 +10,28 @@ using Microsoft.Azure.Devices;
 
 namespace MeatGeek.IoT
 {
-    public class GetTempsFromDevice
+    public class GetStatusFromDevice
     {
-        private readonly ILogger<GetTempsFromDevice> _log;
+        private readonly ILogger<GetStatusFromDevice> _log;
 
-        public GetTempsFromDevice(ILogger<GetTempsFromDevice> log) {
+        public GetStatusFromDevice(ILogger<GetStatusFromDevice> log) {
             _log = log;
         }
 
         private static ServiceClient _iotHubServiceClient = ServiceClient.CreateFromConnectionString(Environment.GetEnvironmentVariable("IOT_SERVICE_CONNECTION", EnvironmentVariableTarget.Process));
-        private const string METHOD_NAME = "GetTemps";
+        private const string METHOD_NAME = "GetStatus";
         private const string MODULE_NAME = "Telemetry";
         
-        [FunctionName("GetTempsFromDevice")]
+        [FunctionName("GetStatusFromDevice")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "temps/{device}")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "status/{device}")] HttpRequest req,
             string device)
         {
-            _log.LogInformation($"HTTP trigger function processed a request. GetTempsFromDevice which calls {METHOD_NAME} in module {MODULE_NAME}.");
+            _log.LogInformation($"HTTP trigger function processed a request. GetStatusFromDevice which calls {METHOD_NAME} in module {MODULE_NAME}.");
             if (string.IsNullOrEmpty(device))
             {
-                _log.LogError($"Must include the deviceid / name in route - https://address.com/api/temps/deviceid");
-                return new BadRequestObjectResult("deviceid was not included in the route | https://address.com/api/temps/deviceid");
+                _log.LogError($"Must include the deviceid / name in route - https://address.com/api/status/deviceid");
+                return new BadRequestObjectResult("deviceid was not included in the route | https://address.com/api/status/deviceid");
             }
             _log.LogInformation($"DeviceId = {device}");
             var methodInvocation = new CloudToDeviceMethod(METHOD_NAME) { ResponseTimeout = TimeSpan.FromSeconds(30) };
