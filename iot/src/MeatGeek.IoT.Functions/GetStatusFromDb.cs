@@ -51,8 +51,8 @@ namespace MeatGeek.IoT
             var parameterizedQuery = new QueryDefinition(
                 query: @"SELECT TOP 1 * FROM s 
                         WHERE s.smokerId=@partitionKey 
-                        AND status.type=@type 
-                        ORDER BY status.currentTime DESC"
+                        AND s.type=@type 
+                        ORDER BY s.currentTime DESC"
                 )
                 .WithParameter("@partitionKey", smokerId)
                 .WithParameter("@type", "status");
