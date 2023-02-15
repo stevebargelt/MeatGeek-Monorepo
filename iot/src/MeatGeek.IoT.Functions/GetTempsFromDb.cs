@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -34,7 +35,7 @@ namespace MeatGeek.IoT
         [OpenApiOperation(operationId: "GetTempsFromDb", tags: new[] { "MeatGeek" }, Summary = "Returns last reported temps from a smoker", Description = "Returns last reported temps from a smoker", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(List<SmokerStatus>), Summary = "successful operation", Description = "successful response")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Data not found", Description = "Data not found")]
-        public IActionResult Run(
+        public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "temps/db/{smokerId}")] HttpRequest req,
             string smokerId,
             ILogger log)
@@ -45,12 +46,36 @@ namespace MeatGeek.IoT
                 Environment.GetEnvironmentVariable("CollectionName", EnvironmentVariableTarget.Process)
             );
 
-            SmokerStatus latestStatus = container.GetItemLinqQueryable<SmokerStatus>(requestOptions: new QueryRequestOptions { PartitionKey = new Microsoft.Azure.Cosmos.PartitionKey(smokerId) })
-                    .OrderByDescending(p => p.CurrentTime)
-                    .AsEnumerable()
-                    .FirstOrDefault();
+            // TODO: Need to create a new CosmosDB container and always repalce the most recent record based
+            //          based on the Cosmos DB change feed. MUCH faster. 
+            var parameterizedQuery = new QueryDefinition(
+                query: @"SELECT TOP 1 * FROM s 
+                        WHERE s.smokerId=@partitionKey 
+                        AND status.type=@type 
+                        ORDER BY status.currentTime DESC"
+                )
+                .WithParameter("@partitionKey", smokerId)
+                .WithParameter("@type", "status");
 
-            return new JsonResult(latestStatus.Temps);
+            // Query multiple items from container
+            using FeedIterator<SmokerStatus> filteredFeed = container.GetItemQueryIterator<SmokerStatus>(
+                queryDefinition: parameterizedQuery
+            );
+
+            Temps temps = null;
+            while (filteredFeed.HasMoreResults)
+            {
+                FeedResponse<SmokerStatus> response = await filteredFeed.ReadNextAsync();
+                temps = response.First().Temps;
+            }
+            if (temps != null) 
+            {
+                return new JsonResult(temps);
+            }
+            else
+            {
+                return new NotFoundResult();
+            }
         }
     }
 }
