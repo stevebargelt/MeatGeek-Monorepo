@@ -36,6 +36,7 @@ namespace MeatGeek.IoT
         /// <returns></returns>
         [FunctionName("GetChart")]
         [OpenApiOperation(operationId: "GetChart", tags: new[] { "IoT" }, Summary = "Get chart data", Description = "Returns a list of SmokerStatus", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter(name: "smokerId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "smokerId", Description = "the ID of the Smoker (smokerId / deviceId)", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiParameter(name: "starttime", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "2021-05-12T15%3A53%3A29.991Z", Description = "Where to start the data return URL Encoded ISO-8601.", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiParameter(name: "timeseries", In = ParameterLocation.Path, Required = false, Type = typeof(int), Summary = "15", Description = "Minutes to group the return data. Integer between 0 and 60.", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiParameter(name: "endtime", In = ParameterLocation.Path, Required = false, Type = typeof(string), Summary = "2021-05-12T22%3A22%3A15.675Z", Description = "Where to stop the data return. URL Encoded ISO-8601.", Visibility = OpenApiVisibilityType.Important)]
@@ -43,7 +44,8 @@ namespace MeatGeek.IoT
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Summary = "Invalid starttime supplied", Description = "Invalid starttime supplied")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Data not found", Description = "Data not found")]
         public  async Task<IActionResult> GetChart(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "chart/{starttime}/{timeseries:int?}/{endtime?}")] HttpRequest req, 
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "chart/{smokerId}/{starttime}/{timeseries:int?}/{endtime?}")] HttpRequest req, 
+            string smokerId,
             string starttime,
             int? timeseries,
 #nullable enable            
@@ -61,9 +63,7 @@ namespace MeatGeek.IoT
             //TODO: try/catch this
             DateTime StartDateTime = DateTime.Parse(starttime, null, System.Globalization.DateTimeStyles.RoundtripKind);
             
-            //TODO: Sent SmokerID as a parameter to function call
-            var SmokerId = "meatgeek3";
-            log.LogInformation("SmokerId = " + SmokerId);
+            log.LogInformation("SmokerId = " + smokerId);
 
             DateTime EndDateTime;
             //TODO: try/catch this
@@ -79,7 +79,7 @@ namespace MeatGeek.IoT
             var container = _cosmosClient.GetContainer("iot", "telemetry");
 
             Microsoft.Azure.Cosmos.FeedIterator<SmokerStatus> query;
-            query = container.GetItemLinqQueryable<SmokerStatus>(requestOptions: new QueryRequestOptions { PartitionKey = new Microsoft.Azure.Cosmos.PartitionKey(SmokerId) })
+            query = container.GetItemLinqQueryable<SmokerStatus>(requestOptions: new QueryRequestOptions { PartitionKey = new Microsoft.Azure.Cosmos.PartitionKey(smokerId) })
                     .Where(p => p.CurrentTime >= StartDateTime
                             && p.CurrentTime <= EndDateTime)                            
                     .ToFeedIterator();
