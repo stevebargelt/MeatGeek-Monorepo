@@ -47,7 +47,7 @@ namespace MeatGeek.IoT
                 {
                     _log.LogWarning($"[{device}/{MODULE_NAME}] Unsuccessful direct method call result code={result.Status}");
                 }
-                return new ObjectResult(result.GetPayloadAsJson());
+                return new JsonResult(result.GetPayloadAsJson());
             }
             catch (Exception e)
             {

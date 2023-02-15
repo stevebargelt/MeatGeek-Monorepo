@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.AspNetCore.Http;
+// Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 
@@ -47,7 +48,7 @@ namespace MeatGeek.IoT
                 {
                     _log.LogWarning($"[{device}/{MODULE_NAME}] Unsuccessful direct method call result code={result.Status}");
                 }
-                return new ObjectResult(result.GetPayloadAsJson());
+                return new JsonResult(result.GetPayloadAsJson());
             }
             catch (Exception e)
             {
