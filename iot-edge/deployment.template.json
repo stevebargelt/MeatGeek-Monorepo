@@ -75,6 +75,13 @@
               "image": "${MODULES.Telemetry}",
               "createOptions": {
                 "HostConfig": {
+                  "LogConfig": {
+                    "Type": "json-file",
+                    "Config": {
+                      "max-size": "10m",
+                      "max-file": "3"
+                    }
+                  },
                   "ExtraHosts": ["host.docker.internal:host-gateway"],
                   "PortBindings": {
                     "3000/tcp": [
