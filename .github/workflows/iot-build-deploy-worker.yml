@@ -18,6 +18,9 @@ on:
       - "iot/src/MeatGeek.IoT.WorkerApi/**"
       - "iot/build/build.yaml"
       - "!.vscode"
+  schedule:
+    - cron: "20 11 * * *"
+
 env:
   AZURE_FUNCTIONAPP_NAME: "meatgeekiot-workerapi"
   DOTNET_VERSION: "6.0.x"

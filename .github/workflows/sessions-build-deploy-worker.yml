@@ -24,6 +24,9 @@ on:
       - "!sessions/mkdocs.yml"
       - "!sessions/build/build-docs.yaml"
       - "!.vscode"
+  schedule:
+    - cron: "20 11 * * *"
+
 env:
   AZURE_FUNCTIONAPP_NAME: "meatgeeksessions-workerapi"
   DOTNET_VERSION: "6.0.x"

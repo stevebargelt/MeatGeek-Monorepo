@@ -11,6 +11,8 @@ on: # yamllint disable-line rule:truthy
       - "iot-edge/modules/**"
       - "iot-edge/.env_template"
       - "iot-edge/deployment.template.json"
+  schedule:
+    - cron: "20 11 * * *"
   workflow_dispatch:
 
 env:

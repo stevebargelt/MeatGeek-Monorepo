@@ -18,6 +18,9 @@ on:
       - "iot/src/MeatGeek.IoT.Functions/**"
       - "iot/build/build.yaml"
       - "!.vscode"
+  schedule:
+    - cron: "20 11 * * *"
+
 env:
   AZURE_FUNCTIONAPP_NAME: "meatgeekiotapi"
   DOTNET_VERSION: "6.0.x"
