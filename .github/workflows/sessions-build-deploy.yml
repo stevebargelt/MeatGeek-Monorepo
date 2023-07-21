@@ -25,7 +25,7 @@ on:
       - "!sessions/build/build-docs.yaml"
       - "!.vscode"
   schedule:
-    - cron: "20 11 * * *"
+    - cron: "20 18 * * *"
 
 env:
   AZURE_FUNCTIONAPP_NAME: "meatgeeksessionsapi"
