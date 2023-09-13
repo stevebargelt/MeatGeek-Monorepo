@@ -8,12 +8,10 @@ namespace Telemetry
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Devices.Client;
-    using Microsoft.Azure.Devices.Client.Transport.Mqtt;
     using Microsoft.Azure.Devices.Shared;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using Serilog;
-    using Serilog.Configuration;
     using Serilog.Core;
     using Serilog.Events;
 
