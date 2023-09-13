@@ -61,6 +61,7 @@ namespace MeatGeek.IoT
             }
 
             //TODO: try/catch this
+            
             DateTime StartDateTime = DateTime.Parse(starttime, null, System.Globalization.DateTimeStyles.RoundtripKind);
             
             log.LogInformation("SmokerId = " + smokerId);
