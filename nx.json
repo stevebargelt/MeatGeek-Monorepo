@@ -1,0 +1,7 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "nxCloudId": "6800faeccbf01426a3f10814",
+  "plugins": [
+    "@nx-dotnet/core"
+  ]
+}
