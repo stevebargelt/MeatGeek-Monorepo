@@ -27,6 +27,11 @@ stages:
       - job: Build
         displayName: "DotNet Restore"
         steps:
+          - task: UseDotNet@2
+            displayName: 'Use .NET 8.0 SDK'
+            inputs:
+              packageType: 'sdk'
+              version: '8.x'
           - task: DotNetCoreCLI@1
             displayName: Run dotnet restore
             inputs:
@@ -42,6 +47,11 @@ stages:
       - job: DotNetPublish
         displayName: "DotNet Publish"
         steps:
+          - task: UseDotNet@2
+            displayName: 'Use .NET 8.0 SDK'
+            inputs:
+              packageType: 'sdk'
+              version: '8.x'
           - task: DotNetCoreCLI@1
             displayName: Run dotnet publish
             inputs:
@@ -74,3 +84,6 @@ stages:
                     appType: functionApp
                     package: "$(System.DefaultWorkingDirectory)/MeatGeek.Sessions.Api.zip"
                     webAppName: "meatgeeksessionsapi"
+                    appSettings: |
+                      -FUNCTIONS_EXTENSION_VERSION ~4
+                      -FUNCTIONS_WORKER_RUNTIME dotnet-isolated

@@ -54,12 +54,12 @@ namespace MeatGeek.Sessions.Services.Repositories
             catch (CosmosException ex) 
             {
                 _log.LogError($"Exception in AddSessionAsync StatusCode={ex.StatusCode}");
-                throw ex;
+                throw;
             }
             catch (AggregateException ae)
             {
                 _log.LogError("Caught aggregate exception-Task.Wait behavior.");
-                throw ae;
+                throw;
             }
         }
 
@@ -109,7 +109,7 @@ namespace MeatGeek.Sessions.Services.Repositories
             catch (Exception exc)
             {
                 _log.LogError(exc, "<-- unhandled exception GetsessionAsync. Throwing...");
-                throw exc;
+                throw;
             }
         }
 
