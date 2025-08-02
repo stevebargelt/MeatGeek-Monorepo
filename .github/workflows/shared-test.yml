@@ -1,0 +1,76 @@
+name: Shared Unit Tests
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "shared/src/**"
+      - "shared/tests/**"
+      - ".github/workflows/shared-test.yml"
+  push:
+    branches: [main]
+    paths:
+      - "shared/src/**"
+      - "shared/tests/**"
+      - ".github/workflows/shared-test.yml"
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: "8.0.x"
+  
+jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+            
+      - name: Restore dependencies
+        run: |
+          dotnet restore shared/src/MeatGeek.Shared/MeatGeek.Shared.csproj
+          dotnet restore shared/tests/MeatGeek.Shared.Tests/MeatGeek.Shared.Tests.csproj
+          
+      - name: Build projects
+        run: |
+          dotnet build shared/src/MeatGeek.Shared/MeatGeek.Shared.csproj --configuration Release --no-restore
+          dotnet build shared/tests/MeatGeek.Shared.Tests/MeatGeek.Shared.Tests.csproj --configuration Release --no-restore
+          
+      - name: Run Shared Tests
+        run: |
+          dotnet test shared/tests/MeatGeek.Shared.Tests/MeatGeek.Shared.Tests.csproj \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --logger trx \
+            --results-directory ./test-results/shared
+            
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: ./test-results/
+          
+      - name: Test Summary
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Shared Unit Test Results
+          path: './test-results/**/*.trx'
+          reporter: dotnet-trx
+          fail-on-error: true

@@ -5,11 +5,11 @@ namespace MeatGeek.Shared.EventSchemas.Sessions
 {
     public class SessionEndedEventData
     {
-        [JsonProperty("id")] 
+        [JsonProperty("id")]
         public string Id { get; set; }
-        [JsonProperty("smokerId")] 
+        [JsonProperty("smokerId")]
         public string SmokerId { get; set; }
-        [JsonProperty("endTime")] 
+        [JsonProperty("endTime")]
         public DateTime? EndTime { get; set; }
     }
 }

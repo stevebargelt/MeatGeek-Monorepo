@@ -24,7 +24,7 @@ namespace MeatGeek.Shared
             }
             var smokerId = eventGridEventSubjectComponents[0];
             var sessionId = eventGridEventSubjectComponents[1];
-            
+
             return (smokerId, sessionId);
         }
 
@@ -36,7 +36,7 @@ namespace MeatGeek.Shared
 
                 case EventTypes.Sessions.SessionCreated:
                     return ConvertDataObjectToType<SessionCreatedEventData>(data);
-                    
+
                 // updates
 
                 case EventTypes.Sessions.SessionUpdated:
@@ -59,7 +59,7 @@ namespace MeatGeek.Shared
                 return o.ToObject<T>();
             }
 
-            return (T) dataObject;
+            return (T)dataObject;
         }
     }
 }

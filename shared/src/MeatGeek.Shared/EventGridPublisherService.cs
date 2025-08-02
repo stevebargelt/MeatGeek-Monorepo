@@ -16,7 +16,7 @@ namespace MeatGeek.Shared
     {
         private ILogger<EventGridPublisherService> _log;
 
-        public EventGridPublisherService(ILogger<EventGridPublisherService> logger) 
+        public EventGridPublisherService(ILogger<EventGridPublisherService> logger)
         {
             _log = logger;
         }

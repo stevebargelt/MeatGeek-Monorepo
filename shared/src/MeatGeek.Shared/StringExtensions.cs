@@ -8,7 +8,7 @@ namespace MeatGeek.Shared
             {
                 return value;
             }
-            
+
             var truncatedString = value.Substring(0, maximumLength - continuationMarker.Length);
             return truncatedString + continuationMarker;
         }

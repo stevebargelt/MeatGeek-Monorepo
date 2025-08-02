@@ -1,8 +1,8 @@
 {
   "devDependencies": {
-    "@nx-dotnet/core": "^2.5.0",
-    "@nx/js": "20.8.0",
-    "nx": "20.8.0"
+    "@nx-dotnet/core": "^3.0.0",
+    "@nx/js": "21.0.3",
+    "nx": "21.0.3"
   },
   "scripts": {
     "prepare": "nx g @nx-dotnet/core:restore"

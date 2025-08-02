@@ -1,3 +1,3 @@
 using System.Runtime.CompilerServices;
 
-[assembly:InternalsVisibleTo("MeatGeek.Shared.Tests")]
+[assembly: InternalsVisibleTo("MeatGeek.Shared.Tests")]

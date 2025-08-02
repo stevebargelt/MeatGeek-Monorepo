@@ -10,7 +10,7 @@ namespace MeatGeek.Shared
     {
         public string Topic { get; set; }
         public string Id { get; set; }
-        public string EventType { get; set;}
+        public string EventType { get; set; }
         public string Subject { get; set; }
         public DateTime EventTime { get; set; }
 
