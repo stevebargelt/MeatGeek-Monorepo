@@ -105,22 +105,22 @@ namespace MeatGeek.Sessions
                 catch(ArgumentNullException argNullEx)
                 {
                     log.LogError(argNullEx, $"Argument NUll exception");
-                    throw argNullEx;
+                    throw;
                 }
                 catch(ArgumentException argEx)
                 {
                     log.LogError(argEx, $"Argument exception");
-                    throw argEx;
+                    throw;
                 }                
                 catch(FormatException formatEx)
                 {
                     log.LogError(formatEx, $"Format exception");
-                    throw formatEx;
+                    throw;
                 }
                 catch(Exception ex)
                 {
                     log.LogError(ex, $"Unhandled Exception from DateTimeParse");
-                    throw ex;
+                    throw;
                 }
                 log.LogInformation($"EndTime will be updated to {updateData.EndTime.ToString()}");
             }

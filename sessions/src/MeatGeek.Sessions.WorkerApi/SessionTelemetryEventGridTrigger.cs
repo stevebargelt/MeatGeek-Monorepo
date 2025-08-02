@@ -11,7 +11,7 @@ namespace MeatGeek.Sessions.WorkerApi
     public class SessionTelemetryEventGridTrigger
     {
         [FunctionName("SessionTelemetryEventGridTrigger")]
-        public static async Task Run(            
+        public static Task Run(            
             [EventGridTrigger] EventGridEvent eventGridEvent,
             SmokerStatus smokerStatus,
             Int32 deliveryCount,
@@ -32,6 +32,8 @@ namespace MeatGeek.Sessions.WorkerApi
             // var smokerStatusString = JsonConvert.SerializeObject(smokerStatus);
             // log.LogInformation($"SmokerStatus: {smokerStatusString}"); 
             // log.LogInformation($"SmokerID: {smokerStatus.SmokerId}");
+            
+            return Task.CompletedTask;
             // if (smokerStatus.ttl is null || smokerStatus.ttl == 0 || smokerStatus.ttl == -1) {
             //     smokerStatus.ttl = 60 * 60 * 24 * 3;
             // }
