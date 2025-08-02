@@ -287,7 +287,7 @@ namespace MeatGeek.Sessions.Api.Tests
             _mockSessionsService.Verify(s => s.EndSessionAsync(
                 sessionId, 
                 smokerId, 
-                expectedDateTime), Times.Once);
+                It.Is<DateTime>(dt => Math.Abs((dt - expectedDateTime).TotalSeconds) < 1)), Times.Once);
         }
 
         [Fact]

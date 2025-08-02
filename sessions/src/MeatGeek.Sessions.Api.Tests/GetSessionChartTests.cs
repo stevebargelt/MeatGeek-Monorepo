@@ -48,16 +48,16 @@ namespace MeatGeek.Sessions.Api.Tests
                 Id = "chart-1",
                 SessionId = sessionId,
                 SmokerId = smokerId,
-                StatusTime = DateTime.UtcNow.AddMinutes(-30),
-                Temps = new StatusTemps { GrillTemp = 225.0, MeatTemp = 160.0 }
+                CurrentTime = DateTime.UtcNow.AddMinutes(-30),
+                Temps = new StatusTemps { GrillTemp = "225.0", Probe1Temp = "160.0" }
             });
             sessionStatuses.Add(new SessionStatusDocument
             {
                 Id = "chart-2",
                 SessionId = sessionId,
                 SmokerId = smokerId,
-                StatusTime = DateTime.UtcNow.AddMinutes(-25),
-                Temps = new StatusTemps { GrillTemp = 230.0, MeatTemp = 165.0 }
+                CurrentTime = DateTime.UtcNow.AddMinutes(-25),
+                Temps = new StatusTemps { GrillTemp = "230.0", Probe1Temp = "165.0" }
             });
 
             _mockSessionsService
@@ -93,8 +93,8 @@ namespace MeatGeek.Sessions.Api.Tests
                 Id = "chart-default",
                 SessionId = sessionId,
                 SmokerId = smokerId,
-                StatusTime = DateTime.UtcNow,
-                Temps = new StatusTemps { GrillTemp = 225.0 }
+                CurrentTime = DateTime.UtcNow,
+                Temps = new StatusTemps { GrillTemp = "225.0" }
             });
 
             _mockSessionsService
@@ -337,8 +337,8 @@ namespace MeatGeek.Sessions.Api.Tests
                 Id = "chart-test",
                 SessionId = sessionId,
                 SmokerId = smokerId,
-                StatusTime = DateTime.UtcNow,
-                Temps = new StatusTemps { GrillTemp = 225.0 }
+                CurrentTime = DateTime.UtcNow,
+                Temps = new StatusTemps { GrillTemp = "225.0" }
             });
 
             _mockSessionsService
@@ -374,8 +374,8 @@ namespace MeatGeek.Sessions.Api.Tests
                 Id = "test-chart",
                 SessionId = sessionId,
                 SmokerId = smokerId,
-                StatusTime = DateTime.UtcNow,
-                Temps = new StatusTemps { GrillTemp = 225.0 }
+                CurrentTime = DateTime.UtcNow,
+                Temps = new StatusTemps { GrillTemp = "225.0" }
             });
 
             _mockSessionsService
@@ -408,8 +408,8 @@ namespace MeatGeek.Sessions.Api.Tests
                     Id = $"chart-{i}",
                     SessionId = sessionId,
                     SmokerId = smokerId,
-                    StatusTime = DateTime.UtcNow.AddMinutes(-i * 5),
-                    Temps = new StatusTemps { GrillTemp = 225.0 + (i % 50), MeatTemp = 160.0 + (i % 30) }
+                    CurrentTime = DateTime.UtcNow.AddMinutes(-i * 5),
+                    Temps = new StatusTemps { GrillTemp = (225.0 + (i % 50)).ToString(), Probe1Temp = (160.0 + (i % 30)).ToString() }
                 });
             }
 
@@ -452,8 +452,8 @@ namespace MeatGeek.Sessions.Api.Tests
                 Id = "formatted-chart",
                 SessionId = sessionId,
                 SmokerId = smokerId,
-                StatusTime = DateTime.UtcNow,
-                Temps = new StatusTemps { GrillTemp = 225.0 }
+                CurrentTime = DateTime.UtcNow,
+                Temps = new StatusTemps { GrillTemp = "225.0" }
             });
 
             _mockSessionsService
