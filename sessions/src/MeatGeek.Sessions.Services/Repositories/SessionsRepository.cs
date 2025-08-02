@@ -56,7 +56,7 @@ namespace MeatGeek.Sessions.Services.Repositories
                 _log.LogError($"Exception in AddSessionAsync StatusCode={ex.StatusCode}");
                 throw;
             }
-            catch (AggregateException ae)
+            catch (AggregateException)
             {
                 _log.LogError("Caught aggregate exception-Task.Wait behavior.");
                 throw;

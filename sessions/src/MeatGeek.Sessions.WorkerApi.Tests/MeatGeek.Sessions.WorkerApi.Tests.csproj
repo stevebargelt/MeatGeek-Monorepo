@@ -10,11 +10,12 @@
     <PackageReference Include="xunit" Version="2.6.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Azure.EventGrid" Version="3.2.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="../../../shared/src/MeatGeek.Shared/MeatGeek.Shared.csproj" />
-    <ProjectReference Include="../MeatGeek.Sessions.Services/MeatGeek.Sessions.Services.csproj" />
+    <ProjectReference Include="../MeatGeek.Sessions.WorkerApi/MeatGeek.Sessions.WorkerApi.csproj" />
   </ItemGroup>
 
 </Project>

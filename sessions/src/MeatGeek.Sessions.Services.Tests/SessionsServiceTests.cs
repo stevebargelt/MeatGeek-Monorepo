@@ -1,921 +1,447 @@
-// using System;
-// using System.Collections.Generic;
-// using System.Linq;
-// using System.Threading.Tasks;
-// using ContentReactor.Categories.Services.Models;
-// using ContentReactor.Categories.Services.Models.Data;
-// using ContentReactor.Categories.Services.Models.Response;
-// using ContentReactor.Categories.Services.Models.Results;
-// using ContentReactor.Shared;
-// using ContentReactor.Shared.EventSchemas.Audio;
-// using ContentReactor.Shared.EventSchemas.Categories;
-// using ContentReactor.Shared.EventSchemas.Images;
-// using ContentReactor.Shared.EventSchemas.Text;
-// using Moq;
-// using Xunit;
+using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Xunit;
+using MeatGeek.Sessions.Services;
+using MeatGeek.Sessions.Services.Repositories;
+using MeatGeek.Sessions.Services.Models.Data;
+using MeatGeek.Sessions.Services.Models.Response;
+using MeatGeek.Sessions.Services.Models.Results;
+using MeatGeek.Shared;
+using MeatGeek.Shared.EventSchemas.Sessions;
 
-// namespace MeatGeek.Sessions.Services.Tests
-// {
-//     public class SessionsServiceTests
-//     {
-//         #region AddCategory Tests
-//         [Fact]
-//         public async Task AddCategory_ReturnsDocumentId()
-//         {
-//             // arrange
-//             var service = new CategoriesService(new FakeCategoriesRepository(), new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
+namespace MeatGeek.Sessions.Services.Tests
+{
+    public class SessionsServiceTests
+    {
+        private readonly Mock<ISessionsRepository> _mockRepository;
+        private readonly Mock<IEventGridPublisherService> _mockEventGridPublisher;
+        private readonly Mock<ILogger<SessionsService>> _mockLogger;
+        private readonly SessionsService _service;
 
-//             // act
-//             var result = await service.AddCategoryAsync("name", "fakeuserid");
+        public SessionsServiceTests()
+        {
+            _mockRepository = new Mock<ISessionsRepository>();
+            _mockEventGridPublisher = new Mock<IEventGridPublisherService>();
+            _mockLogger = new Mock<ILogger<SessionsService>>();
+            _service = new SessionsService(_mockRepository.Object, _mockEventGridPublisher.Object, _mockLogger.Object);
+        }
 
-//             // assert
-//             Assert.NotNull(result);
-//             Assert.NotEmpty(result);
-//         }
+        #region AddSessionAsync Tests
 
-//         [Fact]
-//         public async Task AddCategory_AddsDocumentToRepository()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
+        [Fact]
+        public async Task AddSessionAsync_ValidSession_ReturnsDocumentId()
+        {
+            // Arrange
+            var title = "Test Session";
+            var description = "Test Description";
+            var smokerId = "smoker-123";
+            var startTime = DateTime.UtcNow;
+            var expectedId = "session-id-123";
 
-//             // act
-//             await service.AddCategoryAsync("name", "fakeuserid");
+            _mockRepository
+                .Setup(r => r.AddSessionAsync(It.IsAny<SessionDocument>()))
+                .ReturnsAsync(expectedId);
 
-//             // assert
-//             Assert.Equal(1, fakeCategoriesRepository.CategoryDocuments.Count);
-//             Assert.Contains(fakeCategoriesRepository.CategoryDocuments, d => d.Name == "name" && d.UserId == "fakeuserid");
-//         }
+            // Act
+            var result = await _service.AddSessionAsync(title, description, smokerId, startTime);
 
-//         [Fact]
-//         public async Task AddCategory_PublishesCategoryCreatedEventToEventGrid()
-//         {
-//             // arrange
-//             var mockEventGridPublisherService = new Mock<IEventGridPublisherService>();
-//             var service = new CategoriesService(new FakeCategoriesRepository(), new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, mockEventGridPublisherService.Object);
-
-//             // act
-//             var categoryId = await service.AddCategoryAsync("name", "fakeuserid");
-
-//             // assert
-//             mockEventGridPublisherService.Verify(m => 
-//                     m.PostEventGridEventAsync(EventTypes.Categories.CategoryCreated, 
-//                         $"fakeuserid/{categoryId}", 
-//                         It.Is<CategoryCreatedEventData>(d => d.Name == "name")),
-//                 Times.Once);
-//         }
-//         #endregion
-
-//         #region DeleteCategory Tests
-//         [Fact]
-//         public async Task DeleteCategory_ReturnsSuccess()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", UserId = "fakeuserid" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.DeleteCategoryAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             Assert.Equal(DeleteCategoryResult.Success, result);
-//         }
-
-//         [Fact]
-//         public async Task DeleteCategory_DeletesDocumentFromRepository()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", UserId = "fakeuserid" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             await service.DeleteCategoryAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             Assert.Empty(fakeCategoriesRepository.CategoryDocuments);
-//         }
-
-//         [Fact]
-//         public async Task DeleteCategory_PublishesCategoryDeletedEventToEventGrid()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", UserId = "fakeuserid" });
-//             var mockEventGridPublisherService = new Mock<IEventGridPublisherService>();
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, mockEventGridPublisherService.Object);
-
-//             // act
-//             await service.DeleteCategoryAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             mockEventGridPublisherService.Verify(m => 
-//                     m.PostEventGridEventAsync(EventTypes.Categories.CategoryDeleted, 
-//                         "fakeuserid/fakeid", 
-//                         It.IsAny<CategoryDeletedEventData>()),
-//                 Times.Once);
-//         }
-
-//         [Fact]
-//         public async Task DeleteCategory_InvalidCategoryId_ReturnsNotFound()
-//         {
-//             // arrange
-//             var service = new CategoriesService(new FakeCategoriesRepository(), new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.DeleteCategoryAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             Assert.Equal(DeleteCategoryResult.NotFound, result);
-//         }
-
-//         [Fact]
-//         public async Task DeleteCategory_IncorrectUserId_ReturnsNotFound()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", UserId = "fakeuserid2" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.DeleteCategoryAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             Assert.Equal(DeleteCategoryResult.NotFound, result);
-//         }
-//         #endregion
-
-//         #region UpdateCategory Tests
-//         [Fact]
-//         public async Task UpdateCategory_ReturnsSuccess()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", UserId = "fakeuserid" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.UpdateCategoryAsync("fakeid", "fakeuserid", "newname");
-
-//             // assert
-//             Assert.Equal(UpdateCategoryResult.Success, result);
-//         }
-
-//         [Fact]
-//         public async Task UpdateCategory_UpdatesDocumentInRepository()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "oldname", UserId = "fakeuserid" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
+            // Assert
+            Assert.Equal(expectedId, result);
             
-//             // act
-//             await service.UpdateCategoryAsync("fakeid", "fakeuserid", "newname");
-
-//             // assert
-//             Assert.Equal("newname", fakeCategoriesRepository.CategoryDocuments.Single().Name);
-//         }
-
-//         [Fact]
-//         public async Task UpdateCategory_PublishesCategoryNameUpdatedEventToEventGrid()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", UserId = "fakeuserid"});
-//             var mockEventGridPublisherService = new Mock<IEventGridPublisherService>();
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, mockEventGridPublisherService.Object);
-
-//             // act
-//             await service.UpdateCategoryAsync("fakeid", "fakeuserid", "newname");
-
-//             // assert
-//             mockEventGridPublisherService.Verify(m => 
-//                     m.PostEventGridEventAsync(EventTypes.Categories.CategoryNameUpdated, 
-//                         "fakeuserid/fakeid",
-//                         It.Is<CategoryNameUpdatedEventData>(d => d.Name == "newname")),
-//                 Times.Once);
-//         }
-
-//         [Fact]
-//         public async Task UpdateCategory_InvalidCategoryId_ReturnsNotFound()
-//         {
-//             // arrange
-//             var service = new CategoriesService(new FakeCategoriesRepository(), new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.UpdateCategoryAsync("fakeid", "fakeuserid", "newname");
-
-//             // assert
-//             Assert.Equal(UpdateCategoryResult.NotFound, result);
-//         }
-
-//         [Fact]
-//         public async Task UpdateCategory_IncorrectUserId_ReturnsNotFound()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", UserId = "fakeuserid2" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.UpdateCategoryAsync("fakeid", "fakeuserid", "newname");
-
-//             // assert
-//             Assert.Equal(UpdateCategoryResult.NotFound, result);
-//         }
-//         #endregion
-
-//         #region GetCategory Tests
-//         [Fact]
-//         public async Task GetCategory_ReturnsCorrectText()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "fakename", UserId = "fakeuserid"});
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.GetCategoryAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             Assert.NotNull(result);
-//             Assert.Equal("fakeid", result.Id);
-//             Assert.Equal("fakename", result.Name);
-//         }
-
-//         [Fact]
-//         public async Task GetCategory_InvalidCategoryId_ReturnsNull()
-//         {
-//             // arrange
-//             var service = new CategoriesService(new FakeCategoriesRepository(), new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.GetCategoryAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             Assert.Null(result);
-//         }
-
-//         [Fact]
-//         public async Task GetCategory_IncorrectUserId_ReturnsNull()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "fakename", UserId = "fakeuserid2"});
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.GetCategoryAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             Assert.Null(result);
-//         }
-//         #endregion
-
-//         #region ListCategories Tests
-//         [Fact]
-//         public async Task ListCategories_ReturnsIds()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid1", Name = "fakename1", UserId = "fakeuserid" });
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid2", Name = "fakename2", UserId = "fakeuserid" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.ListCategoriesAsync("fakeuserid");
-
-//             // assert
-//             Assert.Equal(2, result.Count);
-//             var comparer = new CategorySummaryComparer();
-//             Assert.Contains(new CategorySummary {Id = "fakeid1", Name = "fakename1"}, result, comparer);
-//             Assert.Contains(new CategorySummary {Id = "fakeid2", Name = "fakename2"}, result, comparer);
-//         }
-
-//         [Fact]
-//         public async Task ListCategories_DoesNotReturnsIdsForAnotherUser()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid1", Name = "fakename1", UserId = "fakeuserid1" });
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid2", Name = "fakename2", UserId = "fakeuserid2" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.ListCategoriesAsync("fakeuserid1");
-
-//             // assert
-//             Assert.Single(result);
-//             var comparer = new CategorySummaryComparer();
-//             Assert.Contains(new CategorySummary {Id = "fakeid1", Name = "fakename1"}, result, comparer);
-//         }
-//         #endregion
-
-//         #region UpdateCategoryImage Tests
-//         [Fact]
-//         public async Task UpdateCategoryImage_ReturnsTrue()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "fakename", UserId = "fakeuserid" });
-//             var mockImageSearchService = new Mock<IImageSearchService>();
-//             mockImageSearchService
-//                 .Setup(m => m.FindImageUrlAsync("fakename"))
-//                 .ReturnsAsync("http://fake/imageurl.jpg");
-//             var service = new CategoriesService(fakeCategoriesRepository, mockImageSearchService.Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.UpdateCategoryImageAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             Assert.True(result);
-//         }
-
-//         [Fact]
-//         public async Task UpdateCategoryImage_UpdatesCategoryDocumentWithImageUrl()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "fakename", UserId = "fakeuserid" });
-//             var mockImageSearchService = new Mock<IImageSearchService>();
-//             mockImageSearchService
-//                 .Setup(m => m.FindImageUrlAsync("fakename"))
-//                 .ReturnsAsync("http://fake/imageurl.jpg");
-//             var service = new CategoriesService(fakeCategoriesRepository, mockImageSearchService.Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             await service.UpdateCategoryImageAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             Assert.Equal("http://fake/imageurl.jpg", fakeCategoriesRepository.CategoryDocuments.Single().ImageUrl);
-//         }
-
-//         [Fact]
-//         public async Task UpdateCategoryImage_PublishesCategoryImageUpdatedEventToEventGrid()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "fakename", UserId = "fakeuserid"});
-//             var mockEventGridPublisherService = new Mock<IEventGridPublisherService>();
-//             var mockImageSearchService = new Mock<IImageSearchService>();
-//             mockImageSearchService
-//                 .Setup(m => m.FindImageUrlAsync("fakename"))
-//                 .ReturnsAsync("http://fake/imageurl.jpg");
-//             var service = new CategoriesService(fakeCategoriesRepository, mockImageSearchService.Object, new Mock<ISynonymService>().Object, mockEventGridPublisherService.Object);
-
-//             // act
-//             await service.UpdateCategoryImageAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             mockEventGridPublisherService.Verify(m => 
-//                 m.PostEventGridEventAsync(EventTypes.Categories.CategoryImageUpdated, 
-//                     "fakeuserid/fakeid", 
-//                     It.Is<CategoryImageUpdatedEventData>(c => c.ImageUrl == "http://fake/imageurl.jpg")),
-//                 Times.Once);
-//         }
-
-//         [Fact]
-//         public async Task UpdateCategoryImage_ImageNotFound_ReturnsFalse()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "fakename", UserId = "fakeuserid" });
-//             var mockImageSearchService = new Mock<IImageSearchService>();
-//             mockImageSearchService
-//                 .Setup(m => m.FindImageUrlAsync("fakename"))
-//                 .ReturnsAsync((string)null);
-//             var service = new CategoriesService(fakeCategoriesRepository, mockImageSearchService.Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.UpdateCategoryImageAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             Assert.False(result);
-//         }
-
-//         [Fact]
-//         public async Task UpdateCategoryImage_UserIdIncorrect_ReturnsFalse()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "fakename", UserId = "fakeuserid1" });
-//             var mockImageSearchService = new Mock<IImageSearchService>();
-//             mockImageSearchService
-//                 .Setup(m => m.FindImageUrlAsync("fakename"))
-//                 .ReturnsAsync("http://fake/imageurl.jpg");
-//             var service = new CategoriesService(fakeCategoriesRepository, mockImageSearchService.Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.UpdateCategoryImageAsync("fakeid", "fakeuserid2");
-
-//             // assert
-//             Assert.False(result);
-//         }
-
-//         [Fact]
-//         public async Task UpdateCategoryImage_UserIdIncorrect_DoesNotUpdateCategoryDocumentWithImageUrl()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "fakename", UserId = "fakeuserid1" });
-//             var mockImageSearchService = new Mock<IImageSearchService>();
-//             mockImageSearchService
-//                 .Setup(m => m.FindImageUrlAsync("fakename"))
-//                 .ReturnsAsync("http://fake/imageurl.jpg");
-//             var service = new CategoriesService(fakeCategoriesRepository, mockImageSearchService.Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             await service.UpdateCategoryImageAsync("fakeid", "fakeuserid2");
-
-//             // assert
-//             Assert.Null(fakeCategoriesRepository.CategoryDocuments.Single().ImageUrl);
-//         }
-//         #endregion
-
-//         #region UpdateCategorySynonyms Tests
-//         [Fact]
-//         public async Task UpdateCategorySynonyms_ReturnsTrue()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "fakename", UserId = "fakeuserid" });
-//             var mockSynonymService = new Mock<ISynonymService>();
-//             mockSynonymService
-//                 .Setup(m => m.GetSynonymsAsync("fakename"))
-//                 .ReturnsAsync(new[] { "a", "b" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, mockSynonymService.Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.UpdateCategorySynonymsAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             Assert.True(result);
-//         }
-
-//         [Fact]
-//         public async Task UpdateCategorySynonyms_UpdatesCategoryDocumentWithSynonyms()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "fakename", UserId = "fakeuserid"});
-//             var mockSynonymService = new Mock<ISynonymService>();
-//             mockSynonymService
-//                 .Setup(m => m.GetSynonymsAsync("fakename"))
-//                 .ReturnsAsync(new[] { "a", "b" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, mockSynonymService.Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             await service.UpdateCategorySynonymsAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             Assert.Equal(2, fakeCategoriesRepository.CategoryDocuments.Single().Synonyms.Count);
-//             Assert.Contains("a", fakeCategoriesRepository.CategoryDocuments.Single().Synonyms);
-//             Assert.Contains("b", fakeCategoriesRepository.CategoryDocuments.Single().Synonyms);
-//         }
-
-//         [Fact]
-//         public async Task UpdateCategorySynonyms_PublishesCategorySynonymsUpdatedEventToEventGrid()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "fakename", UserId = "fakeuserid" });
-//             var mockEventGridPublisherService = new Mock<IEventGridPublisherService>();
-//             var mockSynonymService = new Mock<ISynonymService>();
-//             mockSynonymService
-//                 .Setup(m => m.GetSynonymsAsync("fakename"))
-//                 .ReturnsAsync(new[] { "a", "b" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, mockSynonymService.Object, mockEventGridPublisherService.Object);
-
-//             // act
-//             await service.UpdateCategorySynonymsAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             mockEventGridPublisherService.Verify(m => 
-//                 m.PostEventGridEventAsync(EventTypes.Categories.CategorySynonymsUpdated, 
-//                     "fakeuserid/fakeid", 
-//                     It.Is<CategorySynonymsUpdatedEventData>(c => c.Synonyms.Contains("a") && c.Synonyms.Contains("b"))),
-//                 Times.Once);
-//         }
-
-//         [Fact]
-//         public async Task UpdateCategorySynonyms_SynonymsNotFound_ReturnsFalse()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "fakename", UserId = "fakeuserid"});
-//             var mockSynonymService = new Mock<ISynonymService>();
-//             mockSynonymService
-//                 .Setup(m => m.GetSynonymsAsync("fakename"))
-//                 .ReturnsAsync((string[])null);
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, mockSynonymService.Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.UpdateCategorySynonymsAsync("fakeid", "fakeuserid");
-
-//             // assert
-//             Assert.False(result);
-//         }
-
-//         [Fact]
-//         public async Task UpdateCategorySynonyms_UserIdIncorrect_ReturnsFalse()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "fakename", UserId = "fakeuserid1"});
-//             var mockSynonymService = new Mock<ISynonymService>();
-//             mockSynonymService
-//                 .Setup(m => m.GetSynonymsAsync("fakename"))
-//                 .ReturnsAsync(new[] { "a", "b" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, mockSynonymService.Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             var result = await service.UpdateCategorySynonymsAsync("fakeid", "fakeuserid2");
-
-//             // assert
-//             Assert.False(result);
-//         }
-
-//         [Fact]
-//         public async Task UpdateCategorySynonyms_UserIdIncorrect_DoesNotUpdateCategoryDocumentWithSynonyms()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakeid", Name = "fakename", UserId = "fakeuserid1"});
-//             var mockSynonymService = new Mock<ISynonymService>();
-//             mockSynonymService
-//                 .Setup(m => m.GetSynonymsAsync("fakename"))
-//                 .ReturnsAsync(new[] { "a", "b" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, mockSynonymService.Object, new Mock<IEventGridPublisherService>().Object);
-
-//             // act
-//             await service.UpdateCategorySynonymsAsync("fakeid", "fakeuserid2");
-
-//             // assert
-//             Assert.Empty(fakeCategoriesRepository.CategoryDocuments.Single().Synonyms);
-//         }
-//         #endregion
-
-//         #region ProcessAddItemEvent Tests
-//         [Fact]
-//         public async Task ProcessAddItemEventAsync_AddsTextItem()
-//         {            
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakecategoryid", Name = "fakename", UserId = "fakeuserid" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-//             var eventToProcess = new EventGridEvent
-//             {
-//                 Subject = "fakeuserid/fakeitemid", 
-//                 EventType = EventTypes.Text.TextCreated, 
-//                 Data = new TextCreatedEventData
-//                 {
-//                     Category = "fakecategoryid",
-//                     Preview = "fakepreview"
-//                 }
-//             };
-
-//             // act
-//             await service.ProcessAddItemEventAsync(eventToProcess, "fakeuserid");
-
-//             // assert
-//             var itemsCollection = fakeCategoriesRepository.CategoryDocuments.Single().Items;
-
-//             Assert.Equal(1, itemsCollection.Count);
-//             Assert.Contains(new CategoryItem { Id = "fakeitemid", Preview = "fakepreview", Type = ItemType.Text}, itemsCollection, new CategoryItemComparer());
-//         }
-
-//         [Fact]
-//         public async Task ProcessAddItemEventAsync_AddsImageItem()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakecategoryid", Name = "fakename", UserId = "fakeuserid"});
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-//             var eventToProcess = new EventGridEvent
-//             {
-//                 Subject = "fakeuserid/fakeitemid", 
-//                 EventType = EventTypes.Images.ImageCreated, 
-//                 Data = new ImageCreatedEventData()
-//                 {
-//                     Category = "fakecategoryid",
-//                     PreviewUri = "http://fake/preview.jpg"
-//                 }
-//             };
-
-//             // act
-//             await service.ProcessAddItemEventAsync(eventToProcess, "fakeuserid");
-
-//             // assert
-//             var itemsCollection = fakeCategoriesRepository.CategoryDocuments.Single().Items;
-
-//             Assert.Equal(1, itemsCollection.Count);
-//             Assert.Contains(new CategoryItem { Id = "fakeitemid", Preview = "http://fake/preview.jpg", Type = ItemType.Image}, itemsCollection, new CategoryItemComparer());
-//         }
-
-//         [Fact]
-//         public async Task ProcessAddItemEventAsync_AddsAudioItem()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakecategoryid", Name = "fakename", UserId = "fakeuserid"});
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-//             var eventToProcess = new EventGridEvent
-//             {
-//                 Subject = "fakeuserid/fakeitemid", 
-//                 EventType = EventTypes.Audio.AudioCreated, 
-//                 Data = new AudioCreatedEventData
-//                 {
-//                     Category = "fakecategoryid",
-//                     TranscriptPreview = "faketranscript"
-//                 }
-//             };
-
-//             // act
-//             await service.ProcessAddItemEventAsync(eventToProcess, "fakeuserid");
-
-//             // assert
-//             var itemsCollection = fakeCategoriesRepository.CategoryDocuments.Single().Items;
-
-//             Assert.Equal(1, itemsCollection.Count);
-//             Assert.Contains(new CategoryItem { Id = "fakeitemid", Preview = "faketranscript", Type = ItemType.Audio}, itemsCollection, new CategoryItemComparer());
-//         }
-
-//         [Fact]
-//         public async Task ProcessAddItemEventAsync_PublishesCategoryItemsUpdatedEventToEventGrid()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakecategoryid", Name = "fakename", UserId = "fakeuserid"});
-//             var mockEventGridPublisherService = new Mock<IEventGridPublisherService>();
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, mockEventGridPublisherService.Object);
-//             var eventToProcess = new EventGridEvent
-//             {
-//                 Subject = "fakeuserid/fakeitemid", 
-//                 EventType = EventTypes.Audio.AudioCreated, 
-//                 Data = new AudioCreatedEventData
-//                 {
-//                     Category = "fakecategoryid",
-//                     TranscriptPreview = "faketranscript"
-//                 }
-//             };
-
-//             // act
-//             await service.ProcessAddItemEventAsync(eventToProcess, "fakeuserid");
-
-//             // assert
-//             mockEventGridPublisherService.Verify(m => 
-//                 m.PostEventGridEventAsync(EventTypes.Categories.CategoryItemsUpdated,
-//                     "fakeuserid/fakecategoryid",
-//                     It.IsAny<CategoryItemsUpdatedEventData>()),
-//                 Times.Once);
-//         }
-
-//         [Fact]
-//         public async Task ProcessAddItemEventAsync_UpdatesItemWhenAlreadyExists()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakecategoryid", Name = "fakename", UserId = "fakeuserid", Items = new List<CategoryItem>() { new CategoryItem { Id = "fakeitemid", Preview = "oldpreview" } } });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-//             var eventToProcess = new EventGridEvent
-//             {
-//                 Subject = "fakeuserid/fakeitemid", 
-//                 EventType = EventTypes.Audio.AudioCreated, 
-//                 Data = new AudioCreatedEventData
-//                 {
-//                     Category = "fakecategoryid",
-//                     TranscriptPreview = "newpreview"
-//                 }
-//             };
-
-//             // act
-//             await service.ProcessAddItemEventAsync(eventToProcess, "fakeuserid");
-
-//             // assert
-//             var itemsCollection = fakeCategoriesRepository.CategoryDocuments.Single().Items;
-
-//             Assert.Equal(1, itemsCollection.Count);
-//             Assert.Contains(new CategoryItem { Id = "fakeitemid", Preview = "newpreview", Type = ItemType.Audio}, itemsCollection, new CategoryItemComparer());
-//         }
-
-//         [Fact]
-//         public async Task ProcessAddItemEventAsync_DoesNotAddItemWhenUserIdDoesNotMatch()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakecategoryid", Name = "fakename", UserId = "fakeuserid1" });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-//             var eventToProcess = new EventGridEvent
-//             {
-//                 Subject = "fakeuserid2/fakeitemid", 
-//                 EventType = EventTypes.Audio.AudioCreated, 
-//                 Data = new AudioCreatedEventData
-//                 {
-//                     Category = "fakecategoryid",
-//                     TranscriptPreview = "newpreview"
-//                 }
-//             };
-
-//             // act
-//             await service.ProcessAddItemEventAsync(eventToProcess, "fakeuserid2");
-
-//             // assert
-//             var itemsCollection = fakeCategoriesRepository.CategoryDocuments.Single().Items;
-//             Assert.Equal(0, itemsCollection.Count);
-//         }
-
-//         [Fact]
-//         public async Task ProcessAddItemEventAsync_ThrowsWhenCategoryNotProvided()
-//         {
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakecategoryid", Name = "fakename", UserId = "fakeuserid"});
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-//             var eventToProcess = new EventGridEvent
-//             {
-//                 Subject = "fakeuserid/fakeitemid", 
-//                 EventType = EventTypes.Audio.AudioCreated, 
-//                 Data = new AudioCreatedEventData
-//                 {
-//                     TranscriptPreview = "faketranscript"
-//                 }
-//             };
-
-//             // act and assert
-//             await Assert.ThrowsAsync<InvalidOperationException>(() => service.ProcessAddItemEventAsync(eventToProcess, "fakeuserid"));
-//         }
-//         #endregion
-        
-//         #region ProcessUpdateItemEvent Tests
-//         [Fact]
-//         public async Task ProcessUpdateItemEventAsync_UpdatesTextItem()
-//         {            
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakecategoryid", Name = "fakename", UserId = "fakeuserid", Items = new List<CategoryItem> { new CategoryItem { Id = "fakeitemid", Type = ItemType.Text, Preview = "oldpreview" } } });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-//             var eventToProcess = new EventGridEvent
-//             {
-//                 Subject = "fakeuserid/fakeitemid", 
-//                 EventType = EventTypes.Text.TextUpdated, 
-//                 Data = new TextUpdatedEventData
-//                 {
-//                     Preview = "newpreview"
-//                 }
-//             };
-
-//             // act
-//             await service.ProcessUpdateItemEventAsync(eventToProcess, "fakeuserid");
-
-//             // assert
-//             var itemsCollection = fakeCategoriesRepository.CategoryDocuments.Single().Items;
-//             Assert.Equal("newpreview", itemsCollection.Single().Preview);
-//         }
-
-//         [Fact]
-//         public async Task ProcessUpdateItemEventAsync_UpdatesAudioItem()
-//         {            
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakecategoryid", Name = "fakename", UserId = "fakeuserid", Items = new List<CategoryItem> { new CategoryItem { Id = "fakeitemid", Type = ItemType.Audio, Preview = "oldpreview" } } });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-//             var eventToProcess = new EventGridEvent
-//             {
-//                 Subject = "fakeuserid/fakeitemid", 
-//                 EventType = EventTypes.Audio.AudioTranscriptUpdated, 
-//                 Data = new AudioTranscriptUpdatedEventData
-//                 {
-//                     TranscriptPreview = "newpreview"
-//                 }
-//             };
-
-//             // act
-//             await service.ProcessUpdateItemEventAsync(eventToProcess, "fakeuserid");
-
-//             // assert
-//             var itemsCollection = fakeCategoriesRepository.CategoryDocuments.Single().Items;
-//             Assert.Equal("newpreview", itemsCollection.Single().Preview);
-//         }
-
-//         [Fact]
-//         public async Task ProcessUpdateItemEventAsync_PublishesCategoryItemsUpdatedEventToEventGrid()
-//         {            
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakecategoryid", Name = "fakename", UserId = "fakeuserid", Items = new List<CategoryItem> { new CategoryItem { Id = "fakeitemid", Type = ItemType.Text, Preview = "oldpreview" } } });
-//             var mockEventGridPublisherService = new Mock<IEventGridPublisherService>();
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, mockEventGridPublisherService.Object);
-//             var eventToProcess = new EventGridEvent
-//             {
-//                 Subject = "fakeuserid/fakeitemid", 
-//                 EventType = EventTypes.Text.TextUpdated, 
-//                 Data = new TextUpdatedEventData
-//                 {
-//                     Preview = "newpreview"
-//                 }
-//             };
-
-//             // act
-//             await service.ProcessUpdateItemEventAsync(eventToProcess, "fakeuserid");
-
-//             // assert
-//             mockEventGridPublisherService.Verify(m => 
-//                 m.PostEventGridEventAsync(EventTypes.Categories.CategoryItemsUpdated,
-//                     "fakeuserid/fakecategoryid",
-//                     It.IsAny<CategoryItemsUpdatedEventData>()),
-//                 Times.Once);
-//         }
-//         #endregion
-        
-//         #region ProcessDeleteItemEvent Tests
-//         [Fact]
-//         public async Task ProcessDeleteItemEventAsync_DeletesTextItem()
-//         {            
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakecategoryid", Name = "fakename", UserId = "fakeuserid", Items = new List<CategoryItem> { new CategoryItem { Id = "fakeitemid", Type = ItemType.Text } } });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-//             var eventToProcess = new EventGridEvent
-//             {
-//                 Subject = "fakeuserid/fakeitemid", 
-//                 EventType = EventTypes.Text.TextDeleted, 
-//                 Data = new TextDeletedEventData()
-//             };
-
-//             // act
-//             await service.ProcessDeleteItemEventAsync(eventToProcess, "fakeuserid");
-
-//             // assert
-//             Assert.Empty(fakeCategoriesRepository.CategoryDocuments.Single().Items);
-//         }
-
-//         [Fact]
-//         public async Task ProcessDeleteItemEventAsync_DeletesAudioItem()
-//         {            
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakecategoryid", Name = "fakename", UserId = "fakeuserid", Items = new List<CategoryItem> { new CategoryItem { Id = "fakeitemid", Type = ItemType.Audio } } });
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, new Mock<IEventGridPublisherService>().Object);
-//             var eventToProcess = new EventGridEvent
-//             {
-//                 Subject = "fakeuserid/fakeitemid", 
-//                 EventType = EventTypes.Audio.AudioDeleted, 
-//                 Data = new AudioDeletedEventData()
-//             };
-
-//             // act
-//             await service.ProcessDeleteItemEventAsync(eventToProcess, "fakeuserid");
-
-//             // assert
-//             Assert.Empty(fakeCategoriesRepository.CategoryDocuments.Single().Items);
-//         }
-
-//         [Fact]
-//         public async Task ProcessDeleteItemEventAsync_PublishesCategoryItemsUpdatedEventToEventGrid()
-//         {            
-//             // arrange
-//             var fakeCategoriesRepository = new FakeCategoriesRepository();
-//             fakeCategoriesRepository.CategoryDocuments.Add(new CategoryDocument { Id = "fakecategoryid", Name = "fakename", UserId = "fakeuserid", Items = new List<CategoryItem> { new CategoryItem { Id = "fakeitemid", Type = ItemType.Audio } } });
-//             var mockEventGridPublisherService = new Mock<IEventGridPublisherService>();
-//             var service = new CategoriesService(fakeCategoriesRepository, new Mock<IImageSearchService>().Object, new Mock<ISynonymService>().Object, mockEventGridPublisherService.Object);
-//             var eventToProcess = new EventGridEvent
-//             {
-//                 Subject = "fakeuserid/fakeitemid", 
-//                 EventType = EventTypes.Audio.AudioDeleted, 
-//                 Data = new AudioDeletedEventData()
-//             };
-
-//             // act
-//             await service.ProcessDeleteItemEventAsync(eventToProcess, "fakeuserid");
-
-//             // assert
-//             mockEventGridPublisherService.Verify(m => 
-//                 m.PostEventGridEventAsync(EventTypes.Categories.CategoryItemsUpdated,
-//                     "fakeuserid/fakecategoryid",
-//                     It.IsAny<CategoryItemsUpdatedEventData>()),
-//                 Times.Once);
-//         }
-//         #endregion
-
-//         #region Helpers
-//         private class CategorySummaryComparer: IEqualityComparer<CategorySummary>
-//         {
-//             public bool Equals(CategorySummary x, CategorySummary y) => x.Id == y.Id &&
-//                                                                         x.Name == y.Name;
-
-//             public int GetHashCode(CategorySummary obj) => obj.GetHashCode();
-//         }
-
-//         private class CategoryItemComparer: IEqualityComparer<CategoryItem>
-//         {
-//             public bool Equals(CategoryItem x, CategoryItem y) => x.Id == y.Id &&
-//                                                                   x.Preview == y.Preview && 
-//                                                                   x.Type == y.Type;
-
-//             public int GetHashCode(CategoryItem obj) => obj.GetHashCode();
-//         }
-//         #endregion
-//     }
-// }
+            // Verify repository was called with correct data
+            _mockRepository.Verify(r => r.AddSessionAsync(It.Is<SessionDocument>(s =>
+                s.Title == title &&
+                s.Description == description &&
+                s.SmokerId == smokerId &&
+                s.StartTime == startTime &&
+                s.Type == "session"
+            )), Times.Once);
+        }
+
+        [Fact]
+        public async Task AddSessionAsync_ValidSession_PublishesSessionCreatedEvent()
+        {
+            // Arrange
+            var title = "Test Session";
+            var description = "Test Description";
+            var smokerId = "smoker-123";
+            var startTime = DateTime.UtcNow;
+            var sessionId = "session-id-123";
+
+            _mockRepository
+                .Setup(r => r.AddSessionAsync(It.IsAny<SessionDocument>()))
+                .ReturnsAsync(sessionId);
+
+            // Act
+            await _service.AddSessionAsync(title, description, smokerId, startTime);
+
+            // Assert
+            _mockEventGridPublisher.Verify(e => e.PostEventGridEventAsync(
+                EventTypes.Sessions.SessionCreated,
+                $"{smokerId}",
+                It.Is<SessionCreatedEventData>(data =>
+                    data.Id == sessionId &&
+                    data.SmokerId == smokerId &&
+                    data.Title == title
+                )
+            ), Times.Once);
+        }
+
+        #endregion
+
+        #region DeleteSessionAsync Tests
+
+        [Fact]
+        public async Task DeleteSessionAsync_ValidSession_ReturnsSuccess()
+        {
+            // Arrange
+            var sessionId = "session-123";
+            var smokerId = "smoker-123";
+
+            _mockRepository
+                .Setup(r => r.DeleteSessionAsync(sessionId, smokerId))
+                .ReturnsAsync(DeleteSessionResult.Success);
+
+            // Act
+            var result = await _service.DeleteSessionAsync(sessionId, smokerId);
+
+            // Assert
+            Assert.Equal(DeleteSessionResult.Success, result);
+        }
+
+        [Fact]
+        public async Task DeleteSessionAsync_SessionNotFound_ReturnsNotFound()
+        {
+            // Arrange
+            var sessionId = "nonexistent-session";
+            var smokerId = "smoker-123";
+
+            _mockRepository
+                .Setup(r => r.DeleteSessionAsync(sessionId, smokerId))
+                .ReturnsAsync(DeleteSessionResult.NotFound);
+
+            // Act
+            var result = await _service.DeleteSessionAsync(sessionId, smokerId);
+
+            // Assert
+            Assert.Equal(DeleteSessionResult.NotFound, result);
+        }
+
+        [Fact]
+        public async Task DeleteSessionAsync_Success_PublishesSessionDeletedEvent()
+        {
+            // Arrange
+            var sessionId = "session-123";
+            var smokerId = "smoker-123";
+
+            _mockRepository
+                .Setup(r => r.DeleteSessionAsync(sessionId, smokerId))
+                .ReturnsAsync(DeleteSessionResult.Success);
+
+            // Act
+            await _service.DeleteSessionAsync(sessionId, smokerId);
+
+            // Assert
+            _mockEventGridPublisher.Verify(e => e.PostEventGridEventAsync(
+                EventTypes.Sessions.SessionDeleted,
+                $"{smokerId}",
+                It.IsAny<SessionDeletedEventData>()
+            ), Times.Once);
+        }
+
+        #endregion
+
+        #region UpdateSessionAsync Tests
+
+        [Fact]
+        public async Task UpdateSessionAsync_ValidSession_ReturnsSuccess()
+        {
+            // Arrange
+            var sessionId = "session-123";
+            var smokerId = "smoker-123";
+            var title = "Updated Title";
+            var description = "Updated Description";
+            var endTime = DateTime.UtcNow.AddHours(2);
+
+            var sessionDocument = new SessionDocument
+            {
+                Id = sessionId,
+                SmokerId = smokerId,
+                Title = "Original Title",
+                Description = "Original Description"
+            };
+
+            _mockRepository
+                .Setup(r => r.GetSessionAsync(sessionId, smokerId))
+                .ReturnsAsync(sessionDocument);
+
+            _mockRepository
+                .Setup(r => r.UpdateSessionAsync(It.IsAny<SessionDocument>()))
+                .ReturnsAsync(sessionDocument);
+
+            // Act
+            var result = await _service.UpdateSessionAsync(sessionId, smokerId, title, description, endTime);
+
+            // Assert
+            Assert.Equal(UpdateSessionResult.Success, result);
+        }
+
+        [Fact]
+        public async Task UpdateSessionAsync_Success_PublishesSessionUpdatedEvent()
+        {
+            // Arrange
+            var sessionId = "session-123";
+            var smokerId = "smoker-123";
+            var title = "Updated Title";
+            var description = "Updated Description";
+            var endTime = DateTime.UtcNow.AddHours(2);
+
+            var sessionDocument = new SessionDocument
+            {
+                Id = sessionId,
+                SmokerId = smokerId,
+                Title = "Original Title",
+                Description = "Original Description"
+            };
+
+            _mockRepository
+                .Setup(r => r.GetSessionAsync(sessionId, smokerId))
+                .ReturnsAsync(sessionDocument);
+
+            _mockRepository
+                .Setup(r => r.UpdateSessionAsync(It.IsAny<SessionDocument>()))
+                .ReturnsAsync(sessionDocument);
+
+            // Act
+            await _service.UpdateSessionAsync(sessionId, smokerId, title, description, endTime);
+
+            // Assert
+            _mockEventGridPublisher.Verify(e => e.PostEventGridEventAsync(
+                EventTypes.Sessions.SessionUpdated,
+                $"{smokerId}",
+                It.Is<SessionUpdatedEventData>(data =>
+                    data.Id == sessionId &&
+                    data.SmokerId == smokerId &&
+                    data.Title == title &&
+                    data.Description == description
+                )
+            ), Times.Once);
+        }
+
+        #endregion
+
+        #region EndSessionAsync Tests
+
+        [Fact]
+        public async Task EndSessionAsync_ValidSession_ReturnsSuccess()
+        {
+            // Arrange
+            var sessionId = "session-123";
+            var smokerId = "smoker-123";
+            var endTime = DateTime.UtcNow;
+
+            var sessionDocument = new SessionDocument
+            {
+                Id = sessionId,
+                SmokerId = smokerId,
+                Title = "Test Session"
+            };
+
+            _mockRepository
+                .Setup(r => r.GetSessionAsync(sessionId, smokerId))
+                .ReturnsAsync(sessionDocument);
+
+            _mockRepository
+                .Setup(r => r.UpdateSessionAsync(It.IsAny<SessionDocument>()))
+                .ReturnsAsync(sessionDocument);
+
+            // Act
+            var result = await _service.EndSessionAsync(sessionId, smokerId, endTime);
+
+            // Assert
+            Assert.Equal(EndSessionResult.Success, result);
+        }
+
+        [Fact]
+        public async Task EndSessionAsync_Success_PublishesSessionEndedEvent()
+        {
+            // Arrange
+            var sessionId = "session-123";
+            var smokerId = "smoker-123";
+            var endTime = DateTime.UtcNow;
+
+            var sessionDocument = new SessionDocument
+            {
+                Id = sessionId,
+                SmokerId = smokerId,
+                Title = "Test Session"
+            };
+
+            _mockRepository
+                .Setup(r => r.GetSessionAsync(sessionId, smokerId))
+                .ReturnsAsync(sessionDocument);
+
+            _mockRepository
+                .Setup(r => r.UpdateSessionAsync(It.IsAny<SessionDocument>()))
+                .ReturnsAsync(sessionDocument);
+
+            // Act
+            await _service.EndSessionAsync(sessionId, smokerId, endTime);
+
+            // Assert
+            _mockEventGridPublisher.Verify(e => e.PostEventGridEventAsync(
+                EventTypes.Sessions.SessionEnded,
+                $"{smokerId}",
+                It.Is<SessionEndedEventData>(data =>
+                    data.Id == sessionId &&
+                    data.SmokerId == smokerId &&
+                    data.EndTime == endTime
+                )
+            ), Times.Once);
+        }
+
+        #endregion
+
+        #region GetSessionAsync Tests
+
+        [Fact]
+        public async Task GetSessionAsync_ValidSession_ReturnsSessionDetails()
+        {
+            // Arrange
+            var sessionId = "session-123";
+            var smokerId = "smoker-123";
+            var sessionDocument = new SessionDocument
+            {
+                Id = sessionId,
+                SmokerId = smokerId,
+                Title = "Test Session",
+                Description = "Test Description",
+                StartTime = DateTime.UtcNow.AddHours(-1),
+                EndTime = null
+            };
+
+            _mockRepository
+                .Setup(r => r.GetSessionAsync(sessionId, smokerId))
+                .ReturnsAsync(sessionDocument);
+
+            // Act
+            var result = await _service.GetSessionAsync(sessionId, smokerId);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(sessionId, result.Id);
+            Assert.Equal(smokerId, result.SmokerId);
+            Assert.Equal("Test Session", result.Title);
+            Assert.Equal("Test Description", result.Description);
+        }
+
+        [Fact]
+        public async Task GetSessionAsync_SessionNotFound_ReturnsNull()
+        {
+            // Arrange
+            var sessionId = "nonexistent-session";
+            var smokerId = "smoker-123";
+
+            _mockRepository
+                .Setup(r => r.GetSessionAsync(sessionId, smokerId))
+                .ReturnsAsync((SessionDocument)null);
+
+            // Act
+            var result = await _service.GetSessionAsync(sessionId, smokerId);
+
+            // Assert
+            Assert.Null(result);
+        }
+
+        #endregion
+
+        #region GetSessionsAsync Tests
+
+        [Fact]
+        public async Task GetSessionsAsync_ValidSmokerId_ReturnsSessionSummaries()
+        {
+            // Arrange
+            var smokerId = "smoker-123";
+            var expectedSummaries = new SessionSummaries();
+
+            _mockRepository
+                .Setup(r => r.GetSessionsAsync(smokerId))
+                .ReturnsAsync(expectedSummaries);
+
+            // Act
+            var result = await _service.GetSessionsAsync(smokerId);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Same(expectedSummaries, result);
+        }
+
+        #endregion
+
+        #region Integration with Repository Tests
+
+        [Fact]
+        public async Task Service_CallsRepository_WithCorrectParameters()
+        {
+            // Arrange
+            var sessionId = "session-123";
+            var smokerId = "smoker-123";
+
+            // Act
+            await _service.GetSessionAsync(sessionId, smokerId);
+
+            // Assert
+            _mockRepository.Verify(r => r.GetSessionAsync(sessionId, smokerId), Times.Once);
+        }
+
+        [Fact]
+        public async Task Service_HandlesRepositoryExceptions_Gracefully()
+        {
+            // Arrange
+            var sessionId = "session-123";
+            var smokerId = "smoker-123";
+            var exception = new InvalidOperationException("Repository error");
+
+            _mockRepository
+                .Setup(r => r.GetSessionAsync(sessionId, smokerId))
+                .ThrowsAsync(exception);
+
+            // Act & Assert
+            var thrownException = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => _service.GetSessionAsync(sessionId, smokerId));
+
+            Assert.Same(exception, thrownException);
+        }
+
+        #endregion
+
+        #region Business Logic Validation Tests
+
+        [Fact]
+        public async Task AddSessionAsync_SetsCorrectDefaults()
+        {
+            // Arrange
+            var title = "Test Session";
+            var description = "Test Description";
+            var smokerId = "smoker-123";
+            var startTime = DateTime.UtcNow;
+
+            _mockRepository
+                .Setup(r => r.AddSessionAsync(It.IsAny<SessionDocument>()))
+                .ReturnsAsync("session-id");
+
+            // Act
+            await _service.AddSessionAsync(title, description, smokerId, startTime);
+
+            // Assert
+            _mockRepository.Verify(r => r.AddSessionAsync(It.Is<SessionDocument>(s =>
+                s.Type == "session" &&
+                s.TTL == -1
+            )), Times.Once);
+        }
+
+        #endregion
+    }
+}
