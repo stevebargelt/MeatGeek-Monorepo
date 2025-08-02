@@ -1,0 +1,21 @@
+{
+  "run": {
+    "command": "nx build MeatGeek.Sessions.Api",
+    "startTime": "2025-08-02T03:32:17.267Z",
+    "endTime": "2025-08-02T03:32:18.434Z",
+    "inner": false
+  },
+  "tasks": [
+    {
+      "taskId": "MeatGeek.Shared:build",
+      "target": "build",
+      "projectName": "MeatGeek.Shared",
+      "hash": "14512189513599338270",
+      "startTime": "2025-08-02T03:32:17.421Z",
+      "endTime": "2025-08-02T03:32:18.428Z",
+      "params": "",
+      "cacheStatus": "cache-miss",
+      "status": 1
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "extensions":[
+    { "name": "EventHubs", "typeName":"Microsoft.Azure.WebJobs.EventHubs.EventHubsWebJobsStartup, Microsoft.Azure.WebJobs.Extensions.EventHubs, Version=5.1.0.0, Culture=neutral, PublicKeyToken=014045d636e89289"},
+    { "name": "OpenApi", "typeName":"Microsoft.Azure.WebJobs.Extensions.OpenApi.OpenApiWebJobsStartup, Microsoft.Azure.WebJobs.Extensions.OpenApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"},
+    { "name": "Startup", "typeName":"MeatGeek.Sessions.Startup, MeatGeek.Sessions.Api, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null"},
+    { "name": "EventGrid", "typeName":"Microsoft.Azure.WebJobs.Extensions.EventGrid.EventGridWebJobsStartup, Microsoft.Azure.WebJobs.Extensions.EventGrid, Version=3.2.1.0, Culture=neutral, PublicKeyToken=014045d636e89289"},
+    { "name": "CosmosDB", "typeName":"Microsoft.Azure.WebJobs.Extensions.CosmosDB.CosmosDBWebJobsStartup, Microsoft.Azure.WebJobs.Extensions.CosmosDB, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"}
+  ]
+}

@@ -47,16 +47,16 @@ namespace MeatGeek.Sessions.Api.Tests
                 Id = "status-1",
                 SessionId = sessionId,
                 SmokerId = smokerId,
-                StatusTime = DateTime.UtcNow.AddMinutes(-30),
-                Temps = new StatusTemps { GrillTemp = 225.0, MeatTemp = 160.0 }
+                CurrentTime = DateTime.UtcNow.AddMinutes(-30),
+                Temps = new StatusTemps { GrillTemp = "225.0", Probe1Temp = "160.0" }
             });
             sessionStatuses.Add(new SessionStatusDocument
             {
                 Id = "status-2",
                 SessionId = sessionId,
                 SmokerId = smokerId,
-                StatusTime = DateTime.UtcNow.AddMinutes(-15),
-                Temps = new StatusTemps { GrillTemp = 230.0, MeatTemp = 165.0 }
+                CurrentTime = DateTime.UtcNow.AddMinutes(-15),
+                Temps = new StatusTemps { GrillTemp = "230.0", Probe1Temp = "165.0" }
             });
 
             _mockSessionsService
@@ -252,8 +252,8 @@ namespace MeatGeek.Sessions.Api.Tests
                 Id = "test-status",
                 SessionId = sessionId,
                 SmokerId = smokerId,
-                StatusTime = DateTime.UtcNow,
-                Temps = new StatusTemps { GrillTemp = 225.0 }
+                CurrentTime = DateTime.UtcNow,
+                Temps = new StatusTemps { GrillTemp = "225.0" }
             });
 
             _mockSessionsService
@@ -285,8 +285,8 @@ namespace MeatGeek.Sessions.Api.Tests
                     Id = $"status-{i}",
                     SessionId = sessionId,
                     SmokerId = smokerId,
-                    StatusTime = DateTime.UtcNow.AddMinutes(-i),
-                    Temps = new StatusTemps { GrillTemp = 225.0 + i, MeatTemp = 160.0 + i }
+                    CurrentTime = DateTime.UtcNow.AddMinutes(-i),
+                    Temps = new StatusTemps { GrillTemp = (225.0 + i).ToString(), Probe1Temp = (160.0 + i).ToString() }
                 });
             }
 
@@ -328,7 +328,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 Id = "status-with-nulls",
                 SessionId = sessionId,
                 SmokerId = smokerId,
-                StatusTime = DateTime.UtcNow,
+                CurrentTime = DateTime.UtcNow,
                 Temps = null // Testing null handling
             });
 
@@ -362,8 +362,8 @@ namespace MeatGeek.Sessions.Api.Tests
                 Id = "formatted-status",
                 SessionId = sessionId,
                 SmokerId = smokerId,
-                StatusTime = DateTime.UtcNow,
-                Temps = new StatusTemps { GrillTemp = 225.0 }
+                CurrentTime = DateTime.UtcNow,
+                Temps = new StatusTemps { GrillTemp = "225.0" }
             });
 
             _mockSessionsService
