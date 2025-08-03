@@ -28,7 +28,7 @@ namespace MeatGeek.Sessions
     {
         private readonly ILogger<CreateSession> _log;
         private const string JsonContentType = "application/json";
-        private readonly ISessionsService _sessionsService; 
+        private readonly ISessionsService _sessionsService;
 
         public CreateSession(ILogger<CreateSession> log, ISessionsService sessionsService)
         {
@@ -44,11 +44,11 @@ namespace MeatGeek.Sessions
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Summary = "Invalid input", Description = "Invalid input")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception or internal server error has occurred", Description = "An exception or internal server has occurred.")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sessions/{smokerId}")] HttpRequest req, 
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sessions/{smokerId}")] HttpRequest req,
             string smokerId)
         {
             _log.LogInformation("CreateSession API Triggered");
-            
+
             if (string.IsNullOrEmpty(smokerId))
             {
                 _log.LogError("CreateSession: Missing smokerId - url should be /sessions/{smokerId}");
@@ -65,7 +65,7 @@ namespace MeatGeek.Sessions
             {
                 return new BadRequestObjectResult(new { error = "Body should be provided in JSON format." });
             }
-            
+
             newSession.SmokerId = smokerId;
 
             // validate request

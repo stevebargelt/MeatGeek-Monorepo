@@ -23,7 +23,8 @@ namespace MeatGeek.Sessions
 
         public override void Configure(IFunctionsHostBuilder builder)
         {
-            builder.Services.AddSingleton<CosmosClient>((s) => {
+            builder.Services.AddSingleton<CosmosClient>((s) =>
+            {
                 var connectionString = configuration["CosmosDBConnection"];
                 var cosmosDbConnectionString = new CosmosDbConnectionString(connectionString);
 

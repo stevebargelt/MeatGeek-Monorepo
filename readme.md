@@ -51,10 +51,12 @@ The API associated with Sessions. Sessions could also be called cooks, smokes, o
 # Build
 nx build MeatGeek.Sessions.Api
 nx build MeatGeek.Sessions.Services
+nx build MeatGeek.Sessions.WorkerApi
 
 # Test
 nx test MeatGeek.Sessions.Api.Tests
 nx test MeatGeek.Sessions.Services.Tests
+nx test MeatGeek.Sessions.WorkerApi.Tests
 
 # Serve locally
 nx serve MeatGeek.Sessions.Api
