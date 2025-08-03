@@ -58,7 +58,7 @@ jobs:
             --verbosity normal \
             --logger trx \
             --results-directory ./test-results/device \
-            --filter "FullyQualifiedName~BasicStructureTests|FullyQualifiedName~ShouldBeStaticClass|FullyQualifiedName~ShouldHaveCorrectFunctionName|FullyQualifiedName~ShouldHaveCorrectParameter|FullyQualifiedName~HealthCheckTests.Run_ShouldReturnResult|FullyQualifiedName~HealthCheckTests.Run_ShouldLogInformation"
+            --collect:"XPlat Code Coverage"
             
       - name: Upload test results
         uses: actions/upload-artifact@v4
