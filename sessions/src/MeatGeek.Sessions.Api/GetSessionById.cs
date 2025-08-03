@@ -25,7 +25,7 @@ namespace MeatGeek.Sessions
 
         private const string JsonContentType = "application/json";
         private readonly ILogger<CreateSession> _log;
-        private readonly ISessionsService _sessionsService; 
+        private readonly ISessionsService _sessionsService;
 
         public GetSessionById(ILogger<CreateSession> log, ISessionsService sessionsService)
         {
@@ -42,7 +42,7 @@ namespace MeatGeek.Sessions
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session not found", Description = "Session not found")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception occurred", Description = "An exception occurred.")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/{smokerId}/{id}")] HttpRequest req, 
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/{smokerId}/{id}")] HttpRequest req,
             string smokerId,
             string id,
             ILogger log)

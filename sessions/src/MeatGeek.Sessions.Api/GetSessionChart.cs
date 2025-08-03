@@ -21,11 +21,11 @@ using MeatGeek.Sessions.Services.Models.Data;
 #nullable enable
 namespace MeatGeek.Sessions
 {
-   public class GetSessionChart
+    public class GetSessionChart
     {
         private const string JsonContentType = "application/json";
         private readonly ILogger<CreateSession> _log;
-        private readonly ISessionsService _sessionsService; 
+        private readonly ISessionsService _sessionsService;
         private readonly CosmosClient _cosmosClient;
 
         public GetSessionChart(ILogger<CreateSession> log, ISessionsService sessionsService, CosmosClient cosmosClient)
@@ -42,11 +42,11 @@ namespace MeatGeek.Sessions
         [OpenApiParameter(name: "timeseries", In = ParameterLocation.Path, Required = false, Type = typeof(int), Summary = "Minutes to group the return data. Integer between 1 and 60.", Description = "Minutes to group the return data. Integer between 1 and 60.", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionStatuses), Summary = "successful operation", Description = "successful response")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "application/json", bodyType: typeof(string), Summary = "Invalid input", Description = "Invalid input")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session Statuses not found", Description = "Session Statuses Not Found")]         
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session Statuses not found", Description = "Session Statuses Not Found")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception occurred", Description = "An exception occurred.")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/statuses/{smokerId}/{sessionId}/{timeseries:int?}")] HttpRequest req,
-                string smokerId, 
+                string smokerId,
                 string sessionId,
                 int? timeSeries,
                 ILogger log)
@@ -63,11 +63,13 @@ namespace MeatGeek.Sessions
                 _log.LogError("GetSessionChart: Missing sessionId - url should be /sessions/statuses/{smokerId}/{sessionId}");
                 return new BadRequestObjectResult(new { error = "Missing required property 'sessionId'." });
             }
-            if (!timeSeries.HasValue || timeSeries <= 0) {
+            if (!timeSeries.HasValue || timeSeries <= 0)
+            {
                 _log.LogInformation($"GetSessionChart timeSeries not sent or == 0 so setting to 1");
                 timeSeries = 1;
             }
-            if (timeSeries > 60) {
+            if (timeSeries > 60)
+            {
                 _log.LogInformation($"GetSessionChart timeSeries > 60 so setting to 60");
                 timeSeries = 60;
             }
@@ -80,7 +82,7 @@ namespace MeatGeek.Sessions
                     return new NotFoundResult();
                 }
                 _log.LogInformation($"GetSessionChart Numer of statuses = {statuses.Count}");
-                
+
                 var settings = new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
@@ -102,6 +104,6 @@ namespace MeatGeek.Sessions
                 return new ExceptionResult(ex, false);
             }
         }
-    }       
+    }
 
 }

@@ -28,7 +28,7 @@ namespace MeatGeek.Sessions
     public class UpdateSession
     {
         private readonly ILogger<CreateSession> _log;
-        private readonly ISessionsService _sessionsService; 
+        private readonly ISessionsService _sessionsService;
 
         public UpdateSession(ILogger<CreateSession> log, ISessionsService sessionsService)
         {
@@ -40,11 +40,11 @@ namespace MeatGeek.Sessions
         [OpenApiOperation(operationId: "UpdateSession", tags: new[] { "session" }, Summary = "Updated an existing session.", Description = "Updates a session (sessions are 'cooks' or BBQ sessions).", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(SessionDetails), Required = true, Description = "Session object with updated values")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionDetails), Summary = "Session dtails updated", Description = "Session details updated")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.MethodNotAllowed, Summary = "Invalid input", Description = "Invalid input")]         
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.MethodNotAllowed, Summary = "Invalid input", Description = "Invalid input")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session not found", Description = "Session not found")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception occurred", Description = "An exception occurred.")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "patch", "put", Route = "sessions/{smokerId}/{id}")] HttpRequest req, 
+            [HttpTrigger(AuthorizationLevel.Anonymous, "patch", "put", Route = "sessions/{smokerId}/{id}")] HttpRequest req,
                 ILogger log,
                 string smokerId,
                 string id)
@@ -54,7 +54,7 @@ namespace MeatGeek.Sessions
 
             // get the request body
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var updateData = new UpdateSessionRequest {};
+            var updateData = new UpdateSessionRequest { };
             updateData.SmokerId = smokerId;
             JObject data;
             try
@@ -97,27 +97,27 @@ namespace MeatGeek.Sessions
             if (endTimeToken != null && endTimeToken.Type == JTokenType.Date)
             {
                 log.LogInformation($"endTime= {endTimeToken.ToString()}");
-                try 
-                {                                   
+                try
+                {
                     DateTimeOffset dto = DateTimeOffset.Parse(endTimeToken.ToString());
                     updateData.EndTime = dto.UtcDateTime;
                 }
-                catch(ArgumentNullException argNullEx)
+                catch (ArgumentNullException argNullEx)
                 {
                     log.LogError(argNullEx, $"Argument NUll exception");
                     throw;
                 }
-                catch(ArgumentException argEx)
+                catch (ArgumentException argEx)
                 {
                     log.LogError(argEx, $"Argument exception");
                     throw;
-                }                
-                catch(FormatException formatEx)
+                }
+                catch (FormatException formatEx)
                 {
                     log.LogError(formatEx, $"Format exception");
                     throw;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     log.LogError(ex, $"Unhandled Exception from DateTimeParse");
                     throw;

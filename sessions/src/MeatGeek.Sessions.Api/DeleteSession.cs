@@ -28,7 +28,7 @@ namespace MeatGeek.Sessions
 {
     public class DeleteSession
     {
-        private readonly ISessionsService _sessionsService; 
+        private readonly ISessionsService _sessionsService;
 
         public DeleteSession(ISessionsService sessionsService)
         {
@@ -40,12 +40,12 @@ namespace MeatGeek.Sessions
         [OpenApiParameter(name: "smokerId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "the Smoker Id", Description = "The Smoker Id", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiParameter(name: "id", In = ParameterLocation.Path, Required = true, Type = typeof(Guid), Summary = "SessionID", Description = "The ID of the Session to delete (GUID).", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Session deleted as requested.", Description = "Session deleted as requested.")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.MethodNotAllowed, Summary = "Invalid input", Description = "Invalid input")]         
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session not found", Description = "Session Not Found")]         
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.MethodNotAllowed, Summary = "Invalid input", Description = "Invalid input")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session not found", Description = "Session Not Found")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Summary = "Invalid input", Description = "Invalid input")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception or internal server error occurred", Description = "An exception or internal server error occurred.")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "sessions/{smokerId}/{id}")] HttpRequest req, 
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "sessions/{smokerId}/{id}")] HttpRequest req,
                 ILogger log,
                 string smokerId,
                 string id)
@@ -63,7 +63,7 @@ namespace MeatGeek.Sessions
                 log.LogError("SeleteSession: Missing id - url should be /sessions/{smokerId}/{id}");
                 return new BadRequestObjectResult(new { error = "Missing required property 'id'." });
             }
-     
+
             try
             {
                 log.LogWarning($"BEFORE: _sessionsService.DeleteSessionAsync");

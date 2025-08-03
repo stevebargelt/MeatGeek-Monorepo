@@ -22,12 +22,12 @@ using MeatGeek.Sessions.Services.Models.Data;
 #nullable enable
 namespace MeatGeek.Sessions
 {
-   public class GetAllSessionStatuses
+    public class GetAllSessionStatuses
     {
 
         private const string JsonContentType = "application/json";
         private readonly ILogger<CreateSession> _log;
-        private readonly ISessionsService _sessionsService; 
+        private readonly ISessionsService _sessionsService;
         private readonly CosmosClient _cosmosClient;
 
         public GetAllSessionStatuses(ILogger<CreateSession> log, ISessionsService sessionsService, CosmosClient cosmosClient)
@@ -43,11 +43,11 @@ namespace MeatGeek.Sessions
         [OpenApiParameter(name: "id", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "ID of the Session to return", Description = "The ID of the session to return", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionStatuses), Summary = "successful operation", Description = "successful response")]
         [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "application/json", bodyType: typeof(string), Summary = "Invalid input", Description = "Invalid input")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session Statuses not found", Description = "Session Statuses Not Found")]         
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session Statuses not found", Description = "Session Statuses Not Found")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception occurred", Description = "An exception occurred.")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/statuses/{smokerId}/{sessionId}")] HttpRequest req,
-                string smokerId, 
+                string smokerId,
                 string sessionId,
                 ILogger log)
         {
@@ -73,7 +73,7 @@ namespace MeatGeek.Sessions
                     return new NotFoundResult();
                 }
                 _log.LogInformation($"GetAllSessionStatuses Numer of statuses = {statuses.Count}");
-                
+
                 var settings = new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
@@ -95,6 +95,6 @@ namespace MeatGeek.Sessions
                 return new ExceptionResult(ex, false);
             }
         }
-    }       
+    }
 
 }

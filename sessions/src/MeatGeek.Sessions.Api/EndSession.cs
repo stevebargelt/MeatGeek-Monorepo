@@ -28,7 +28,7 @@ namespace MeatGeek.Sessions
 {
     public class EndSession
     {
-        private readonly ISessionsService _sessionsService; 
+        private readonly ISessionsService _sessionsService;
 
         public EndSession(ISessionsService sessionsService)
         {
@@ -40,12 +40,12 @@ namespace MeatGeek.Sessions
         [OpenApiParameter(name: "smokerId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "the Smoker Id", Description = "The Smoker Id", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiParameter(name: "id", In = ParameterLocation.Path, Required = true, Type = typeof(Guid), Summary = "SessionID", Description = "The ID of the Session to end (GUID).", Visibility = OpenApiVisibilityType.Important)]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NoContent, Summary = "Session ended as requested.", Description = "Session Ended as requested.")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.MethodNotAllowed, Summary = "Invalid input", Description = "Invalid input")]         
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session not found", Description = "Session Not Found")]         
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.MethodNotAllowed, Summary = "Invalid input", Description = "Invalid input")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session not found", Description = "Session Not Found")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Summary = "Invalid input", Description = "Invalid input")]
         [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception or internal server error occurred", Description = "An exception or internal server error occurred.")]
         public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "patch", "put", Route = "endsession/{smokerId}/{id}")] HttpRequest req, 
+            [HttpTrigger(AuthorizationLevel.Anonymous, "patch", "put", Route = "endsession/{smokerId}/{id}")] HttpRequest req,
                 ILogger log,
                 string smokerId,
                 string id)
@@ -64,15 +64,15 @@ namespace MeatGeek.Sessions
                 return new BadRequestObjectResult(new { error = "Missing required property 'id'." });
             }
 
-            var updateData = new EndSessionRequest {};
+            var updateData = new EndSessionRequest { };
             updateData.SmokerId = smokerId;
             var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             if (string.IsNullOrEmpty(requestBody))
             {
                 updateData.EndTime = DateTime.UtcNow;
-                log.LogInformation($"No JSON body, EndTime not provided using current time: {updateData.EndTime}");           
+                log.LogInformation($"No JSON body, EndTime not provided using current time: {updateData.EndTime}");
             }
-            else 
+            else
             {
                 JObject data;
                 try
@@ -90,37 +90,37 @@ namespace MeatGeek.Sessions
                     updateData.EndTime = DateTime.UtcNow;
                     log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
                 }
-                else 
+                else
                 {
                     JToken endTimeToken = data["endTime"];
                     log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
                     if (endTimeToken != null && (endTimeToken.Type == JTokenType.Date || endTimeToken.Type == JTokenType.String))
                     {
                         log.LogInformation($"endTime= {endTimeToken.ToString()}");
-                        try 
-                        {                                   
+                        try
+                        {
                             DateTimeOffset dto = DateTimeOffset.Parse(endTimeToken.ToString(), null, DateTimeStyles.RoundtripKind);
                             updateData.EndTime = dto.UtcDateTime;
                         }
-                        catch(ArgumentNullException argNullEx)
+                        catch (ArgumentNullException argNullEx)
                         {
                             log.LogError(argNullEx, $"Argument NUll exception");
                             updateData.EndTime = DateTime.UtcNow;
                             log.LogInformation($"Failed to parse endTime, using current time: {updateData.EndTime}");
                         }
-                        catch(ArgumentException argEx)
+                        catch (ArgumentException argEx)
                         {
                             log.LogError(argEx, $"Argument exception");
                             updateData.EndTime = DateTime.UtcNow;
                             log.LogInformation($"Failed to parse endTime, using current time: {updateData.EndTime}");
-                        }                
-                        catch(FormatException formatEx)
+                        }
+                        catch (FormatException formatEx)
                         {
                             log.LogError(formatEx, $"Format exception");
                             updateData.EndTime = DateTime.UtcNow;
                             log.LogInformation($"Failed to parse endTime, using current time: {updateData.EndTime}");
                         }
-                        catch(Exception ex)
+                        catch (Exception ex)
                         {
                             log.LogError(ex, $"Unhandled Exception from DateTimeParse");
                             updateData.EndTime = DateTime.UtcNow;
@@ -139,7 +139,7 @@ namespace MeatGeek.Sessions
             {
                 log.LogWarning($"BEFORE: _sessionsService.EndSessionAsync");
                 log.LogInformation("updateData.SmokerId = " + updateData.SmokerId);
-                log.LogInformation("updateData.StartTime = " +updateData.EndTime.Value);
+                log.LogInformation("updateData.StartTime = " + updateData.EndTime.Value);
                 var result = await _sessionsService.EndSessionAsync(id, updateData.SmokerId, updateData.EndTime.Value);
                 log.LogWarning($"AFTER: _sessionsService.EndSessionAsync");
                 if (result == EndSessionResult.NotFound)
