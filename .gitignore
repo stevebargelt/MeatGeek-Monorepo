@@ -1,4 +1,5 @@
 node_modules
 dist
 .nx/workspace-data
+.nx/cache
 coverage
