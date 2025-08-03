@@ -3,16 +3,8 @@ name: Shared Unit Tests
 on:
   pull_request:
     branches: [main]
-    paths:
-      - "shared/src/**"
-      - "shared/tests/**"
-      - ".github/workflows/shared-test.yml"
   push:
     branches: [main]
-    paths:
-      - "shared/src/**"
-      - "shared/tests/**"
-      - ".github/workflows/shared-test.yml"
   workflow_dispatch:
 
 env:
