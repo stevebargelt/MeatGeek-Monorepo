@@ -1,0 +1,179 @@
+# Based on: https://github.com/Azure/actions-workflow-samples/blob/master/FunctionApp/linux-dotnet-functionapp-on-azure.yml
+#
+# and
+#
+# https://learn.microsoft.com/en-us/dotnet/architecture/devops-for-aspnet-developers/actions-deploy
+# and
+#
+# https://learn.microsoft.com/en-us/azure/azure-functions/functions-how-to-github-actions?tabs=dotnet#deploy-the-function-app
+#
+
+name: Device API Build and Deploy
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/device-build-deploy.yml"
+      - "device/src/MeatGeek.Device.Api/**"
+      - "shared/src/**"
+  workflow_dispatch:
+
+env:
+  AZURE_FUNCTIONAPP_NAME: "meatgeekdeviceapi"
+  DOTNET_VERSION: "8.0.x"
+  AZURE_RESOURCEGROUP_NAME: "MeatGeek-Device"
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: "." # set this to the path to your function app project, defaults to the repository root
+  # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+jobs:
+  test:
+    name: Test Device API
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout GitHub Action"
+        uses: actions/checkout@v4
+
+      - name: "Setup DotNet ${{ env.DOTNET_VERSION }} Environment"
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: "Resolve Project Dependencies"
+        shell: bash
+        run: |
+          dotnet restore device/src/MeatGeek.Device.Api/MeatGeek.Device.Api.csproj
+          dotnet restore device/src/MeatGeek.Device.Api.Tests/MeatGeek.Device.Api.Tests.csproj
+
+      - name: "Build Projects"
+        shell: bash
+        run: |
+          dotnet build device/src/MeatGeek.Device.Api/MeatGeek.Device.Api.csproj --configuration Release --no-restore
+          dotnet build device/src/MeatGeek.Device.Api.Tests/MeatGeek.Device.Api.Tests.csproj --configuration Release --no-restore
+
+      - name: "Run Device API Tests"
+        shell: bash
+        run: |
+          dotnet test device/src/MeatGeek.Device.Api.Tests/MeatGeek.Device.Api.Tests.csproj \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --logger trx \
+            --results-directory ./test-results/device \
+            --filter "FullyQualifiedName~BasicStructureTests|FullyQualifiedName~ShouldBeStaticClass|FullyQualifiedName~ShouldHaveCorrectFunctionName|FullyQualifiedName~ShouldHaveCorrectParameter|FullyQualifiedName~HealthCheckTests.Run_ShouldReturnResult|FullyQualifiedName~HealthCheckTests.Run_ShouldLogInformation"
+
+      - name: "Upload test results"
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: ./test-results/
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: "Checkout GitHub Action"
+        uses: actions/checkout@v4
+
+      - name: "Setup DotNet ${{ env.DOTNET_VERSION }} Environment"
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: "Resolve Project Dependencies Using Dotnet"
+        shell: bash
+        run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          dotnet restore device/src/MeatGeek.Device.Api/MeatGeek.Device.Api.csproj
+          popd
+
+      - name: "Build"
+        shell: bash
+        run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          dotnet build device/src/MeatGeek.Device.Api/MeatGeek.Device.Api.csproj --configuration Release --output ./output --runtime linux-x64
+          popd
+
+      - name: "Package Functions"
+        uses: actions/upload-artifact@v4
+        with:
+          name: device-api
+          path: "./output"
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment: production
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: device-api
+          path: ./output
+
+      - name: "Login to Azure"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: "Run Azure Functions Action"
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: "./output"
+
+      - name: "Check Function App Health"
+        run: |
+          sleep 30
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://${{ env.AZURE_FUNCTIONAPP_NAME }}.azurewebsites.net/api/healthcheck)
+          if [ $response -eq 200 ]; then
+            echo "✅ Health check passed"
+          else
+            echo "❌ Health check failed with status code: $response"
+            exit 1
+          fi
+
+      # - name: Send custom JSON data to Slack workflow
+      #   if: always()
+      #   id: slack
+      #   uses: slackapi/slack-github-action@v1.23.0
+      #   with:
+      #     payload: |
+      #       {
+      #         "text": "Device API Deployment Status: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+      #         "blocks": [
+      #           {
+      #             "type": "section",
+      #             "text": {
+      #               "type": "mrkdwn",
+      #               "text": "Device API Deployment Status: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+      #             }
+      #           }
+      #         ]
+      #       }
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ env.SLACK_WEBHOOK_URL }}
+      #     SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+      - name: Azure logout
+        if: always()
+        run: |
+          az logout
