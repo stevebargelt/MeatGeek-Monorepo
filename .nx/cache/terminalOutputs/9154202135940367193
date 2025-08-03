@@ -1,1 +1,0 @@
-Executing Command: dotnet "format" "shared/src/MeatGeek.Shared/MeatGeek.Shared.csproj" "--verbosity=minimal" "--verify-no-changes"
