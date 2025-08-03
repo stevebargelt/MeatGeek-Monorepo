@@ -1,0 +1,14 @@
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/device/src/MeatGeek.Device.Api/net8.0/host.json
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/device/src/MeatGeek.Device.Api/net8.0/MeatGeek.Device.Api.deps.json
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/device/src/MeatGeek.Device.Api/net8.0/MeatGeek.Device.Api.dll
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/device/src/MeatGeek.Device.Api/net8.0/MeatGeek.Device.Api.pdb
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/device/src/MeatGeek.Device.Api/obj/net8.0/MeatGeek.Device.Api.csproj.AssemblyReference.cache
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/device/src/MeatGeek.Device.Api/obj/net8.0/MeatGeek.Device.Api.GeneratedMSBuildEditorConfig.editorconfig
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/device/src/MeatGeek.Device.Api/obj/net8.0/MeatGeek.Device.Api.AssemblyInfoInputs.cache
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/device/src/MeatGeek.Device.Api/obj/net8.0/MeatGeek.Device.Api.csproj.CoreCompileInputs.cache
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/device/src/MeatGeek.Device.Api/obj/net8.0/MeatGeek.Device.Api.sourcelink.json
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/device/src/MeatGeek.Device.Api/obj/net8.0/MeatGeek.FA44B27E.Up2Date
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/device/src/MeatGeek.Device.Api/obj/net8.0/MeatGeek.Device.Api.dll
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/device/src/MeatGeek.Device.Api/obj/net8.0/refint/MeatGeek.Device.Api.dll
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/device/src/MeatGeek.Device.Api/obj/net8.0/MeatGeek.Device.Api.pdb
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/device/src/MeatGeek.Device.Api/obj/net8.0/ref/MeatGeek.Device.Api.dll

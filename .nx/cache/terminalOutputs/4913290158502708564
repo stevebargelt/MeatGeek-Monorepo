@@ -1,0 +1,12 @@
+Executing Command: dotnet "--version"
+9.0.203
+Executing Command: dotnet "build" "/Users/stevebargelt/code/MeatGeek-Monorepo/shared/src/MeatGeek.Shared/MeatGeek.Shared.csproj" "--configuration=Debug" "--no-dependencies" "--verbosity=minimal"
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  MeatGeek.Shared -> /Users/stevebargelt/code/MeatGeek-Monorepo/dist/shared/src/MeatGeek.Shared/net8.0/MeatGeek.Shared.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.86

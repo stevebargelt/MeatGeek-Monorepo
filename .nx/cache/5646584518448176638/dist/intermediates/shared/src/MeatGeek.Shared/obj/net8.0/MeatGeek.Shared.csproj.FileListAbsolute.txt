@@ -1,0 +1,14 @@
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/shared/src/MeatGeek.Shared/net8.0/MeatGeek.Shared.deps.json
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/shared/src/MeatGeek.Shared/net8.0/MeatGeek.Shared.dll
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/shared/src/MeatGeek.Shared/net8.0/MeatGeek.Shared.pdb
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/shared/src/MeatGeek.Shared/obj/net8.0/MeatGeek.Shared.csproj.AssemblyReference.cache
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/shared/src/MeatGeek.Shared/obj/net8.0/MeatGeek.Shared.GeneratedMSBuildEditorConfig.editorconfig
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/shared/src/MeatGeek.Shared/obj/net8.0/MeatGeek.Shared.AssemblyInfoInputs.cache
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/shared/src/MeatGeek.Shared/obj/net8.0/MeatGeek.Shared.AssemblyInfo.cs
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/shared/src/MeatGeek.Shared/obj/net8.0/MeatGeek.Shared.csproj.CoreCompileInputs.cache
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/shared/src/MeatGeek.Shared/obj/net8.0/MeatGeek.Shared.sourcelink.json
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/shared/src/MeatGeek.Shared/obj/net8.0/MeatGeek.6EFFA697.Up2Date
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/shared/src/MeatGeek.Shared/obj/net8.0/MeatGeek.Shared.dll
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/shared/src/MeatGeek.Shared/obj/net8.0/refint/MeatGeek.Shared.dll
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/shared/src/MeatGeek.Shared/obj/net8.0/MeatGeek.Shared.pdb
+/Users/stevebargelt/code/MeatGeek-Monorepo/dist/intermediates/shared/src/MeatGeek.Shared/obj/net8.0/ref/MeatGeek.Shared.dll

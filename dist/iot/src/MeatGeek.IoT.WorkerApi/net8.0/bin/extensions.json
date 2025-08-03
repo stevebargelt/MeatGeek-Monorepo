@@ -1,0 +1,8 @@
+{
+  "extensions":[
+    { "name": "Startup", "typeName":"MeatGeek.IoT.WorkerApi.Startup, MeatGeek.IoT.WorkerApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"},
+    { "name": "OpenApi", "typeName":"Microsoft.Azure.WebJobs.Extensions.OpenApi.OpenApiWebJobsStartup, Microsoft.Azure.WebJobs.Extensions.OpenApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"},
+    { "name": "EventGrid", "typeName":"Microsoft.Azure.WebJobs.Extensions.EventGrid.EventGridWebJobsStartup, Microsoft.Azure.WebJobs.Extensions.EventGrid, Version=2.1.0.0, Culture=neutral, PublicKeyToken=014045d636e89289"},
+    { "name": "CosmosDB", "typeName":"Microsoft.Azure.WebJobs.Extensions.CosmosDB.CosmosDBWebJobsStartup, Microsoft.Azure.WebJobs.Extensions.CosmosDB, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35"}
+  ]
+}

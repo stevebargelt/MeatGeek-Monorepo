@@ -1,0 +1,77 @@
+name: Device Unit Tests
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "device/src/**"
+      - "shared/src/**"
+      - ".github/workflows/device-test.yml"
+  push:
+    branches: [main]
+    paths:
+      - "device/src/**"
+      - "shared/src/**"
+      - ".github/workflows/device-test.yml"
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: "8.0.x"
+  
+jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+            
+      - name: Restore dependencies
+        run: |
+          dotnet restore device/src/MeatGeek.Device.Api/MeatGeek.Device.Api.csproj
+          dotnet restore device/src/MeatGeek.Device.Api.Tests/MeatGeek.Device.Api.Tests.csproj
+          
+      - name: Build projects
+        run: |
+          dotnet build device/src/MeatGeek.Device.Api/MeatGeek.Device.Api.csproj --configuration Release --no-restore
+          dotnet build device/src/MeatGeek.Device.Api.Tests/MeatGeek.Device.Api.Tests.csproj --configuration Release --no-restore
+          
+      - name: Run Device API Tests
+        run: |
+          dotnet test device/src/MeatGeek.Device.Api.Tests/MeatGeek.Device.Api.Tests.csproj \
+            --configuration Release \
+            --no-build \
+            --verbosity normal \
+            --logger trx \
+            --results-directory ./test-results/device \
+            --collect:"XPlat Code Coverage"
+            
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: ./test-results/
+          
+      - name: Test Summary
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Device Unit Test Results
+          path: './test-results/**/*.trx'
+          reporter: dotnet-trx
+          fail-on-error: true

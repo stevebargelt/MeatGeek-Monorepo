@@ -1,0 +1,13 @@
+{
+  "generatedBy": "Microsoft.NET.Sdk.Functions.Generator-4.6.0",
+  "configurationSource": "attributes",
+  "bindings": [
+    {
+      "type": "eventGridTrigger",
+      "name": "eventGridEvent"
+    }
+  ],
+  "disabled": false,
+  "scriptFile": "../bin/MeatGeek.IoT.WorkerApi.dll",
+  "entryPoint": "MeatGeek.IoT.WorkerApi.SessionCreatedTrigger.Run"
+}
