@@ -14,26 +14,12 @@ The MeatGeek platform consists of several microservices that work together to pr
 
 ## Quick Start
 
-### Complete System Deployment
-
-Deploy the entire MeatGeek system from scratch:
-
-```bash
-# GitHub Actions (Recommended)
-# Go to Actions → "Deploy Complete MeatGeek System" → Run workflow
-
-# Local deployment
-cd infrastructure
-export AZURE_SUBSCRIPTION_ID="your-subscription-id"
-export AZURE_OBJECT_ID="your-azure-ad-object-id"
-./deploy.sh
-```
-
-See [`infrastructure/DEPLOYMENT.md`](infrastructure/DEPLOYMENT.md) for complete deployment guide.
+### Prerequisites
+- .NET 8.0 SDK
+- Node.js (for Nx workspace)
+- Azure CLI (for deployment)
 
 ### Development Commands
-
-Prerequisites: .NET 8.0 SDK, Node.js, Azure CLI
 
 ```bash
 # Install dependencies
