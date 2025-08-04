@@ -27,27 +27,26 @@ param cosmosPartition string = '/smokerId'
 var environments = environmentsTodeploy == 'prod-only' ? ['prod'] : environmentsTodeploy == 'prod-staging' ? ['prod', 'staging'] : environmentsTodeploy == 'prod-staging-test' ? ['prod', 'staging', 'test'] : ['prod', 'staging', 'test']
 
 // 1. Deploy shared infrastructure (creates resource groups and shared resources)
-module sharedInfrastructure '../shared/deploy/shared.bicep' = [for environment in environments: {
-  name: 'shared-infra-${environment}'
+// This deploys once and creates all necessary databases for all environments
+module sharedInfrastructure '../shared/deploy/shared.bicep' = {
+  name: 'shared-infrastructure'
   params: {
     location: location
     objectId: objectId
     resourcePrefix: resourcePrefix
-    environment: environment
     cosmosAccountName: cosmosAccountName
-    cosmosDatabaseName: environment == 'prod' ? resourcePrefix : '${resourcePrefix}-${environment}'
     cosmosContainerName: cosmosContainerName
     cosmosPartition: cosmosPartition
-    topics_meatgeek_name: environment == 'prod' ? '${resourcePrefix}-session' : '${resourcePrefix}-session-${environment}'
+    environments: environments  // Pass all environments to create databases
   }
-}]
+}
 
 // 2. Deploy Sessions microservices for each environment
 module sessionsInfrastructure '../sessions/deploy/microservice.bicep' = [for (environment, i) in environments: {
   name: 'sessions-infra-${environment}'
   scope: resourceGroup(environment == 'prod' ? 'MeatGeek-Sessions' : 'MeatGeek-Sessions-${environment}')
   dependsOn: [
-    sharedInfrastructure[i]
+    sharedInfrastructure
   ]
   params: {
     location: location
@@ -59,11 +58,11 @@ module sessionsInfrastructure '../sessions/deploy/microservice.bicep' = [for (en
     cosmosAccountName: cosmosAccountName
     cosmosDbDatabaseName: environment == 'prod' ? resourcePrefix : '${resourcePrefix}-${environment}'
     cosmosDbCollectionName: cosmosContainerName
-    cosmosConnectionString: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=SharedCosmosConnectionString${environment == 'prod' ? '' : '-${environment}'})'
+    cosmosConnectionString: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=SharedCosmosConnectionString)'
     eventGridTopicEndpoint: 'https://${resourcePrefix}-session${environment == 'prod' ? '' : '-${environment}'}.${location}-1.eventgrid.azure.net/api/events'
-    eventGridTopicKey: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=EventGridTopicKey${environment == 'prod' ? '' : '-${environment}'})'
-    iotEventHubEndpoint: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=IoTEventHubEndpoint)'
-    iotServiceConnection: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=IoTServiceConnection)'
+    eventGridTopicKey: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=EventGridTopicKey${environment == 'prod' ? '' : '-${environment}'})'
+    iotEventHubEndpoint: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTEventHubEndpoint)'
+    iotServiceConnection: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTServiceConnection)'
   }
 }]
 
@@ -72,7 +71,7 @@ module sessionsWorkerInfrastructure '../sessions/deploy/microservice-worker.bice
   name: 'sessions-worker-infra-${environment}'
   scope: resourceGroup(environment == 'prod' ? 'MeatGeek-Sessions' : 'MeatGeek-Sessions-${environment}')
   dependsOn: [
-    sharedInfrastructure[i]
+    sharedInfrastructure
   ]
   params: {
     location: location
@@ -84,11 +83,11 @@ module sessionsWorkerInfrastructure '../sessions/deploy/microservice-worker.bice
     cosmosAccountName: cosmosAccountName
     cosmosDbDatabaseName: environment == 'prod' ? resourcePrefix : '${resourcePrefix}-${environment}'
     cosmosDbCollectionName: cosmosContainerName
-    cosmosConnectionString: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=SharedCosmosConnectionString${environment == 'prod' ? '' : '-${environment}'})'
+    cosmosConnectionString: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=SharedCosmosConnectionString)'
     eventGridTopicEndpoint: 'https://${resourcePrefix}-session${environment == 'prod' ? '' : '-${environment}'}.${location}-1.eventgrid.azure.net/api/events'
-    eventGridTopicKey: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=EventGridTopicKey${environment == 'prod' ? '' : '-${environment}'})'
-    iotEventHubEndpoint: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=IoTEventHubEndpoint)'
-    iotServiceConnection: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=IoTServiceConnection)'
+    eventGridTopicKey: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=EventGridTopicKey${environment == 'prod' ? '' : '-${environment}'})'
+    iotEventHubEndpoint: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTEventHubEndpoint)'
+    iotServiceConnection: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTServiceConnection)'
   }
 }]
 
@@ -97,7 +96,7 @@ module deviceInfrastructure '../device/deploy/microservice.bicep' = [for (enviro
   name: 'device-infra-${environment}'
   scope: resourceGroup(environment == 'prod' ? 'MeatGeek-Device' : 'MeatGeek-Device-${environment}')
   dependsOn: [
-    sharedInfrastructure[i]
+    sharedInfrastructure
   ]
   params: {
     location: location
@@ -114,7 +113,7 @@ module iotInfrastructure '../iot/deploy/api.bicep' = [for (environment, i) in en
   name: 'iot-infra-${environment}'
   scope: resourceGroup(environment == 'prod' ? 'MeatGeek-IoT' : 'MeatGeek-IoT-${environment}')
   dependsOn: [
-    sharedInfrastructure[i]
+    sharedInfrastructure
   ]
   params: {
     location: location
@@ -126,12 +125,12 @@ module iotInfrastructure '../iot/deploy/api.bicep' = [for (environment, i) in en
     cosmosAccountName: cosmosAccountName
     cosmosDbDatabaseName: environment == 'prod' ? resourcePrefix : '${resourcePrefix}-${environment}'
     cosmosDbCollectionName: cosmosContainerName
-    cosmosConnectionString: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=SharedCosmosConnectionString${environment == 'prod' ? '' : '-${environment}'})'
+    cosmosConnectionString: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=SharedCosmosConnectionString)'
     eventGridTopicEndpoint: 'https://${resourcePrefix}-session${environment == 'prod' ? '' : '-${environment}'}.${location}-1.eventgrid.azure.net/api/events'
-    eventGridTopicKey: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=EventGridTopicKey${environment == 'prod' ? '' : '-${environment}'})'
-    iotEventHubEndpoint: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=IoTEventHubEndpoint)'
-    iotServiceConnection: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=IoTServiceConnection)'
-    iotSharedAccessConnString: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=IoTSharedAccessConnString)'
+    eventGridTopicKey: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=EventGridTopicKey${environment == 'prod' ? '' : '-${environment}'})'
+    iotEventHubEndpoint: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTEventHubEndpoint)'
+    iotServiceConnection: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTServiceConnection)'
+    iotSharedAccessConnString: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTSharedAccessConnString)'
   }
 }]
 
@@ -140,7 +139,7 @@ module iotWorkerInfrastructure '../iot/deploy/microservice-worker.bicep' = [for 
   name: 'iot-worker-infra-${environment}'
   scope: resourceGroup(environment == 'prod' ? 'MeatGeek-IoT' : 'MeatGeek-IoT-${environment}')
   dependsOn: [
-    sharedInfrastructure[i]
+    sharedInfrastructure
   ]
   params: {
     location: location
@@ -152,11 +151,11 @@ module iotWorkerInfrastructure '../iot/deploy/microservice-worker.bicep' = [for 
     cosmosAccountName: cosmosAccountName
     cosmosDbDatabaseName: environment == 'prod' ? resourcePrefix : '${resourcePrefix}-${environment}'
     cosmosDbCollectionName: cosmosContainerName
-    cosmosConnectionString: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=SharedCosmosConnectionString${environment == 'prod' ? '' : '-${environment}'})'
+    cosmosConnectionString: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=SharedCosmosConnectionString)'
     eventGridTopicEndpoint: 'https://${resourcePrefix}-session${environment == 'prod' ? '' : '-${environment}'}.${location}-1.eventgrid.azure.net/api/events'
-    eventGridTopicKey: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=EventGridTopicKey${environment == 'prod' ? '' : '-${environment}'})'
-    iotEventHubEndpoint: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=IoTEventHubEndpoint)'
-    iotServiceConnection: '@Microsoft.KeyVault(VaultName=${sharedInfrastructure[i].outputs.keyVaultName};SecretName=IoTServiceConnection)'
+    eventGridTopicKey: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=EventGridTopicKey${environment == 'prod' ? '' : '-${environment}'})'
+    iotEventHubEndpoint: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTEventHubEndpoint)'
+    iotServiceConnection: '@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTServiceConnection)'
   }
 }]
 

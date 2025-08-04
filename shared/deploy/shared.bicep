@@ -5,22 +5,13 @@ param tenantId string = subscription().tenantId
 param objectId string
 @description('Prefixes to be used by all resources deployed by this template')
 param resourcePrefix string = 'meatgeek'
-@description('Environment name (prod, staging, test)')
-@allowed([
-  'prod'
-  'staging'
-  'test'
-])
-param environment string = 'prod'
+@description('Environments to create databases for')
+param environments array = ['prod']
 
-// Environment-specific naming
-var envSuffix = environment == 'prod' ? '' : '-${environment}'
+// This module creates shared resources and databases for all environments
 
 // Resource Group Names
 var sharedRgName = 'MeatGeek-Shared'  // Shared across all environments
-var sessionsRgName = environment == 'prod' ? 'MeatGeek-Sessions' : 'MeatGeek-Sessions-${environment}'
-var deviceRgName = environment == 'prod' ? 'MeatGeek-Device' : 'MeatGeek-Device-${environment}'
-var iotRgName = environment == 'prod' ? 'MeatGeek-IoT' : 'MeatGeek-IoT-${environment}'
 
 // Single Key Vault for all environments
 param kvName string = '${resourcePrefix}kv'
@@ -28,10 +19,8 @@ var vaultURL = 'https://${kvName}${az.environment().suffixes.keyvaultDns}'
 
 // Cosmos DB - single account, environment-specific databases
 param cosmosAccountName string = resourcePrefix
-param cosmosDatabaseName string
 param cosmosContainerName string = resourcePrefix
 param cosmosPartition string = '/smokerId'
-param topics_meatgeek_name string // Event topics are environment-specific
 
 // Shared Resource Group - Create once for all environments
 resource sharedRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
@@ -39,25 +28,23 @@ resource sharedRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   location: location
 }
 
-resource sessionsRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: sessionsRgName
+// Create resource groups for each environment
+resource sessionsRgs 'Microsoft.Resources/resourceGroups@2021-04-01' = [for env in environments: {
+  name: env == 'prod' ? 'MeatGeek-Sessions' : 'MeatGeek-Sessions-${env}'
   location: location
-}
+}]
 
-resource deviceRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: deviceRgName
+resource deviceRgs 'Microsoft.Resources/resourceGroups@2021-04-01' = [for env in environments: {
+  name: env == 'prod' ? 'MeatGeek-Device' : 'MeatGeek-Device-${env}'
   location: location
-}
+}]
 
-resource iotRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: iotRgName
+resource iotRgs 'Microsoft.Resources/resourceGroups@2021-04-01' = [for env in environments: {
+  name: env == 'prod' ? 'MeatGeek-IoT' : 'MeatGeek-IoT-${env}'
   location: location
-}
+}]
 
-// IoT Worker API reference
-var iotWorkerApiName = environment == 'prod' ? 'meatgeekiot-workerapi' : 'meatgeekiot-${environment}-workerapi'
-var meatgeekiot_workerapi_externalid = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${iotRgName}/providers/Microsoft.Web/sites/${iotWorkerApiName}'
-var sessionCreatedId = '${meatgeekiot_workerapi_externalid}/functions/SessionCreated'
+// Removed IoT Worker API reference - this is environment-specific and should be handled in deployment
 
 @description('The SKU of the vault to be created.')
 @allowed([
@@ -67,10 +54,9 @@ var sessionCreatedId = '${meatgeekiot_workerapi_externalid}/functions/SessionCre
 param skuName string = 'standard'
 
 // Deploy shared resources within the shared resource group
-// Environment-specific resources (databases, topics) are deployed each time
-// Truly shared resources (KV, Cosmos account, ACR) are created if they don't exist
+// This creates shared resources once and databases for all environments
 module sharedResources 'shared-resources.bicep' = {
-  name: 'shared-resources-${environment}'
+  name: 'shared-resources'
   scope: sharedRg
   params: {
     location: location
@@ -79,14 +65,11 @@ module sharedResources 'shared-resources.bicep' = {
     kvName: kvName
     skuName: skuName
     cosmosAccountName: cosmosAccountName
-    cosmosDatabaseName: cosmosDatabaseName
     cosmosContainerName: cosmosContainerName
     cosmosPartition: cosmosPartition
-    topics_meatgeek_name: topics_meatgeek_name
-    meatgeekiot_workerapi_externalid: meatgeekiot_workerapi_externalid
     acrName: acrName
     acrSku: acrSku
-    environment: environment
+    environments: environments
   }
 }
 
@@ -103,6 +86,3 @@ output loginServer string = sharedResources.outputs.loginServer
 output keyVaultName string = sharedResources.outputs.keyVaultName
 output cosmosAccountName string = sharedResources.outputs.cosmosAccountName
 output sharedResourceGroupName string = sharedRg.name
-output sessionsResourceGroupName string = sessionsRg.name
-output deviceResourceGroupName string = deviceRg.name
-output iotResourceGroupName string = iotRg.name
