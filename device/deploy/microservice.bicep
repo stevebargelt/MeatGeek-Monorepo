@@ -27,7 +27,7 @@ var functionsApiAppName = '${resourcePrefix}${envSuffix}-${resourceProject}api'
 var appInsightsName = '${resourcePrefix}${envSuffix}-${resourceProject}-appinsights'
 var logAnalyticsName = '${resourcePrefix}${envSuffix}-${resourceProject}-loganalytics'
 
-var storageConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${storage.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storage.listKeys().keys[0].value}'
+var storageConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${storage.name};EndpointSuffix=${az.environment().suffixes.storage};AccountKey=${storage.listKeys().keys[0].value}'
 var resourceSuffix = substring(uniqueString(resourceGroup().id),0,5)
 var storageAccountName =  toLower(format('st{0}', replace('${resourceProject}${envSuffix}${resourceSuffix}', '-', '')))
 

@@ -24,13 +24,10 @@ param cosmosContainerName string = resourcePrefix
 param cosmosPartition string = '/smokerId'
 
 // Environment configuration
-var environments = environmentsTodeploy == 'prod-only' ? ['prod'] : 
-                  environmentsTodeploy == 'prod-staging' ? ['prod', 'staging'] :
-                  environmentsTodeploy == 'prod-staging-test' ? ['prod', 'staging', 'test'] :
-                  ['prod', 'staging', 'test']
+var environments = environmentsTodeploy == 'prod-only' ? ['prod'] : environmentsTodeploy == 'prod-staging' ? ['prod', 'staging'] : environmentsTodeploy == 'prod-staging-test' ? ['prod', 'staging', 'test'] : ['prod', 'staging', 'test']
 
 // 1. Deploy shared infrastructure (creates resource groups and shared resources)
-module sharedInfrastructure 'shared/deploy/shared.bicep' = [for environment in environments: {
+module sharedInfrastructure '../shared/deploy/shared.bicep' = [for environment in environments: {
   name: 'shared-infra-${environment}'
   params: {
     location: location
@@ -46,9 +43,9 @@ module sharedInfrastructure 'shared/deploy/shared.bicep' = [for environment in e
 }]
 
 // 2. Deploy Sessions microservices for each environment
-module sessionsInfrastructure 'sessions/deploy/microservice.bicep' = [for (environment, i) in environments: {
+module sessionsInfrastructure '../sessions/deploy/microservice.bicep' = [for (environment, i) in environments: {
   name: 'sessions-infra-${environment}'
-  scope: resourceGroup(sharedInfrastructure[i].outputs.sessionsResourceGroupName)
+  scope: resourceGroup(environment == 'prod' ? 'MeatGeek-Sessions' : 'MeatGeek-Sessions-${environment}')
   dependsOn: [
     sharedInfrastructure[i]
   ]
@@ -57,8 +54,8 @@ module sessionsInfrastructure 'sessions/deploy/microservice.bicep' = [for (envir
     environment: environment
     resourcePrefix: resourcePrefix
     resourceProject: 'sessions'
-    keyVaultName: sharedInfrastructure[i].outputs.keyVaultName
-    keyVaultResourceGroup: sharedInfrastructure[i].outputs.sharedResourceGroupName
+    keyVaultName: 'meatgeekkv'
+    keyVaultResourceGroup: 'MeatGeek-Shared'
     cosmosAccountName: cosmosAccountName
     cosmosDbDatabaseName: environment == 'prod' ? resourcePrefix : '${resourcePrefix}-${environment}'
     cosmosDbCollectionName: cosmosContainerName
@@ -71,9 +68,9 @@ module sessionsInfrastructure 'sessions/deploy/microservice.bicep' = [for (envir
 }]
 
 // 3. Deploy Sessions Worker API for each environment
-module sessionsWorkerInfrastructure 'sessions/deploy/microservice-worker.bicep' = [for (environment, i) in environments: {
+module sessionsWorkerInfrastructure '../sessions/deploy/microservice-worker.bicep' = [for (environment, i) in environments: {
   name: 'sessions-worker-infra-${environment}'
-  scope: resourceGroup(sharedInfrastructure[i].outputs.sessionsResourceGroupName)
+  scope: resourceGroup(environment == 'prod' ? 'MeatGeek-Sessions' : 'MeatGeek-Sessions-${environment}')
   dependsOn: [
     sharedInfrastructure[i]
   ]
@@ -82,8 +79,8 @@ module sessionsWorkerInfrastructure 'sessions/deploy/microservice-worker.bicep' 
     environment: environment
     resourcePrefix: resourcePrefix
     resourceProject: 'sessions-worker'
-    keyVaultName: sharedInfrastructure[i].outputs.keyVaultName
-    keyVaultResourceGroup: sharedInfrastructure[i].outputs.sharedResourceGroupName
+    keyVaultName: 'meatgeekkv'
+    keyVaultResourceGroup: 'MeatGeek-Shared'
     cosmosAccountName: cosmosAccountName
     cosmosDbDatabaseName: environment == 'prod' ? resourcePrefix : '${resourcePrefix}-${environment}'
     cosmosDbCollectionName: cosmosContainerName
@@ -96,9 +93,9 @@ module sessionsWorkerInfrastructure 'sessions/deploy/microservice-worker.bicep' 
 }]
 
 // 4. Deploy Device microservices for each environment
-module deviceInfrastructure 'device/deploy/microservice.bicep' = [for (environment, i) in environments: {
+module deviceInfrastructure '../device/deploy/microservice.bicep' = [for (environment, i) in environments: {
   name: 'device-infra-${environment}'
-  scope: resourceGroup(sharedInfrastructure[i].outputs.deviceResourceGroupName)
+  scope: resourceGroup(environment == 'prod' ? 'MeatGeek-Device' : 'MeatGeek-Device-${environment}')
   dependsOn: [
     sharedInfrastructure[i]
   ]
@@ -107,15 +104,15 @@ module deviceInfrastructure 'device/deploy/microservice.bicep' = [for (environme
     environment: environment
     resourcePrefix: resourcePrefix
     resourceProject: 'device'
-    keyVaultName: sharedInfrastructure[i].outputs.keyVaultName
-    keyVaultResourceGroup: sharedInfrastructure[i].outputs.sharedResourceGroupName
+    keyVaultName: 'meatgeekkv'
+    keyVaultResourceGroup: 'MeatGeek-Shared'
   }
 }]
 
 // 5. Deploy IoT microservices for each environment
-module iotInfrastructure 'iot/deploy/api.bicep' = [for (environment, i) in environments: {
+module iotInfrastructure '../iot/deploy/api.bicep' = [for (environment, i) in environments: {
   name: 'iot-infra-${environment}'
-  scope: resourceGroup(sharedInfrastructure[i].outputs.iotResourceGroupName)
+  scope: resourceGroup(environment == 'prod' ? 'MeatGeek-IoT' : 'MeatGeek-IoT-${environment}')
   dependsOn: [
     sharedInfrastructure[i]
   ]
@@ -124,8 +121,8 @@ module iotInfrastructure 'iot/deploy/api.bicep' = [for (environment, i) in envir
     environment: environment
     resourcePrefix: resourcePrefix
     resourceProject: 'iot-api'
-    keyVaultName: sharedInfrastructure[i].outputs.keyVaultName
-    keyVaultResourceGroup: sharedInfrastructure[i].outputs.sharedResourceGroupName
+    keyVaultName: 'meatgeekkv'
+    keyVaultResourceGroup: 'MeatGeek-Shared'
     cosmosAccountName: cosmosAccountName
     cosmosDbDatabaseName: environment == 'prod' ? resourcePrefix : '${resourcePrefix}-${environment}'
     cosmosDbCollectionName: cosmosContainerName
@@ -139,9 +136,9 @@ module iotInfrastructure 'iot/deploy/api.bicep' = [for (environment, i) in envir
 }]
 
 // 6. Deploy IoT Worker API for each environment
-module iotWorkerInfrastructure 'iot/deploy/microservice-worker.bicep' = [for (environment, i) in environments: {
+module iotWorkerInfrastructure '../iot/deploy/microservice-worker.bicep' = [for (environment, i) in environments: {
   name: 'iot-worker-infra-${environment}'
-  scope: resourceGroup(sharedInfrastructure[i].outputs.iotResourceGroupName)
+  scope: resourceGroup(environment == 'prod' ? 'MeatGeek-IoT' : 'MeatGeek-IoT-${environment}')
   dependsOn: [
     sharedInfrastructure[i]
   ]
@@ -150,8 +147,8 @@ module iotWorkerInfrastructure 'iot/deploy/microservice-worker.bicep' = [for (en
     environment: environment
     resourcePrefix: resourcePrefix
     resourceProject: 'iot-worker'
-    keyVaultName: sharedInfrastructure[i].outputs.keyVaultName
-    keyVaultResourceGroup: sharedInfrastructure[i].outputs.sharedResourceGroupName
+    keyVaultName: 'meatgeekkv'
+    keyVaultResourceGroup: 'MeatGeek-Shared'
     cosmosAccountName: cosmosAccountName
     cosmosDbDatabaseName: environment == 'prod' ? resourcePrefix : '${resourcePrefix}-${environment}'
     cosmosDbCollectionName: cosmosContainerName
@@ -165,22 +162,9 @@ module iotWorkerInfrastructure 'iot/deploy/microservice-worker.bicep' = [for (en
 
 // Outputs for verification
 output deployedEnvironments array = environments
-output sharedResourceGroup string = sharedInfrastructure[0].outputs.sharedResourceGroupName
-output keyVaultName string = sharedInfrastructure[0].outputs.keyVaultName
-output cosmosAccountName string = sharedInfrastructure[0].outputs.cosmosAccountName
-output containerRegistryLoginServer string = sharedInfrastructure[0].outputs.loginServer
+output sharedResourceGroup string = 'MeatGeek-Shared'
+output keyVaultName string = 'meatgeekkv'
+output cosmosAccountNameUsed string = cosmosAccountName
 
-output environmentResourceGroups object = {
-  sessions: [for (environment, i) in environments: {
-    environment: environment
-    resourceGroup: sharedInfrastructure[i].outputs.sessionsResourceGroupName
-  }]
-  device: [for (environment, i) in environments: {
-    environment: environment
-    resourceGroup: sharedInfrastructure[i].outputs.deviceResourceGroupName
-  }]
-  iot: [for (environment, i) in environments: {
-    environment: environment
-    resourceGroup: sharedInfrastructure[i].outputs.iotResourceGroupName
-  }]
-}
+// Output the environments that were deployed
+output deployedEnvironmentsList array = environments

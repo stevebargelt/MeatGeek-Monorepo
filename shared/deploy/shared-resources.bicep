@@ -14,7 +14,7 @@ param acrSku string
 param environment string
 
 // Shared resources naming (no environment suffix)
-var vaultURL = 'https://${kvName}${environment().suffixes.keyvaultDns}'
+var vaultURL = 'https://${kvName}${az.environment().suffixes.keyvaultDns}'
 var envSuffix = environment == 'prod' ? '' : '-${environment}' // Only used for database names within shared Cosmos
 
 resource meatgeek_keyvault 'Microsoft.KeyVault/vaults@2022-07-01' = {

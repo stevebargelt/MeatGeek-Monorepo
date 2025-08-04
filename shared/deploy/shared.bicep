@@ -24,14 +24,14 @@ var iotRgName = environment == 'prod' ? 'MeatGeek-IoT' : 'MeatGeek-IoT-${environ
 
 // Single Key Vault for all environments
 param kvName string = '${resourcePrefix}kv'
-var vaultURL = 'https://${kvName}${environment().suffixes.keyvaultDns}'
+var vaultURL = 'https://${kvName}${az.environment().suffixes.keyvaultDns}'
 
 // Cosmos DB - single account, environment-specific databases
 param cosmosAccountName string = resourcePrefix
-param cosmosDatabaseName string = '${resourcePrefix}${envSuffix}'
+param cosmosDatabaseName string
 param cosmosContainerName string = resourcePrefix
 param cosmosPartition string = '/smokerId'
-param topics_meatgeek_name string = '${resourcePrefix}-session${envSuffix}' // Event topics are environment-specific
+param topics_meatgeek_name string // Event topics are environment-specific
 
 // Shared Resource Group - Create once for all environments
 resource sharedRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
@@ -56,7 +56,7 @@ resource iotRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 
 // IoT Worker API reference
 var iotWorkerApiName = environment == 'prod' ? 'meatgeekiot-workerapi' : 'meatgeekiot-${environment}-workerapi'
-param meatgeekiot_workerapi_externalid string = '/subscriptions/c7e800cb-0ee6-4175-9605-a6b97c6f419f/resourceGroups/${iotRgName}/providers/Microsoft.Web/sites/${iotWorkerApiName}'
+var meatgeekiot_workerapi_externalid = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${iotRgName}/providers/Microsoft.Web/sites/${iotWorkerApiName}'
 var sessionCreatedId = '${meatgeekiot_workerapi_externalid}/functions/SessionCreated'
 
 @description('The SKU of the vault to be created.')
