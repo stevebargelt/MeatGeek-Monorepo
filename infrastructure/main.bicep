@@ -16,10 +16,7 @@ param objectId string
 param environmentsTodeploy string = 'prod-only'
 
 // Determine which environments to deploy
-var environments = environmentsTodeploy == 'prod-only' ? ['prod'] : 
-                  environmentsTodeploy == 'prod-staging' ? ['prod', 'staging'] :
-                  environmentsTodeploy == 'prod-staging-test' ? ['prod', 'staging', 'test'] :
-                  ['prod', 'staging', 'test']
+var environments = environmentsTodeploy == 'prod-only' ? ['prod'] : environmentsTodeploy == 'prod-staging' ? ['prod', 'staging'] : environmentsTodeploy == 'prod-staging-test' ? ['prod', 'staging', 'test'] : ['prod', 'staging', 'test']
 
 // Deploy shared infrastructure first (only once, not per environment)
 module sharedInfra '../shared/deploy/shared.bicep' = {

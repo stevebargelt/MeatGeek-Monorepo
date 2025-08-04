@@ -47,14 +47,20 @@ module sharedResources 'shared-resources.bicep' = if (environment == 'prod') {
   }
 }
 
-// Outputs
-output keyVaultName string = environment == 'prod' ? sharedResources.outputs.keyVaultName : 'meatgeekkv'
-output cosmosAccountName string = environment == 'prod' ? sharedResources.outputs.cosmosAccountName : 'meatgeek'
-output containerRegistryName string = environment == 'prod' ? sharedResources.outputs.containerRegistryName : sharedResources.outputs.containerRegistryName
-output eventGridTopicEndpoint string = environment == 'prod' ? sharedResources.outputs.eventGridTopicEndpoint : sharedResources.outputs.eventGridTopicEndpoint
-output eventGridTopicKey string = environment == 'prod' ? sharedResources.outputs.eventGridTopicKey : sharedResources.outputs.eventGridTopicKey
-output iotHubName string = environment == 'prod' ? sharedResources.outputs.iotHubName : sharedResources.outputs.iotHubName
-output iotEventHubEndpoint string = environment == 'prod' ? sharedResources.outputs.iotEventHubEndpoint : sharedResources.outputs.iotEventHubEndpoint
-output iotServiceConnection string = environment == 'prod' ? sharedResources.outputs.iotServiceConnection : sharedResources.outputs.iotServiceConnection
-output cosmosConnectionString string = environment == 'prod' ? sharedResources.outputs.cosmosConnectionString : sharedResources.outputs.cosmosConnectionString
+// Outputs - Get values from existing shared resources
+var existingKeyVault = environment == 'prod' ? sharedResources : null
+var kvName = 'meatgeekkv'
+var cosmosName = 'meatgeek'
+var acrName = 'acrmeatgeek${uniqueString(sharedRg.id)}'
+var iotName = 'meatgeekiothub'
+
+output keyVaultName string = kvName
+output cosmosAccountName string = cosmosName
+output containerRegistryName string = environment == 'prod' && existingKeyVault != null ? sharedResources.outputs.containerRegistryName : acrName
+output eventGridTopicEndpoint string = environment == 'prod' && existingKeyVault != null ? sharedResources.outputs.eventGridTopicEndpoint : 'https://placeholder.eventgrid.azure.net'
+output eventGridTopicKey string = environment == 'prod' && existingKeyVault != null ? sharedResources.outputs.eventGridTopicKey : 'placeholder-key'
+output iotHubName string = iotName
+output iotEventHubEndpoint string = environment == 'prod' && existingKeyVault != null ? sharedResources.outputs.iotEventHubEndpoint : 'sb://placeholder.servicebus.windows.net'
+output iotServiceConnection string = environment == 'prod' && existingKeyVault != null ? sharedResources.outputs.iotServiceConnection : 'HostName=placeholder.azure-devices.net;SharedAccessKeyName=service;SharedAccessKey=placeholder'
+output cosmosConnectionString string = environment == 'prod' && existingKeyVault != null ? sharedResources.outputs.cosmosConnectionString : 'AccountEndpoint=https://placeholder.documents.azure.com:443/;AccountKey=placeholder;'
 

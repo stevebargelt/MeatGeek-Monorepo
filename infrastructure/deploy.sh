@@ -43,8 +43,7 @@ check_prerequisites() {
 
 # Function to get current user's object ID
 get_object_id() {
-    local object_id=$(az ad signed-in-user show --query objectId -o tsv 2>/dev/null || \
-                     az ad signed-in-user show --query id -o tsv)
+    local object_id=$(az ad signed-in-user show --query id -o tsv)
     echo $object_id
 }
 
