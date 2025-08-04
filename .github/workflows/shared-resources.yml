@@ -1,4 +1,4 @@
-name: Deploy Shared Infrastructure & Environment Resources
+name: Shared Deploy Infra
 on:
   push:
     branches:
@@ -10,8 +10,7 @@ on:
       - "shared/build/build-deploy-resources.yaml"
 
 jobs:
-  deploy-shared-resources-prod:
-    if: github.ref == 'refs/heads/main'
+  deploy-shared-resources:
     runs-on: ubuntu-latest
     steps:
       # Checkout code
@@ -27,45 +26,14 @@ jobs:
         uses: azure/arm-deploy@v1
         with:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ secrets.SHARED_RG }}
           template: ./shared/deploy/shared.bicep
-          scope: subscription
           parameters:
             kvName=${{ secrets.SHARED_KV }} objectId=${{ secrets.STEVE_OBJECT_USER_ID }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}
             cosmosDatabaseName=${{ secrets.SHARED_COSMOS }}
             cosmosContainerName=${{ secrets.SHARED_COSMOS }}
             cosmosPartition=${{ secrets.SHARED_COSMOS_PARTITION_PATH }}
-            environment=prod
-          # additionalArguments: "--what-if --rollback-on-error --what-if-exclude-change-types Create Ignore"
-        # output containerName variable from template
-      - run: echo ${{ steps.deploy.outputs.containerName }}
-
-  deploy-shared-resources-staging:
-    if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    steps:
-      # Checkout code
-      - uses: actions/checkout@main
-
-        # Log into Azure
-      - uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-        # Deploy ARM template
-      - name: Run ARM deploy
-        uses: azure/arm-deploy@v1
-        with:
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
-          template: ./shared/deploy/shared.bicep
-          scope: subscription
-          parameters:
-            kvName=${{ secrets.SHARED_KV }} objectId=${{ secrets.STEVE_OBJECT_USER_ID }}
-            cosmosAccountName=${{ secrets.SHARED_COSMOS }}
-            cosmosDatabaseName=${{ secrets.SHARED_COSMOS }}
-            cosmosContainerName=${{ secrets.SHARED_COSMOS }}
-            cosmosPartition=${{ secrets.SHARED_COSMOS_PARTITION_PATH }}
-            environment=staging
           # additionalArguments: "--what-if --rollback-on-error --what-if-exclude-change-types Create Ignore"
         # output containerName variable from template
       - run: echo ${{ steps.deploy.outputs.containerName }}
