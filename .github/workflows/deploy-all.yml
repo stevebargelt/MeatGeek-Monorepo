@@ -1,0 +1,84 @@
+name: Deploy All Services
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - prod
+      deploy_infrastructure:
+        description: 'Deploy infrastructure changes'
+        required: true
+        default: 'false'
+        type: choice
+        options:
+          - true
+          - false
+
+jobs:
+  deploy-infrastructure:
+    if: inputs.deploy_infrastructure == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy Infrastructure
+        run: |
+          cd infrastructure
+          chmod +x deploy.sh
+          if [ "${{ inputs.environment }}" == "prod" ]; then
+            ./deploy.sh --environments prod-only
+          else
+            ./deploy.sh --environments prod-staging
+          fi
+
+  deploy-sessions-api:
+    needs: [deploy-infrastructure]
+    if: always() && !cancelled() && !failure()
+    uses: ./.github/workflows/sessions-build-deploy-enhanced.yml
+    with:
+      environment: ${{ inputs.environment }}
+    secrets: inherit
+
+  deploy-sessions-worker:
+    needs: [deploy-infrastructure]
+    if: always() && !cancelled() && !failure()
+    uses: ./.github/workflows/sessions-build-deploy-worker-enhanced.yml
+    with:
+      environment: ${{ inputs.environment }}
+    secrets: inherit
+
+  deploy-device-api:
+    needs: [deploy-infrastructure]
+    if: always() && !cancelled() && !failure()
+    uses: ./.github/workflows/device-build-deploy.yml
+    with:
+      environment: ${{ inputs.environment }}
+    secrets: inherit
+
+  deploy-iot-functions:
+    needs: [deploy-infrastructure]
+    if: always() && !cancelled() && !failure()
+    uses: ./.github/workflows/iot-build-deploy.yml
+    with:
+      environment: ${{ inputs.environment }}
+    secrets: inherit
+
+  deploy-iot-worker:
+    needs: [deploy-infrastructure]
+    if: always() && !cancelled() && !failure()
+    uses: ./.github/workflows/iot-build-deploy-worker.yml
+    with:
+      environment: ${{ inputs.environment }}
+    secrets: inherit

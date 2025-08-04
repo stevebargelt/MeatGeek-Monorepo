@@ -22,11 +22,14 @@ param iotEventHubEndpoint string
 param iotServiceConnection string
 param iotSharedAccessConnString string
 param cosmosConnectionString string
+@description('Environment name')
+param environment string = 'prod'
 
-var functionsAppServicePlanName = '${resourcePrefix}-${resourceProject}-app-service-plan'
-var functionsApiAppName = '${resourcePrefix}${resourceProject}api'
-var appInsightsName = '${resourcePrefix}-${resourceProject}-appinsights'
-var logAnalyticsName = '${resourcePrefix}-${resourceProject}-loganalytics'
+var envSuffix = environment == 'prod' ? '' : '-${environment}'
+var functionsAppServicePlanName = '${resourcePrefix}-${resourceProject}-app-service-plan${envSuffix}'
+var functionsApiAppName = '${resourcePrefix}${resourceProject}api${envSuffix}'
+var appInsightsName = '${resourcePrefix}-${resourceProject}-appinsights${envSuffix}'
+var logAnalyticsName = '${resourcePrefix}-${resourceProject}-loganalytics${envSuffix}'
 
 var storageConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${storage.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storage.listKeys().keys[0].value}'
 var resourceSuffix = substring(uniqueString(resourceGroup().id),0,5)
@@ -190,6 +193,7 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
     IOT_EVENTHUB_ENDPOINT: iotEventHubEndpoint
     IOT_SERVICE_CONNECTION: iotServiceConnection
     IOT_HUB_SHARED_ACCESS_CONN_STRING: iotSharedAccessConnString
+    Environment: environment
   }
 }
 

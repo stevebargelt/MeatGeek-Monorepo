@@ -23,8 +23,10 @@ jobs:
 
         # Deploy ARM template
       - name: Run ARM deploy
+        id: deploy
         uses: azure/arm-deploy@v1
         with:
+          scope: resourcegroup
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.SHARED_RG }}
           template: ./shared/deploy/shared.bicep

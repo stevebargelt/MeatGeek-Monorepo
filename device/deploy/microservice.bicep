@@ -5,22 +5,17 @@ param subscriptionId string = subscription().subscriptionId
 @description('Prefixes to be used by all resources deployed by this template')
 param resourcePrefix string = 'meatgeek'
 @description('Project Name to be used by all resources deployed by this template (sessions, shared, device, iot)')
-param resourceProject string = 'sessions'
-@description('Location for the resrouces. Defaults to the location of the Resource Group')
-param location string= resourceGroup().location
-@description('Name of the Cosmos DB to use')
-param cosmosAccountName string = 'meatgeek'
-@description('Name of the Cosmos DB collection to use')
-param cosmosDbCollectionName string = 'meatgeek'
+param resourceProject string = 'device'
+@description('Location for the resources. Defaults to the location of the Resource Group')
+param location string = resourceGroup().location
 @description('ID of a existing keyvault that will be used to store and retrieve keys in this deployment')
 param keyVaultName string = 'meatgeekkv'
 @description('Shared Key Vault Resource Group')
 param keyVaultResourceGroup string = 'MeatGeek-Shared'
-param eventGridTopicEndpoint string 
-param eventGridTopicKey string
-param iotEventHubEndpoint string
-param iotServiceConnection string
-param cosmosConnectionString string
+@description('Azure Relay Namespace Name')
+param relayNamespaceName string = 'meatgeek-relay'
+@description('Azure Relay Hybrid Connection Name')
+param hybridConnectionName string = 'meatgeek-hc'
 @description('Environment name')
 param environment string = 'prod'
 
@@ -32,15 +27,10 @@ var logAnalyticsName = '${resourcePrefix}-${resourceProject}-loganalytics${envSu
 
 var storageConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${storage.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storage.listKeys().keys[0].value}'
 var resourceSuffix = substring(uniqueString(resourceGroup().id),0,5)
-var storageAccountName =  toLower(format('st{0}', replace('${resourceProject}${resourceSuffix}', '-', '')))
+var storageAccountName = toLower(format('st{0}', replace('${resourceProject}${resourceSuffix}', '-', '')))
 
 var storageBlobDataContributorRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
 var keyVaultSecretsUserRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
-
-// var appTags = {
-//   AppID: '${appName}-${appInternalServiceName}'
-//   AppName: '${appName}-${appInternalServiceName}'
-// }
 
 resource storage 'Microsoft.Storage/storageAccounts@2021-01-01' = {
   name: storageAccountName
@@ -131,7 +121,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 
 module setStorageAccountSecret 'setSecret.bicep' = {
   scope: resourceGroup(subscriptionId, keyVaultResourceGroup)
-  name: '${resourcePrefix}-${resourceProject}-storeageaccountsecret'
+  name: '${resourcePrefix}-${resourceProject}-storageaccountsecret'
   params: {
     keyVaultName: keyVault.name
     secretName: '${storage.name}-${resourcePrefix}-${resourceProject}-ConnectionString'
@@ -148,6 +138,48 @@ resource functionsAppServicePlan 'Microsoft.Web/serverfarms@2018-02-01' = {
   kind: 'functionapp'
   properties: {
 
+  }
+}
+
+// Azure Relay resources
+resource relayNamespace 'Microsoft.Relay/namespaces@2021-11-01' = {
+  name: '${relayNamespaceName}${envSuffix}'
+  location: location
+  sku: {
+    name: 'Standard'
+    tier: 'Standard'
+  }
+  properties: {}
+}
+
+resource hybridConnection 'Microsoft.Relay/namespaces/hybridConnections@2021-11-01' = {
+  parent: relayNamespace
+  name: hybridConnectionName
+  properties: {
+    requiresClientAuthorization: true
+  }
+}
+
+resource hybridConnectionAuthRule 'Microsoft.Relay/namespaces/hybridConnections/authorizationRules@2021-11-01' = {
+  parent: hybridConnection
+  name: 'RootManageSharedAccessKey'
+  properties: {
+    rights: [
+      'Listen'
+      'Manage'
+      'Send'
+    ]
+  }
+}
+
+// Store relay connection string in Key Vault
+module setRelayConnectionString 'setSecret.bicep' = {
+  scope: resourceGroup(subscriptionId, keyVaultResourceGroup)
+  name: '${resourcePrefix}-${resourceProject}-relayconnectionstring'
+  params: {
+    keyVaultName: keyVault.name
+    secretName: 'RelayConnectionString${envSuffix}'
+    secretValue: listKeys(hybridConnectionAuthRule.id, '2021-11-01').primaryConnectionString
   }
 }
 
@@ -179,22 +211,16 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
   parent: functionsApiApp
   name: 'appsettings'
   properties: {
-    CosmosDBConnection: cosmosConnectionString
-    DatabaseName: cosmosAccountName
-    CollectionName: cosmosDbCollectionName
-    Environment: environment
-    ContentStorageAccount: storage.name
-    ContentContainer: blobService::content.name
+    RelayConnectionString: listKeys(hybridConnectionAuthRule.id, '2021-11-01').primaryConnectionString
+    RelayNamespaceName: relayNamespace.name
+    HybridConnectionName: hybridConnection.name
     FUNCTIONS_EXTENSION_VERSION: '~4'
     FUNCTIONS_WORKER_RUNTIME: 'dotnet'
     AzureWebJobsStorage: storageConnectionString
     WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: storageConnectionString
     WEBSITE_CONTENTSHARE: '${functionsApiAppName}102269'
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
-    EventGridTopicEndpoint: eventGridTopicEndpoint
-    EventGridTopicKey: eventGridTopicKey    
-    IOT_SERVICE_CONNECTION: iotServiceConnection
-    IOT_EVENTHUB_ENDPOINT: iotEventHubEndpoint
+    Environment: environment
   }
 }
 
@@ -218,5 +244,6 @@ module kvFunctionAppPermissions 'setVaultPermissions.bicep' = {
   }
 }
 
-
 output apiAppName string = functionsApiAppName
+output relayNamespaceName string = relayNamespace.name
+output hybridConnectionName string = hybridConnection.name

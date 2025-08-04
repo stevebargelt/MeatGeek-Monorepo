@@ -23,6 +23,7 @@ jobs:
       - name: Run Bicep Deploy for Worker API
         uses: azure/arm-deploy@v1
         with:
+          scope: resourcegroup
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.IOT_RG }}
           template: ./iot/deploy/microservice-worker.bicep
@@ -40,6 +41,7 @@ jobs:
       - name: Run Bicep Deploy For API
         uses: azure/arm-deploy@v1
         with:
+          scope: resourcegroup
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.IOT_RG }}
           template: ./iot/deploy/api.bicep

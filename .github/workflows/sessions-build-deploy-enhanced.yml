@@ -18,11 +18,27 @@ on:
   schedule:
     - cron: "20 11 * * *"
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: false
+        default: 'prod'
+        type: choice
+        options:
+          - prod
+          - staging
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: false
+        default: 'prod'
+        type: string
 
 env:
-  AZURE_FUNCTIONAPP_NAME: "meatgeeksessionsapi"
+  AZURE_FUNCTIONAPP_NAME: ${{ inputs.environment == 'staging' && 'meatgeeksessionsapi-staging' || 'meatgeeksessionsapi' }}
   DOTNET_VERSION: "8.0.x"
-  AZURE_RESOURCEGROUP_NAME: "MeatGeek-Sessions"
+  AZURE_RESOURCEGROUP_NAME: ${{ inputs.environment == 'staging' && 'MeatGeek-Sessions-staging' || 'MeatGeek-Sessions' }}
   AZURE_FUNCTIONAPP_PACKAGE_PATH: "."
 
 jobs:

@@ -20,11 +20,28 @@ on:
       - "!.vscode"
   schedule:
     - cron: "20 11 * * *"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: false
+        default: 'prod'
+        type: choice
+        options:
+          - prod
+          - staging
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: false
+        default: 'prod'
+        type: string
 
 env:
-  AZURE_FUNCTIONAPP_NAME: "meatgeekiotapi"
+  AZURE_FUNCTIONAPP_NAME: ${{ inputs.environment == 'staging' && 'meatgeekiotapi-staging' || 'meatgeekiotapi' }}
   DOTNET_VERSION: "8.0.x"
-  AZURE_RESOURCEGROUP_NAME: "MeatGeek-IoT"
+  AZURE_RESOURCEGROUP_NAME: ${{ inputs.environment == 'staging' && 'MeatGeek-IoT-staging' || 'MeatGeek-IoT' }}
   AZURE_FUNCTIONAPP_PACKAGE_PATH: "." # set this to the path to your function app project, defaults to the repository root
   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
