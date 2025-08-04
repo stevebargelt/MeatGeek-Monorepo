@@ -8,8 +8,17 @@ param resourcePrefix string = 'meatgeek'
 param resourceProject string = 'sessions-worker'
 @description('Location for the resrouces. Defaults to the location of the Resource Group')
 param location string= resourceGroup().location
+@description('Environment name (prod, staging, test)')
+@allowed([
+  'prod'
+  'staging'
+  'test'
+])
+param environment string = 'prod'
 @description('Name of the Cosmos DB to use')
 param cosmosAccountName string = 'meatgeek'
+@description('Name of the Cosmos DB database to use')
+param cosmosDbDatabaseName string = environment == 'prod' ? 'meatgeek' : 'meatgeek-${environment}'
 @description('Name of the Cosmos DB collection to use')
 param cosmosDbCollectionName string = 'meatgeek'
 @description('ID of a existing keyvault that will be used to store and retrieve keys in this deployment')
@@ -23,14 +32,16 @@ param iotEventHubEndpoint string
 param iotServiceConnection string
 param cosmosConnectionString string
 
-var functionsAppServicePlanName = '${resourcePrefix}-${resourceProject}-app-service-plan'
-var functionsApiAppName = '${resourcePrefix}${resourceProject}api'
-var appInsightsName = '${resourcePrefix}-${resourceProject}-appinsights'
-var logAnalyticsName = '${resourcePrefix}-${resourceProject}-loganalytics'
+// Environment-specific resource naming
+var envSuffix = environment == 'prod' ? '' : '-${environment}'
+var functionsAppServicePlanName = '${resourcePrefix}${envSuffix}-${resourceProject}-app-service-plan'
+var functionsApiAppName = '${resourcePrefix}${resourceProject}${envSuffix}api'
+var appInsightsName = '${resourcePrefix}${envSuffix}-${resourceProject}-appinsights'
+var logAnalyticsName = '${resourcePrefix}${envSuffix}-${resourceProject}-loganalytics'
 
 var storageConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${storage.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storage.listKeys().keys[0].value}'
 var resourceSuffix = substring(uniqueString(resourceGroup().id),0,5)
-var storageAccountName =  toLower(format('st{0}', replace('${resourceProject}${resourceSuffix}', '-', '')))
+var storageAccountName =  toLower(format('st{0}', replace('${resourceProject}${envSuffix}${resourceSuffix}', '-', '')))
 
 var storageBlobDataContributorRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
 var keyVaultSecretsUserRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
@@ -129,10 +140,10 @@ resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 
 module setStorageAccountSecret 'setSecret.bicep' = {
   scope: resourceGroup(subscriptionId, keyVaultResourceGroup)
-  name: '${resourcePrefix}-${resourceProject}-storeageaccountsecret'
+  name: '${resourcePrefix}-${resourceProject}${envSuffix}-storeageaccountsecret'
   params: {
     keyVaultName: keyVault.name
-    secretName: '${storage.name}-${resourcePrefix}-${resourceProject}-ConnectionString'
+    secretName: '${storage.name}-${resourcePrefix}-${resourceProject}${envSuffix}-ConnectionString'
     secretValue: storageConnectionString
   }
 }
@@ -178,7 +189,7 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
   name: 'appsettings'
   properties: {
     CosmosDBConnection: cosmosConnectionString
-    DatabaseName: cosmosAccountName
+    DatabaseName: cosmosDbDatabaseName
     CollectionName: cosmosDbCollectionName
     ContentStorageAccount: storage.name
     ContentContainer: blobService::content.name

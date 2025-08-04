@@ -1,0 +1,158 @@
+name: Deploy Complete MeatGeek System
+
+on:
+  workflow_dispatch:
+    inputs:
+      environments:
+        description: 'Environments to deploy'
+        required: true
+        default: 'prod-only'
+        type: choice
+        options:
+          - prod-only
+          - prod-staging
+          - prod-staging-test
+          - all
+      location:
+        description: 'Azure region'
+        required: true
+        default: 'northcentralus'
+        type: string
+      confirm_deployment:
+        description: 'Type "DEPLOY" to confirm this will create/modify Azure resources'
+        required: true
+        type: string
+
+env:
+  AZURE_LOCATION: ${{ github.event.inputs.location }}
+  ENVIRONMENTS: ${{ github.event.inputs.environments }}
+
+jobs:
+  validate-input:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate confirmation
+        if: github.event.inputs.confirm_deployment != 'DEPLOY'
+        run: |
+          echo "❌ Deployment not confirmed. Please type 'DEPLOY' to proceed."
+          exit 1
+
+  deploy-infrastructure:
+    needs: validate-input
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ contains(github.event.inputs.environments, 'prod') && 'production' || 'staging' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy Complete System
+        uses: azure/arm-deploy@v1
+        id: deploy
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          scope: subscription
+          region: ${{ env.AZURE_LOCATION }}
+          template: ./infrastructure/main.bicep
+          parameters: |
+            location=${{ env.AZURE_LOCATION }}
+            objectId=${{ secrets.STEVE_OBJECT_USER_ID }}
+            environmentsTodeploy=${{ env.ENVIRONMENTS }}
+
+      - name: Display Deployment Results
+        run: |
+          echo "## 🎉 MeatGeek System Deployment Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Deployment Details" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environments**: ${{ env.ENVIRONMENTS }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Location**: ${{ env.AZURE_LOCATION }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployed By**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Deployment Time**: $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Key Resources Created" >> $GITHUB_STEP_SUMMARY
+          echo "- **Key Vault**: ${{ steps.deploy.outputs.keyVaultName }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Cosmos DB**: ${{ steps.deploy.outputs.cosmosAccountName }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Container Registry**: ${{ steps.deploy.outputs.containerRegistryLoginServer }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Shared Resource Group**: ${{ steps.deploy.outputs.sharedResourceGroup }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Configure secrets in Key Vault" >> $GITHUB_STEP_SUMMARY
+          echo "2. Deploy application code using environment-specific workflows" >> $GITHUB_STEP_SUMMARY
+          echo "3. Run integration tests against staging environment" >> $GITHUB_STEP_SUMMARY
+          echo "4. Set up monitoring and alerts" >> $GITHUB_STEP_SUMMARY
+
+      - name: Slack Notification
+        uses: act10ns/slack@v1
+        with:
+          status: ${{ job.status }}
+          config: .github/config/slack.yml
+          channel: "#development"
+          message: |
+            🚀 MeatGeek Complete System Deployment ${{ job.status }}
+            Environments: ${{ env.ENVIRONMENTS }}
+            Location: ${{ env.AZURE_LOCATION }}
+            Deployed by: ${{ github.actor }}
+        if: always()
+
+  post-deployment-validation:
+    needs: deploy-infrastructure
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Validate Deployment
+        run: |
+          echo "Running post-deployment validation..."
+          
+          # Check if resource groups exist
+          ENVIRONMENTS="${{ env.ENVIRONMENTS }}"
+          if [[ "$ENVIRONMENTS" == *"prod"* ]]; then
+            echo "Validating production resources..."
+            az group show --name "MeatGeek-Sessions" --query "name" -o tsv
+            az group show --name "MeatGeek-Device" --query "name" -o tsv
+            az group show --name "MeatGeek-IoT" --query "name" -o tsv
+          fi
+          
+          if [[ "$ENVIRONMENTS" == *"staging"* ]]; then
+            echo "Validating staging resources..."
+            az group show --name "MeatGeek-Sessions-staging" --query "name" -o tsv
+            az group show --name "MeatGeek-Device-staging" --query "name" -o tsv
+            az group show --name "MeatGeek-IoT-staging" --query "name" -o tsv
+          fi
+          
+          # Validate shared resources
+          echo "Validating shared resources..."
+          az group show --name "MeatGeek-Shared" --query "name" -o tsv
+          
+          echo "✅ Post-deployment validation completed successfully!"
+
+      - name: Generate Infrastructure Documentation
+        run: |
+          echo "# MeatGeek Infrastructure Deployment Report" > deployment-report.md
+          echo "" >> deployment-report.md
+          echo "**Deployment Date**: $(date)" >> deployment-report.md
+          echo "**Environments**: ${{ env.ENVIRONMENTS }}" >> deployment-report.md
+          echo "**Location**: ${{ env.AZURE_LOCATION }}" >> deployment-report.md
+          echo "" >> deployment-report.md
+          echo "## Resource Groups Created" >> deployment-report.md
+          az group list --query "[?starts_with(name, 'MeatGeek')].{Name:name, Location:location, Status:properties.provisioningState}" -o table >> deployment-report.md
+          
+      - name: Upload Deployment Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-report-${{ github.run_number }}
+          path: deployment-report.md
