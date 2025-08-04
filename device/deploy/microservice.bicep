@@ -5,7 +5,7 @@ param subscriptionId string = subscription().subscriptionId
 @description('Prefixes to be used by all resources deployed by this template')
 param resourcePrefix string = 'meatgeek'
 @description('Project Name to be used by all resources deployed by this template (sessions, shared, device, iot)')
-param resourceProject string = 'iot-worker'
+param resourceProject string = 'device'
 @description('Location for the resrouces. Defaults to the location of the Resource Group')
 param location string= resourceGroup().location
 @description('Environment name (prod, staging, test)')
@@ -15,27 +15,15 @@ param location string= resourceGroup().location
   'test'
 ])
 param environment string = 'prod'
-@description('Name of the Cosmos DB to use')
-param cosmosAccountName string = 'meatgeek'
-@description('Name of the Cosmos DB database to use')
-param cosmosDbDatabaseName string = environment == 'prod' ? 'meatgeek' : 'meatgeek-${environment}'
-@description('Name of the Cosmos DB collection to use')
-param cosmosDbCollectionName string = 'meatgeek'
 @description('ID of a existing keyvault that will be used to store and retrieve keys in this deployment')
 param keyVaultName string = 'meatgeekkv'
 @description('Shared Key Vault Resource Group')
 param keyVaultResourceGroup string = 'MeatGeek-Shared'
-// param deploymentDate string = utcNow()
-param eventGridTopicEndpoint string 
-param eventGridTopicKey string
-param iotEventHubEndpoint string
-param iotServiceConnection string 
-param cosmosConnectionString string
 
 // Environment-specific resource naming
 var envSuffix = environment == 'prod' ? '' : '-${environment}'
 var functionsAppServicePlanName = '${resourcePrefix}${envSuffix}-${resourceProject}-app-service-plan'
-var functionsApiAppName = '${resourcePrefix}${resourceProject.replace('-', '')}${envSuffix}api'
+var functionsApiAppName = '${resourcePrefix}${envSuffix}-${resourceProject}api'
 var appInsightsName = '${resourcePrefix}${envSuffix}-${resourceProject}-appinsights'
 var logAnalyticsName = '${resourcePrefix}${envSuffix}-${resourceProject}-loganalytics'
 
@@ -46,12 +34,7 @@ var storageAccountName =  toLower(format('st{0}', replace('${resourceProject}${e
 var storageBlobDataContributorRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')
 var keyVaultSecretsUserRole = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
 
-// var appTags = {
-//   AppID: '${appName}-${appInternalServiceName}'
-//   AppName: '${appName}-${appInternalServiceName}'
-// }
-
-resource storage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+resource storage 'Microsoft.Storage/storageAccounts@2021-01-01' = {
   name: storageAccountName
   location: location
   sku: {
@@ -93,9 +76,6 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2019-06-01'
     deleteRetentionPolicy: {
       enabled: false
     }
-  }
-  resource content 'containers' = {
-    name: 'content'
   }
 }
 
@@ -188,22 +168,20 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
   parent: functionsApiApp
   name: 'appsettings'
   properties: {
-    CosmosDBConnection: cosmosConnectionString
-    DatabaseName: cosmosDbDatabaseName
-    CollectionName: cosmosDbCollectionName
-    ContentStorageAccount: storage.name
-    ContentContainer: blobService::content.name
     FUNCTIONS_EXTENSION_VERSION: '~4'
     FUNCTIONS_WORKER_RUNTIME: 'dotnet'
     AzureWebJobsStorage: storageConnectionString
     WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: storageConnectionString
     WEBSITE_CONTENTSHARE: '${functionsApiAppName}102269'
     APPINSIGHTS_INSTRUMENTATIONKEY: appInsights.properties.InstrumentationKey
-    EventGridTopicEndpoint: eventGridTopicEndpoint
-    EventGridTopicKey: eventGridTopicKey
-    IOT_EVENTHUB_ENDPOINT: iotEventHubEndpoint
-    IOT_SERVICE_CONNECTION: iotServiceConnection
-
+    // Environment-specific Key Vault references
+    CosmosDBConnection: '@Microsoft.KeyVault(VaultName=${keyVaultName};SecretName=SharedCosmosConnectionString${envSuffix})'
+    RelayConnectionName: '@Microsoft.KeyVault(VaultName=${keyVaultName};SecretName=RelayConnectionName${envSuffix})'
+    RelayKey: '@Microsoft.KeyVault(VaultName=${keyVaultName};SecretName=RelayKey${envSuffix})'
+    RelayKeyName: '@Microsoft.KeyVault(VaultName=${keyVaultName};SecretName=RelayKeyName${envSuffix})'
+    RelayNamespace: '@Microsoft.KeyVault(VaultName=${keyVaultName};SecretName=RelayNamespace${envSuffix})'
+    InfernoIoTServiceConnection: '@Microsoft.KeyVault(VaultName=${keyVaultName};SecretName=InfernoIoTServiceConnection${envSuffix})'
+    MeatGeekIoTServiceConnection: '@Microsoft.KeyVault(VaultName=${keyVaultName};SecretName=MeatGeekIoTServiceConnection${envSuffix})'
   }
 }
 

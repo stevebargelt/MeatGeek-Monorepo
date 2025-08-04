@@ -9,7 +9,9 @@ on:
       - "sessions/deploy/*"
 
 jobs:
-  deploy-sessions-resources:
+  deploy-sessions-resources-prod:
+    if: github.ref == 'refs/heads/main'
+    environment: production
     runs-on: ubuntu-latest
     steps:
       # Checkout code
@@ -26,6 +28,7 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.SESSIONS_RG }}
           template: ./sessions/deploy/microservice-worker.bicep
+          scope: resourcegroup
           parameters: keyVaultName=${{ secrets.SHARED_KV }}
             cosmosConnectionString=${{ secrets.SHARED_COSMOS_CONNECTION_STRING }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}
@@ -34,6 +37,7 @@ jobs:
             eventGridTopicKey=${{ secrets.EVENTGRID_TOPIC_KEY }}
             iotEventHubEndpoint=${{ secrets.IOT_EVENTHUB_ENDPOINT }}
             iotServiceConnection=${{ secrets.IOT_SERVICE_CONNECTION }}
+            environment=prod
 
       # Deploy ARM template
       - name: Run Bicep Deploy For API
@@ -42,6 +46,7 @@ jobs:
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
           resourceGroupName: ${{ secrets.SESSIONS_RG }}
           template: ./sessions/deploy/microservice.bicep
+          scope: resourcegroup
           parameters: keyVaultName=${{ secrets.SHARED_KV }}
             cosmosConnectionString=${{ secrets.SHARED_COSMOS_CONNECTION_STRING }}
             cosmosAccountName=${{ secrets.SHARED_COSMOS }}
@@ -50,3 +55,52 @@ jobs:
             eventGridTopicKey=${{ secrets.EVENTGRID_TOPIC_KEY }}
             iotEventHubEndpoint=${{ secrets.IOT_EVENTHUB_ENDPOINT }}
             iotServiceConnection=${{ secrets.IOT_SERVICE_CONNECTION }}
+            environment=prod
+
+
+  deploy-sessions-resources-staging:
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code
+      - uses: actions/checkout@main
+
+        # Log into Azure
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Run Bicep Deploy for Worker API (Staging)
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ secrets.SESSIONS_RG_STAGING }}
+          template: ./sessions/deploy/microservice-worker.bicep
+          scope: resourcegroup
+          parameters: keyVaultName=${{ secrets.SHARED_KV }}
+            cosmosConnectionString=${{ secrets.SHARED_COSMOS_CONNECTION_STRING }}
+            cosmosAccountName=${{ secrets.SHARED_COSMOS }}
+            cosmosDbCollectionName=${{ secrets.SHARED_COSMOS }}
+            eventGridTopicEndpoint=${{ secrets.EVENTGRID_TOPIC_ENDPOINT_STAGING }}
+            eventGridTopicKey=${{ secrets.EVENTGRID_TOPIC_KEY_STAGING }}
+            iotEventHubEndpoint=${{ secrets.IOT_EVENTHUB_ENDPOINT }}
+            iotServiceConnection=${{ secrets.IOT_SERVICE_CONNECTION }}
+            environment=staging
+
+      # Deploy ARM template
+      - name: Run Bicep Deploy For API (Staging)
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ secrets.SESSIONS_RG_STAGING }}
+          template: ./sessions/deploy/microservice.bicep
+          scope: resourcegroup
+          parameters: keyVaultName=${{ secrets.SHARED_KV }}
+            cosmosConnectionString=${{ secrets.SHARED_COSMOS_CONNECTION_STRING }}
+            cosmosAccountName=${{ secrets.SHARED_COSMOS }}
+            cosmosDbCollectionName=${{ secrets.SHARED_COSMOS }}
+            eventGridTopicEndpoint=${{ secrets.EVENTGRID_TOPIC_ENDPOINT_STAGING }}
+            eventGridTopicKey=${{ secrets.EVENTGRID_TOPIC_KEY_STAGING }}
+            iotEventHubEndpoint=${{ secrets.IOT_EVENTHUB_ENDPOINT }}
+            iotServiceConnection=${{ secrets.IOT_SERVICE_CONNECTION }}
+            environment=staging
