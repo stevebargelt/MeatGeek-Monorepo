@@ -1,0 +1,34 @@
+name: Device Deploy Infra
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - ".github/workflows/device-resources.yml"
+      - "device/deploy/*"
+
+jobs:
+  deploy-device-resources:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout code
+      - uses: actions/checkout@main
+
+        # Log into Azure
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Deploy ARM template
+      - name: Run Bicep Deploy For Device API
+        id: deploy
+        uses: azure/arm-deploy@v1
+        with:
+          scope: resourcegroup
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ secrets.DEVICE_RG }}
+          template: ./device/deploy/microservice.bicep
+          parameters: keyVaultName=${{ secrets.SHARED_KV }}
+            relayNamespaceName=${{ secrets.RELAY_NAMESPACE_NAME }}
+            hybridConnectionName=${{ secrets.HYBRID_CONNECTION_NAME }}

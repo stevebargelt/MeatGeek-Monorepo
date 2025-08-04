@@ -18,11 +18,27 @@ on:
       - "device/src/MeatGeek.Device.Api/**"
       - "shared/src/**"
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: false
+        default: 'prod'
+        type: choice
+        options:
+          - prod
+          - staging
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: false
+        default: 'prod'
+        type: string
 
 env:
-  AZURE_FUNCTIONAPP_NAME: "meatgeekdeviceapi"
+  AZURE_FUNCTIONAPP_NAME: ${{ inputs.environment == 'staging' && 'meatgeekdeviceapi-staging' || 'meatgeekdeviceapi' }}
   DOTNET_VERSION: "8.0.x"
-  AZURE_RESOURCEGROUP_NAME: "MeatGeek-Device"
+  AZURE_RESOURCEGROUP_NAME: ${{ inputs.environment == 'staging' && 'MeatGeek-Device-staging' || 'MeatGeek-Device' }}
   AZURE_FUNCTIONAPP_PACKAGE_PATH: "." # set this to the path to your function app project, defaults to the repository root
   # SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
