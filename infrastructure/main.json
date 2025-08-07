@@ -5,13 +5,13 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "473340677090179714"
+      "templateHash": "4991113269594629222"
     }
   },
   "parameters": {
     "location": {
       "type": "string",
-      "defaultValue": "northcentralus",
+      "defaultValue": "westus2",
       "metadata": {
         "description": "Location for all resources"
       }
@@ -44,7 +44,7 @@
     },
     "cosmosAccountName": {
       "type": "string",
-      "defaultValue": "[parameters('resourcePrefix')]"
+      "defaultValue": "[format('{0}{1}', parameters('resourcePrefix'), substring(uniqueString(subscription().subscriptionId), 0, 4))]"
     },
     "cosmosContainerName": {
       "type": "string",
@@ -99,13 +99,13 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "2660287673948873783"
+              "templateHash": "3514844522601953249"
             }
           },
           "parameters": {
             "location": {
               "type": "string",
-              "defaultValue": "northcentralus"
+              "defaultValue": "westus2"
             },
             "tenantId": {
               "type": "string",
@@ -132,7 +132,7 @@
             },
             "kvName": {
               "type": "string",
-              "defaultValue": "[format('{0}kv', parameters('resourcePrefix'))]"
+              "defaultValue": "[format('{0}kv{1}', parameters('resourcePrefix'), substring(uniqueString(subscription().subscriptionId), 0, 4))]"
             },
             "cosmosAccountName": {
               "type": "string",
@@ -648,7 +648,7 @@
             "value": "sessions"
           },
           "keyVaultName": {
-            "value": "meatgeekkv"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value]"
           },
           "keyVaultResourceGroup": {
             "value": "MeatGeek-Shared"
@@ -661,19 +661,19 @@
             "value": "[parameters('cosmosContainerName')]"
           },
           "cosmosConnectionString": {
-            "value": "@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=SharedCosmosConnectionString)"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=SharedCosmosConnectionString)', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value)]"
           },
           "eventGridTopicEndpoint": {
             "value": "[format('https://{0}-session{1}.{2}-1.eventgrid.azure.net/api/events', parameters('resourcePrefix'), if(equals(variables('environments')[copyIndex()], 'prod'), '', format('-{0}', variables('environments')[copyIndex()])), parameters('location'))]"
           },
           "eventGridTopicKey": {
-            "value": "[format('@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=EventGridTopicKey{0})', if(equals(variables('environments')[copyIndex()], 'prod'), '', format('-{0}', variables('environments')[copyIndex()])))]"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=EventGridTopicKey{1})', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value, if(equals(variables('environments')[copyIndex()], 'prod'), '', format('-{0}', variables('environments')[copyIndex()])))]"
           },
           "iotEventHubEndpoint": {
-            "value": "@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTEventHubEndpoint)"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=IoTEventHubEndpoint)', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value)]"
           },
           "iotServiceConnection": {
-            "value": "@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTServiceConnection)"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=IoTServiceConnection)', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value)]"
           }
         },
         "template": {
@@ -1132,7 +1132,7 @@
             "value": "sessions-worker"
           },
           "keyVaultName": {
-            "value": "meatgeekkv"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value]"
           },
           "keyVaultResourceGroup": {
             "value": "MeatGeek-Shared"
@@ -1145,19 +1145,19 @@
             "value": "[parameters('cosmosContainerName')]"
           },
           "cosmosConnectionString": {
-            "value": "@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=SharedCosmosConnectionString)"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=SharedCosmosConnectionString)', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value)]"
           },
           "eventGridTopicEndpoint": {
             "value": "[format('https://{0}-session{1}.{2}-1.eventgrid.azure.net/api/events', parameters('resourcePrefix'), if(equals(variables('environments')[copyIndex()], 'prod'), '', format('-{0}', variables('environments')[copyIndex()])), parameters('location'))]"
           },
           "eventGridTopicKey": {
-            "value": "[format('@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=EventGridTopicKey{0})', if(equals(variables('environments')[copyIndex()], 'prod'), '', format('-{0}', variables('environments')[copyIndex()])))]"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=EventGridTopicKey{1})', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value, if(equals(variables('environments')[copyIndex()], 'prod'), '', format('-{0}', variables('environments')[copyIndex()])))]"
           },
           "iotEventHubEndpoint": {
-            "value": "@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTEventHubEndpoint)"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=IoTEventHubEndpoint)', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value)]"
           },
           "iotServiceConnection": {
-            "value": "@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTServiceConnection)"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=IoTServiceConnection)', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value)]"
           }
         },
         "template": {
@@ -1616,7 +1616,7 @@
             "value": "device"
           },
           "keyVaultName": {
-            "value": "meatgeekkv"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value]"
           },
           "keyVaultResourceGroup": {
             "value": "MeatGeek-Shared"
@@ -2031,7 +2031,7 @@
             "value": "iot-api"
           },
           "keyVaultName": {
-            "value": "meatgeekkv"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value]"
           },
           "keyVaultResourceGroup": {
             "value": "MeatGeek-Shared"
@@ -2044,22 +2044,22 @@
             "value": "[parameters('cosmosContainerName')]"
           },
           "cosmosConnectionString": {
-            "value": "@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=SharedCosmosConnectionString)"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=SharedCosmosConnectionString)', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value)]"
           },
           "eventGridTopicEndpoint": {
             "value": "[format('https://{0}-session{1}.{2}-1.eventgrid.azure.net/api/events', parameters('resourcePrefix'), if(equals(variables('environments')[copyIndex()], 'prod'), '', format('-{0}', variables('environments')[copyIndex()])), parameters('location'))]"
           },
           "eventGridTopicKey": {
-            "value": "[format('@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=EventGridTopicKey{0})', if(equals(variables('environments')[copyIndex()], 'prod'), '', format('-{0}', variables('environments')[copyIndex()])))]"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=EventGridTopicKey{1})', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value, if(equals(variables('environments')[copyIndex()], 'prod'), '', format('-{0}', variables('environments')[copyIndex()])))]"
           },
           "iotEventHubEndpoint": {
-            "value": "@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTEventHubEndpoint)"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=IoTEventHubEndpoint)', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value)]"
           },
           "iotServiceConnection": {
-            "value": "@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTServiceConnection)"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=IoTServiceConnection)', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value)]"
           },
           "iotSharedAccessConnString": {
-            "value": "@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTSharedAccessConnString)"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=IoTSharedAccessConnString)', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value)]"
           }
         },
         "template": {
@@ -2522,7 +2522,7 @@
             "value": "iot-worker"
           },
           "keyVaultName": {
-            "value": "meatgeekkv"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value]"
           },
           "keyVaultResourceGroup": {
             "value": "MeatGeek-Shared"
@@ -2535,19 +2535,19 @@
             "value": "[parameters('cosmosContainerName')]"
           },
           "cosmosConnectionString": {
-            "value": "@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=SharedCosmosConnectionString)"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=SharedCosmosConnectionString)', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value)]"
           },
           "eventGridTopicEndpoint": {
             "value": "[format('https://{0}-session{1}.{2}-1.eventgrid.azure.net/api/events', parameters('resourcePrefix'), if(equals(variables('environments')[copyIndex()], 'prod'), '', format('-{0}', variables('environments')[copyIndex()])), parameters('location'))]"
           },
           "eventGridTopicKey": {
-            "value": "[format('@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=EventGridTopicKey{0})', if(equals(variables('environments')[copyIndex()], 'prod'), '', format('-{0}', variables('environments')[copyIndex()])))]"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=EventGridTopicKey{1})', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value, if(equals(variables('environments')[copyIndex()], 'prod'), '', format('-{0}', variables('environments')[copyIndex()])))]"
           },
           "iotEventHubEndpoint": {
-            "value": "@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTEventHubEndpoint)"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=IoTEventHubEndpoint)', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value)]"
           },
           "iotServiceConnection": {
-            "value": "@Microsoft.KeyVault(VaultName=meatgeekkv;SecretName=IoTServiceConnection)"
+            "value": "[format('@Microsoft.KeyVault(VaultName={0};SecretName=IoTServiceConnection)', reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value)]"
           }
         },
         "template": {
@@ -2990,7 +2990,7 @@
     },
     "keyVaultName": {
       "type": "string",
-      "value": "meatgeekkv"
+      "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'shared-infrastructure'), '2022-09-01').outputs.keyVaultName.value]"
     },
     "cosmosAccountNameUsed": {
       "type": "string",

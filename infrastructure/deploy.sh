@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID:-""}
-LOCATION=${AZURE_LOCATION:-"northcentralus"}
+LOCATION=${AZURE_LOCATION:-"westus2"}
 OBJECT_ID=${AZURE_OBJECT_ID:-""}
 ENVIRONMENTS=${ENVIRONMENTS:-"prod-only"}
 
@@ -76,10 +76,10 @@ deploy_infrastructure() {
     log_info "Starting deployment: $DEPLOYMENT_NAME"
     
     az deployment sub create \
-        --location "$LOCATION" \
+        --location "westus2" \
         --template-file main.bicep \
         --parameters \
-            location="$LOCATION" \
+            location="westus2" \
             objectId="$OBJECT_ID" \
             environmentsTodeploy="$ENVIRONMENTS" \
         --name "$DEPLOYMENT_NAME" \
@@ -127,7 +127,7 @@ show_help() {
     echo "Environment Variables:"
     echo "  AZURE_SUBSCRIPTION_ID  - Azure subscription ID (required)"
     echo "  AZURE_OBJECT_ID        - Azure AD object ID for Key Vault (required)"
-    echo "  AZURE_LOCATION         - Deployment location (default: northcentralus)"
+    echo "  AZURE_LOCATION         - Deployment location (default: westus2)"
     echo "  ENVIRONMENTS           - Environments to deploy (default: prod-only)"
     echo ""
     echo "Environment Options:"

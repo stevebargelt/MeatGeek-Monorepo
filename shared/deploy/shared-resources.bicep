@@ -21,55 +21,8 @@ resource meatgeek_keyvault 'Microsoft.KeyVault/vaults@2022-07-01' = {
       family: 'A'
       name: skuName
     }
+    accessPolicies: []
     tenantId: tenantId
-    accessPolicies: [
-      {
-        tenantId: tenantId
-        objectId: objectId
-        permissions: {
-          keys: [
-            'Get'
-            'List'
-            'Update'
-            'Create'
-            'Import'
-            'Delete'
-            'Recover'
-            'Backup'
-            'Restore'
-            'GetRotationPolicy'
-            'SetRotationPolicy'
-            'Rotate'
-          ]
-          secrets: [
-            'Get'
-            'List'
-            'Set'
-            'Delete'
-            'Recover'
-            'Backup'
-            'Restore'
-          ]
-          certificates: [
-            'Get'
-            'List'
-            'Update'
-            'Create'
-            'Import'
-            'Delete'
-            'Recover'
-            'Backup'
-            'Restore'
-            'ManageContacts'
-            'ManageIssuers'
-            'GetIssuers'
-            'ListIssuers'
-            'SetIssuers'
-            'DeleteIssuers'
-          ]
-        }
-      }
-    ]
     enabledForDeployment: false
     enabledForDiskEncryption: false
     enabledForTemplateDeployment: false
@@ -77,16 +30,6 @@ resource meatgeek_keyvault 'Microsoft.KeyVault/vaults@2022-07-01' = {
     softDeleteRetentionInDays: 90
     enableRbacAuthorization: true
     vaultUri: vaultURL
-    provisioningState: 'Succeeded'
-    publicNetworkAccess: 'Enabled'
-  }
-}
-
-resource secret 'Microsoft.KeyVault/vaults/secrets@2021-11-01-preview' = {
-  parent: meatgeek_keyvault
-  name: 'myPassword'
-  properties: {
-    value: 'correct-horse-battery-staple'
   }
 }
 

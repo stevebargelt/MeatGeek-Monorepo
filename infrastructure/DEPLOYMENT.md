@@ -31,7 +31,7 @@ Each environment gets its own:
 2. **Click "Run workflow"**
 3. **Configure parameters**:
    - **Environments**: Choose from `prod-only`, `prod-staging`, `prod-staging-test`, or `all`
-   - **Location**: Azure region (default: `northcentralus`)
+   - **Location**: Azure region (default: `westus2`)
    - **Confirmation**: Type `DEPLOY` to confirm
 4. **Run the workflow**
 
@@ -42,7 +42,7 @@ Each environment gets its own:
 export AZURE_SUBSCRIPTION_ID="your-subscription-id"
 export AZURE_OBJECT_ID="your-azure-ad-object-id" 
 export ENVIRONMENTS="prod-staging"  # Optional
-export AZURE_LOCATION="northcentralus"  # Optional
+export AZURE_LOCATION="westus2"  # Optional
 
 # Run deployment
 ./deploy.sh
@@ -55,14 +55,16 @@ export AZURE_LOCATION="northcentralus"  # Optional
 az login
 az account set --subscription "your-subscription-id"
 
+# Set Env variables (see above) 
+
 # Deploy complete system
 az deployment sub create \
-  --location northcentralus \
+  --location $AZURE_LOCATION \
   --template-file main.bicep \
   --parameters \
-    location=northcentralus \
-    objectId=your-azure-ad-object-id \
-    environmentsTodeploy=prod-staging \
+    location=$AZURE_LOCATION \
+    objectId=$AZURE_OBJECT_ID \
+    environmentsTodeploy=$ENVIRONMENTS \
   --name meatgeek-$(date +%Y%m%d-%H%M%S)
 ```
 

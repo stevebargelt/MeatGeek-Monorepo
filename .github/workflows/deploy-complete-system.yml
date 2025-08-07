@@ -3,6 +3,14 @@ name: Deploy Complete MeatGeek System
 on:
   workflow_dispatch:
     inputs:
+      subscription:
+        description: 'Azure Subscription ID'
+        required: true
+        default: 'Tarjay Subscription'    
+        type: choice
+        options:
+          - 'Ex Target Subscription'
+          - 'SGWS Subscription'
       environments:
         description: 'Environments to deploy'
         required: true
@@ -16,7 +24,7 @@ on:
       location:
         description: 'Azure region'
         required: true
-        default: 'northcentralus'
+        default: 'westus2'
         type: string
       confirm_deployment:
         description: 'Type "DEPLOY" to confirm this will create/modify Azure resources'
@@ -26,6 +34,7 @@ on:
 env:
   AZURE_LOCATION: ${{ github.event.inputs.location }}
   ENVIRONMENTS: ${{ github.event.inputs.environments }}
+  SUBSCRIPTION: ${{ github.event.inputs.subscription }}
 
 jobs:
   validate-input:

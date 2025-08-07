@@ -22,10 +22,10 @@ export AZURE_OBJECT_ID="your-azure-ad-object-id"
 ```bash
 cd infrastructure
 az deployment sub create \
-  --location northcentralus \
+  --location westus2 \
   --template-file main.bicep \
   --parameters \
-    location=northcentralus \
+    location=westus2 \
     objectId=your-object-id \
     environmentsTodeploy=prod-staging
 ```

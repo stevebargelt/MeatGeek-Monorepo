@@ -1,6 +1,6 @@
 targetScope = 'subscription'
 
-param location string = 'northcentralus'
+param location string = 'westus2'
 param tenantId string = subscription().tenantId
 param objectId string
 @description('Prefixes to be used by all resources deployed by this template')
@@ -13,8 +13,8 @@ param environments array = ['prod']
 // Resource Group Names
 var sharedRgName = 'MeatGeek-Shared'  // Shared across all environments
 
-// Single Key Vault for all environments
-param kvName string = '${resourcePrefix}kv'
+// Single Key Vault for all environments - append unique string for global uniqueness
+param kvName string = '${resourcePrefix}kv${substring(uniqueString(subscription().subscriptionId), 0, 5)}'
 var vaultURL = 'https://${kvName}${az.environment().suffixes.keyvaultDns}'
 
 // Cosmos DB - single account, environment-specific databases
