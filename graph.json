@@ -1,0 +1,1299 @@
+{
+  "graph": {
+    "nodes": {
+      "MeatGeek.Sessions.WorkerApi.Tests": {
+        "name": "MeatGeek.Sessions.WorkerApi.Tests",
+        "type": "lib",
+        "data": {
+          "root": "sessions/src/MeatGeek.Sessions.WorkerApi.Tests",
+          "name": "MeatGeek.Sessions.WorkerApi.Tests",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "test": {
+              "executor": "@nx-dotnet/core:test",
+              "cache": true,
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "noBuild": true
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/sessions/src/MeatGeek.Sessions.WorkerApi.Tests",
+                "{workspaceRoot}/dist/intermediates/sessions/src/MeatGeek.Sessions.WorkerApi.Tests",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MeatGeek.Sessions.Services.Tests": {
+        "name": "MeatGeek.Sessions.Services.Tests",
+        "type": "lib",
+        "data": {
+          "root": "sessions/src/MeatGeek.Sessions.Services.Tests",
+          "name": "MeatGeek.Sessions.Services.Tests",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "test": {
+              "executor": "@nx-dotnet/core:test",
+              "cache": true,
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "noBuild": true
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/sessions/src/MeatGeek.Sessions.Services.Tests",
+                "{workspaceRoot}/dist/intermediates/sessions/src/MeatGeek.Sessions.Services.Tests",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MeatGeek.Sessions.Api.Tests": {
+        "name": "MeatGeek.Sessions.Api.Tests",
+        "type": "lib",
+        "data": {
+          "root": "sessions/src/MeatGeek.Sessions.Api.Tests",
+          "name": "MeatGeek.Sessions.Api.Tests",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "test": {
+              "executor": "@nx-dotnet/core:test",
+              "cache": true,
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "noBuild": true
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/sessions/src/MeatGeek.Sessions.Api.Tests",
+                "{workspaceRoot}/dist/intermediates/sessions/src/MeatGeek.Sessions.Api.Tests",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MeatGeek.Sessions.WorkerApi": {
+        "name": "MeatGeek.Sessions.WorkerApi",
+        "type": "lib",
+        "data": {
+          "root": "sessions/src/MeatGeek.Sessions.WorkerApi",
+          "name": "MeatGeek.Sessions.WorkerApi",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/sessions/src/MeatGeek.Sessions.WorkerApi",
+                "{workspaceRoot}/dist/intermediates/sessions/src/MeatGeek.Sessions.WorkerApi",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MeatGeek.Sessions.Services": {
+        "name": "MeatGeek.Sessions.Services",
+        "type": "lib",
+        "data": {
+          "root": "sessions/src/MeatGeek.Sessions.Services",
+          "name": "MeatGeek.Sessions.Services",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/sessions/src/MeatGeek.Sessions.Services",
+                "{workspaceRoot}/dist/intermediates/sessions/src/MeatGeek.Sessions.Services",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MeatGeek.Device.Api.Tests": {
+        "name": "MeatGeek.Device.Api.Tests",
+        "type": "lib",
+        "data": {
+          "root": "device/src/MeatGeek.Device.Api.Tests",
+          "name": "MeatGeek.Device.Api.Tests",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "test": {
+              "executor": "@nx-dotnet/core:test",
+              "cache": true,
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "noBuild": true
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/device/src/MeatGeek.Device.Api.Tests",
+                "{workspaceRoot}/dist/intermediates/device/src/MeatGeek.Device.Api.Tests",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MeatGeek.IoT.Functions.Tests": {
+        "name": "MeatGeek.IoT.Functions.Tests",
+        "type": "lib",
+        "data": {
+          "root": "iot/src/MeatGeek.IoT.Functions.Tests",
+          "name": "MeatGeek.IoT.Functions.Tests",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "test": {
+              "executor": "@nx-dotnet/core:test",
+              "cache": true,
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "noBuild": true
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/iot/src/MeatGeek.IoT.Functions.Tests",
+                "{workspaceRoot}/dist/intermediates/iot/src/MeatGeek.IoT.Functions.Tests",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MeatGeek.IoT.WorkerApi.Tests": {
+        "name": "MeatGeek.IoT.WorkerApi.Tests",
+        "type": "lib",
+        "data": {
+          "root": "iot/src/MeatGeek.IoT.WorkerApi.Tests",
+          "name": "MeatGeek.IoT.WorkerApi.Tests",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "test": {
+              "executor": "@nx-dotnet/core:test",
+              "cache": true,
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "noBuild": true
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/iot/src/MeatGeek.IoT.WorkerApi.Tests",
+                "{workspaceRoot}/dist/intermediates/iot/src/MeatGeek.IoT.WorkerApi.Tests",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MeatGeek.Sessions.Api": {
+        "name": "MeatGeek.Sessions.Api",
+        "type": "lib",
+        "data": {
+          "root": "sessions/src/MeatGeek.Sessions.Api",
+          "name": "MeatGeek.Sessions.Api",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/sessions/src/MeatGeek.Sessions.Api",
+                "{workspaceRoot}/dist/intermediates/sessions/src/MeatGeek.Sessions.Api",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MeatGeek.Shared.Tests": {
+        "name": "MeatGeek.Shared.Tests",
+        "type": "lib",
+        "data": {
+          "root": "shared/tests/MeatGeek.Shared.Tests",
+          "name": "MeatGeek.Shared.Tests",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "test": {
+              "executor": "@nx-dotnet/core:test",
+              "cache": true,
+              "dependsOn": [
+                "build"
+              ],
+              "options": {
+                "noBuild": true
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/shared/tests/MeatGeek.Shared.Tests",
+                "{workspaceRoot}/dist/intermediates/shared/tests/MeatGeek.Shared.Tests",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MeatGeek.Device.Api": {
+        "name": "MeatGeek.Device.Api",
+        "type": "lib",
+        "data": {
+          "root": "device/src/MeatGeek.Device.Api",
+          "name": "MeatGeek.Device.Api",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/device/src/MeatGeek.Device.Api",
+                "{workspaceRoot}/dist/intermediates/device/src/MeatGeek.Device.Api",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MeatGeek.IoT.Functions": {
+        "name": "MeatGeek.IoT.Functions",
+        "type": "lib",
+        "data": {
+          "root": "iot/src/MeatGeek.IoT.Functions",
+          "name": "MeatGeek.IoT.Functions",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/iot/src/MeatGeek.IoT.Functions",
+                "{workspaceRoot}/dist/intermediates/iot/src/MeatGeek.IoT.Functions",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MeatGeek.IoT.WorkerApi": {
+        "name": "MeatGeek.IoT.WorkerApi",
+        "type": "lib",
+        "data": {
+          "root": "iot/src/MeatGeek.IoT.WorkerApi",
+          "name": "MeatGeek.IoT.WorkerApi",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/iot/src/MeatGeek.IoT.WorkerApi",
+                "{workspaceRoot}/dist/intermediates/iot/src/MeatGeek.IoT.WorkerApi",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MeatGeek.Shared": {
+        "name": "MeatGeek.Shared",
+        "type": "lib",
+        "data": {
+          "root": "shared/src/MeatGeek.Shared",
+          "name": "MeatGeek.Shared",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/shared/src/MeatGeek.Shared",
+                "{workspaceRoot}/dist/intermediates/shared/src/MeatGeek.Shared",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MockDevice.Tests": {
+        "name": "MockDevice.Tests",
+        "type": "app",
+        "data": {
+          "root": "iot-edge/mock-device-tests",
+          "name": "MockDevice.Tests",
+          "tags": [
+            "nx-dotnet",
+            "scope:iot-edge",
+            "type:test",
+            "platform:dotnet"
+          ],
+          "targets": {
+            "test": {
+              "executor": "@nx-dotnet/core:test",
+              "cache": true,
+              "dependsOn": [
+                "build"
+              ],
+              "outputs": [
+                "{projectRoot}/TestResults",
+                "{workspaceRoot}/coverage/iot-edge/mock-device-tests"
+              ],
+              "options": {
+                "noBuild": false,
+                "configuration": "Debug",
+                "logger": "console;verbosity=normal"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/iot-edge/mock-device-tests",
+                "{workspaceRoot}/dist/intermediates/iot-edge/mock-device-tests",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "outputs": [],
+              "options": {
+                "include": "**/*.cs",
+                "exclude": "**/bin/**,**/obj/**"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "cache": false,
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "projectType": "application",
+          "sourceRoot": "iot-edge/mock-device-tests",
+          "implicitDependencies": [
+            "MockDevice"
+          ]
+        }
+      },
+      "Telemetry": {
+        "name": "Telemetry",
+        "type": "lib",
+        "data": {
+          "root": "iot-edge/modules/Telemetry",
+          "name": "Telemetry",
+          "tags": [
+            "nx-dotnet"
+          ],
+          "targets": {
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/iot-edge/modules/Telemetry",
+                "{workspaceRoot}/dist/intermediates/iot-edge/modules/Telemetry",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            }
+          },
+          "implicitDependencies": []
+        }
+      },
+      "MockDevice": {
+        "name": "MockDevice",
+        "type": "app",
+        "data": {
+          "root": "iot-edge/mock-device",
+          "name": "MockDevice",
+          "tags": [
+            "nx-dotnet",
+            "scope:iot-edge",
+            "type:application",
+            "platform:dotnet"
+          ],
+          "targets": {
+            "build": {
+              "executor": "@nx-dotnet/core:build",
+              "outputs": [
+                "{workspaceRoot}/dist/iot-edge/mock-device",
+                "{workspaceRoot}/dist/intermediates/iot-edge/mock-device",
+                "{projectRoot}/bin",
+                "{projectRoot}/obj"
+              ],
+              "cache": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "options": {
+                "configuration": "Debug",
+                "noDependencies": true
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "lint": {
+              "executor": "@nx-dotnet/core:format",
+              "cache": true,
+              "inputs": [
+                "{projectRoot}/**/*.{cs,fs,vb}"
+              ],
+              "outputs": [],
+              "options": {
+                "include": "**/*.cs",
+                "exclude": "**/bin/**,**/obj/**"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve": {
+              "executor": "@nx-dotnet/core:serve",
+              "cache": false,
+              "options": {
+                "configuration": "Debug"
+              },
+              "configurations": {
+                "production": {
+                  "configuration": "Release"
+                }
+              },
+              "parallelism": true
+            },
+            "docker-build": {
+              "executor": "nx:run-commands",
+              "cache": true,
+              "outputs": [],
+              "options": {
+                "command": "docker build -t meatgeek-mock-device:latest .",
+                "cwd": "iot-edge/mock-device"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "docker-run": {
+              "executor": "nx:run-commands",
+              "cache": false,
+              "dependsOn": [
+                "docker-build"
+              ],
+              "options": {
+                "command": "docker run --rm -p 3000:3000 meatgeek-mock-device:latest",
+                "cwd": "iot-edge/mock-device"
+              },
+              "configurations": {},
+              "parallelism": true
+            }
+          },
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "projectType": "application",
+          "sourceRoot": "iot-edge/mock-device",
+          "implicitDependencies": []
+        }
+      }
+    },
+    "dependencies": {
+      "MeatGeek.Sessions.WorkerApi.Tests": [
+        {
+          "source": "MeatGeek.Sessions.WorkerApi.Tests",
+          "target": "MeatGeek.Shared",
+          "type": "static"
+        },
+        {
+          "source": "MeatGeek.Sessions.WorkerApi.Tests",
+          "target": "MeatGeek.Sessions.WorkerApi",
+          "type": "static"
+        }
+      ],
+      "MeatGeek.Sessions.Services.Tests": [
+        {
+          "source": "MeatGeek.Sessions.Services.Tests",
+          "target": "MeatGeek.Shared",
+          "type": "static"
+        },
+        {
+          "source": "MeatGeek.Sessions.Services.Tests",
+          "target": "MeatGeek.Sessions.Services",
+          "type": "static"
+        }
+      ],
+      "MeatGeek.Sessions.Api.Tests": [
+        {
+          "source": "MeatGeek.Sessions.Api.Tests",
+          "target": "MeatGeek.Shared",
+          "type": "static"
+        },
+        {
+          "source": "MeatGeek.Sessions.Api.Tests",
+          "target": "MeatGeek.Sessions.Services",
+          "type": "static"
+        },
+        {
+          "source": "MeatGeek.Sessions.Api.Tests",
+          "target": "MeatGeek.Sessions.Api",
+          "type": "static"
+        }
+      ],
+      "MeatGeek.Sessions.WorkerApi": [
+        {
+          "source": "MeatGeek.Sessions.WorkerApi",
+          "target": "MeatGeek.Sessions.Services",
+          "type": "static"
+        },
+        {
+          "source": "MeatGeek.Sessions.WorkerApi",
+          "target": "MeatGeek.Shared",
+          "type": "static"
+        }
+      ],
+      "MeatGeek.Sessions.Services": [
+        {
+          "source": "MeatGeek.Sessions.Services",
+          "target": "MeatGeek.Shared",
+          "type": "static"
+        }
+      ],
+      "MeatGeek.Device.Api.Tests": [
+        {
+          "source": "MeatGeek.Device.Api.Tests",
+          "target": "MeatGeek.Device.Api",
+          "type": "static"
+        }
+      ],
+      "MeatGeek.IoT.Functions.Tests": [
+        {
+          "source": "MeatGeek.IoT.Functions.Tests",
+          "target": "MeatGeek.IoT.Functions",
+          "type": "static"
+        },
+        {
+          "source": "MeatGeek.IoT.Functions.Tests",
+          "target": "MeatGeek.Shared",
+          "type": "static"
+        }
+      ],
+      "MeatGeek.IoT.WorkerApi.Tests": [
+        {
+          "source": "MeatGeek.IoT.WorkerApi.Tests",
+          "target": "MeatGeek.IoT.WorkerApi",
+          "type": "static"
+        },
+        {
+          "source": "MeatGeek.IoT.WorkerApi.Tests",
+          "target": "MeatGeek.Shared",
+          "type": "static"
+        }
+      ],
+      "MeatGeek.Sessions.Api": [
+        {
+          "source": "MeatGeek.Sessions.Api",
+          "target": "MeatGeek.Sessions.Services",
+          "type": "static"
+        },
+        {
+          "source": "MeatGeek.Sessions.Api",
+          "target": "MeatGeek.Shared",
+          "type": "static"
+        }
+      ],
+      "MeatGeek.Shared.Tests": [
+        {
+          "source": "MeatGeek.Shared.Tests",
+          "target": "MeatGeek.Shared",
+          "type": "static"
+        }
+      ],
+      "MeatGeek.Device.Api": [],
+      "MeatGeek.IoT.Functions": [],
+      "MeatGeek.IoT.WorkerApi": [
+        {
+          "source": "MeatGeek.IoT.WorkerApi",
+          "target": "MeatGeek.Shared",
+          "type": "static"
+        }
+      ],
+      "MeatGeek.Shared": [],
+      "MockDevice.Tests": [
+        {
+          "source": "MockDevice.Tests",
+          "target": "MockDevice",
+          "type": "implicit"
+        },
+        {
+          "source": "MockDevice.Tests",
+          "target": "MockDevice",
+          "type": "static"
+        }
+      ],
+      "Telemetry": [],
+      "MockDevice": []
+    }
+  }
+}

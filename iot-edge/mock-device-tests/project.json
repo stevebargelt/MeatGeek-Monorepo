@@ -1,0 +1,70 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "MockDevice.Tests",
+  "projectType": "application",
+  "sourceRoot": "iot-edge/mock-device-tests",
+  "targets": {
+    "build": {
+      "executor": "@nx-dotnet/core:build",
+      "outputs": [
+        "{workspaceRoot}/dist/iot-edge/mock-device-tests",
+        "{workspaceRoot}/dist/intermediates/iot-edge/mock-device-tests",
+        "{projectRoot}/bin",
+        "{projectRoot}/obj"
+      ],
+      "cache": true,
+      "dependsOn": ["^build"],
+      "options": {
+        "configuration": "Debug",
+        "noDependencies": true
+      },
+      "configurations": {
+        "production": {
+          "configuration": "Release"
+        }
+      },
+      "parallelism": true
+    },
+    "test": {
+      "executor": "@nx-dotnet/core:test",
+      "cache": true,
+      "outputs": [
+        "{projectRoot}/TestResults",
+        "{workspaceRoot}/coverage/iot-edge/mock-device-tests"
+      ],
+      "options": {
+        "configuration": "Debug",
+        "noBuild": false,
+        "logger": "console;verbosity=normal"
+      },
+      "configurations": {
+        "production": {
+          "configuration": "Release"
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx-dotnet/core:serve",
+      "cache": false,
+      "options": {
+        "configuration": "Debug"
+      },
+      "configurations": {
+        "production": {
+          "configuration": "Release"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx-dotnet/core:format",
+      "cache": true,
+      "outputs": [],
+      "options": {
+        "include": "**/*.cs",
+        "exclude": "**/bin/**,**/obj/**"
+      }
+    }
+  },
+  "tags": ["scope:iot-edge", "type:test", "platform:dotnet"],
+  "implicitDependencies": ["MockDevice"]
+}
