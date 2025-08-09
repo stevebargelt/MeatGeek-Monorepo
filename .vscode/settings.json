@@ -26,5 +26,6 @@
     "commandCenter.border": "#e7e7e799"
   },
   "peacock.color": "#df2126",
-  "azureFunctions.projectSubpath": "sessions/src/MeatGeek.Sessions.WorkerApi"
+  "azureFunctions.projectSubpath": "sessions/src/MeatGeek.Sessions.WorkerApi",
+  "nxConsole.generateAiAgentRules": true
 }

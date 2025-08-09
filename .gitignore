@@ -3,3 +3,6 @@ dist
 .nx/workspace-data
 .nx/cache
 coverage
+
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md

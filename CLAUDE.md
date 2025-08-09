@@ -101,6 +101,20 @@ nx serve MeatGeek.IoT.Functions
 5. **Azure Functions should be stateless**
 6. **Use async/await for I/O operations**
 
+## Git Commit Guidelines
+- Please use Conventional Commits formatting for git commits.
+- Please use Conventional Branch naming (prefix-based branch naming convention).
+- Please do not mention yourself (Claude) as a co-author when committing, or include any links to Claude Code.
+
+## Visual Development Memories
+- Please use playwright MCP swerver when making visual changes to the front-end to check your work.
+
+## Guidance Memories
+- Please ask for clarification upfront, upon initial prompts, when you need more direction. 
+
+## Documentation Memories
+- Please use context7 to find the relevant, up-to-date documentation when working with 3rd party libraries, packages, frameworks, etc. as needed.
+
 ## Azure Resources
 
 ### Resource Groups
@@ -159,6 +173,3 @@ nx serve MeatGeek.IoT.Functions
 3. Use `nx graph` to visualize project dependencies
 4. Clear Nx cache with `nx reset` if builds are inconsistent
 
-## Contact
-
-For questions about the architecture or deployment, check the repository issues or documentation in the `/docs` folders of each project.
