@@ -1,0 +1,161 @@
+version: '3.8'
+
+services:
+  # Mock BBQ Device API that simulates real hardware
+  mock-device:
+    build:
+      context: ../mock-device
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:3000
+      - SIMULATION_SCENARIO=integration_test
+      - TELEMETRY_INTERVAL=5
+      - GRILL_SETPOINT=225
+      - COOK_DURATION=300
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    networks:
+      - iot-integration
+    container_name: mock-device-integration
+
+  # Telemetry Module for data collection
+  telemetry-module:
+    build:
+      context: ../modules/Telemetry
+      dockerfile: Dockerfile.amd64
+    depends_on:
+      mock-device:
+        condition: service_healthy
+    environment:
+      # IoT Edge runtime simulation environment
+      - IOTEDGE_DEVICEID=integration-test-device
+      - IOTEDGE_MODULEID=Telemetry
+      - IOTEDGE_WORKLOADURI=http://workload-api:15580
+      - IOTEDGE_APIVERSION=2020-07-07
+      - IOTEDGE_MODULEGENERATIONID=1
+      - IOTEDGE_IOTHUBHOSTNAME=meatgeek-iothub-test.azure-devices.net
+      - IOTEDGE_DEVICECONNECTIONSTRING=${TEST_DEVICE_CONNECTION_STRING}
+      - IOTEDGE_GATEWAYHOSTNAME=edgehub
+      - IOTEDGE_AUTHSCHEME=sasToken
+      # Telemetry configuration
+      - DEVICE_API_URL=http://mock-device:3000/api/robots/MeatGeekBot/commands/get_status
+      - TELEMETRY_INTERVAL=5
+      - SESSION_ID=integration-test-session-001
+      - RuntimeLogLevel=Debug
+    networks:
+      - iot-integration
+    container_name: telemetry-module-integration
+    volumes:
+      - integration_logs:/app/logs
+
+  # Edge Hub simulation for message routing
+  edgehub:
+    image: mcr.microsoft.com/azureiotedge-hub:1.4
+    environment:
+      - IOTEDGE_DEVICEID=integration-test-device
+      - IOTEDGE_IOTHUBHOSTNAME=meatgeek-iothub-test.azure-devices.net
+      - IOTEDGE_DEVICECONNECTIONSTRING=${TEST_DEVICE_CONNECTION_STRING}
+      - IOTEDGE_MODULEID=$edgeHub
+      - IOTEDGE_WORKLOADURI=http://workload-api:15580
+      - IOTEDGE_APIVERSION=2020-07-07
+      - IOTEDGE_MODULEGENERATIONID=1
+      - IOTEDGE_AUTHSCHEME=sasToken
+      - UpstreamProtocol=AMQP
+      - OptimizeForPerformance=false
+      - MaxUpstreamBatchSize=10
+      - StorageFolder=/iotedge/storage/
+    ports:
+      - "8883:8883"
+      - "443:443"
+    networks:
+      - iot-integration
+    container_name: edgehub-integration
+    volumes:
+      - edgehub_storage:/iotedge/storage
+      - ./config/integration-routes.json:/app/routes.json:ro
+    depends_on:
+      - workload-api
+
+  # Edge Workload API simulation
+  workload-api:
+    image: mcr.microsoft.com/azureiotedge-workload:1.4
+    environment:
+      - IOTEDGE_DEVICEID=integration-test-device
+      - IOTEDGE_IOTHUBHOSTNAME=meatgeek-iothub-test.azure-devices.net
+      - IOTEDGE_DEVICECONNECTIONSTRING=${TEST_DEVICE_CONNECTION_STRING}
+    ports:
+      - "15580:15580"
+    networks:
+      - iot-integration
+    container_name: workload-api-integration
+    volumes:
+      - workload_storage:/var/lib/iotedge
+
+  # Message validation service for testing
+  message-validator:
+    build:
+      context: .
+      dockerfile: validator.Dockerfile
+    environment:
+      - VALIDATION_MODE=integration
+      - EXPECTED_MESSAGE_COUNT=60
+      - VALIDATION_TIMEOUT=300
+      - LOG_LEVEL=Debug
+    depends_on:
+      - telemetry-module
+    networks:
+      - iot-integration
+    container_name: message-validator-integration
+    volumes:
+      - integration_logs:/validation/logs
+      - ./test-results:/validation/results
+
+  # Test orchestrator and results collector
+  test-orchestrator:
+    build:
+      context: .
+      dockerfile: orchestrator.Dockerfile
+    environment:
+      - TEST_SUITE=integration
+      - TEST_TIMEOUT=600
+      - RESULTS_PATH=/test-results
+      - MOCK_DEVICE_URL=http://mock-device:3000
+      - TELEMETRY_MODULE_LOGS_PATH=/app/logs
+    depends_on:
+      - mock-device
+      - telemetry-module
+      - message-validator
+    networks:
+      - iot-integration
+    container_name: test-orchestrator-integration
+    volumes:
+      - integration_logs:/app/logs:ro
+      - ./test-results:/test-results
+    command: ["./run-integration-tests.sh"]
+
+networks:
+  iot-integration:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  integration_logs:
+  edgehub_storage:
+  workload_storage:
+
+# Health check configuration for the entire stack
+x-healthcheck-config:
+  &default-healthcheck
+  interval: 15s
+  timeout: 10s
+  retries: 3
+  start_period: 60s
