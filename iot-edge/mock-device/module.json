@@ -1,0 +1,22 @@
+{
+  "$schema-version": "0.0.1",
+  "description": "Mock BBQ device API with realistic telemetry simulation for IoT Edge testing",
+  "image": {
+    "repository": "${ACR_ADDRESS}/mockdevice",
+    "tag": {
+      "version": "${Build.DefinitionName}-${Build.BuildId}",
+      "test": "test-${Build.BuildId}",
+      "platforms": {
+        "amd64": "./Dockerfile",
+        "amd64.test": "./Dockerfile",
+        "arm32v7": "./Dockerfile",
+        "arm32v7.test": "./Dockerfile",
+        "arm64v8": "./Dockerfile",
+        "arm64v8.test": "./Dockerfile"
+      }
+    },
+    "buildOptions": [],
+    "contextPath": "./"
+  },
+  "language": "csharp"
+}

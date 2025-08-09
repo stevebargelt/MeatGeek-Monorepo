@@ -5,12 +5,16 @@
     "repository": "${ACR_ADDRESS}/telemetry",
     "tag": {
       "version": "${Build.DefinitionName}-${Build.BuildId}",
+      "test": "test-${Build.BuildId}",
       "platforms": {
         "amd64": "./Dockerfile.amd64",
         "amd64.debug": "./Dockerfile.amd64.debug",
+        "amd64.test": "./Dockerfile.amd64",
         "arm32v7": "./Dockerfile.arm32v7",
         "arm32v7.debug": "./Dockerfile.arm32v7.debug",
+        "arm32v7.test": "./Dockerfile.arm32v7",
         "arm64v8": "./Dockerfile.arm64v8",
+        "arm64v8.test": "./Dockerfile.arm64v8",
         "windows-amd64": "./Dockerfile.windows-amd64"
       }
     },
