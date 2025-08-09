@@ -11,6 +11,7 @@ The MeatGeek platform consists of several microservices that work together to pr
 - **IoT Functions**: IoT telemetry processing and data management
 - **Shared Library**: Common utilities and event schemas
 - **IoT Edge**: Edge computing modules for device telemetry
+- **MockDevice**: Mock BBQ device API for local testing and development
 
 ## Quick Start
 
@@ -47,9 +48,15 @@ nx run-many -t test
 
 # Build specific project
 nx build MeatGeek.Sessions.Api
+nx build MockDevice
 
 # Run tests for specific project
 nx test MeatGeek.Sessions.Api.Tests
+nx test MockDevice.Tests
+
+# Start development server
+nx serve MeatGeek.Sessions.Api
+nx serve MockDevice
 
 # Lint/format code
 nx run-many -t lint
@@ -129,6 +136,57 @@ Edge computing module for device telemetry collection.
 nx build Telemetry
 ```
 
+### MockDevice (IoT Edge Testing)
+Mock BBQ device API with realistic telemetry simulation for local IoT Edge testing and development.
+
+**Features:**
+- Realistic BBQ physics simulation (heating/cooling curves)
+- Multiple cooking scenarios (Brisket, Pork Shoulder, Ribs, Chicken)  
+- Component state management (auger, blower, igniter cycling)
+- Docker containerization for local testing
+- Background telemetry simulation updates every 5 seconds
+
+**Nx Commands:**
+```bash
+# Core development commands
+nx build MockDevice                    # Build the API
+nx test MockDevice.Tests              # Run all unit tests (24 tests)
+nx serve MockDevice                   # Start development server with hot reload
+
+# Batch operations
+nx run-many -t build,test -p MockDevice,MockDevice.Tests
+
+# Docker operations  
+nx docker-build MockDevice           # Build optimized Docker image
+nx docker-run MockDevice            # Run containerized app (port 3000)
+
+# Analysis and debugging
+nx graph                             # View project dependency graph
+nx show project MockDevice          # Show detailed project configuration
+nx lint MockDevice                  # Format C# code
+```
+
+**API Endpoints:**
+```bash
+# Health and status
+curl http://localhost:3000/health
+curl http://localhost:3000/api/robots/MeatGeekBot/commands/get_status
+
+# Simulation control
+curl -X POST "http://localhost:3000/api/simulation/start?scenario=brisket"
+curl -X POST "http://localhost:3000/api/simulation/stop" 
+curl -X POST "http://localhost:3000/api/simulation/settemp?temperature=275"
+```
+
+**Docker Compose Testing:**
+```bash
+# Start mock device for local testing
+cd iot-edge
+docker-compose -f docker-compose.test.yml up mock-device
+
+# Test with Telemetry module (full stack)  
+docker-compose -f docker-compose.test.yml --profile full-stack up
+```
 ## CI/CD Pipeline
 
 All projects use GitHub Actions for automated testing and deployment:
