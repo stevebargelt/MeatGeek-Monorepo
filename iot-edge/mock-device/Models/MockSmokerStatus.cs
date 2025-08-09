@@ -4,6 +4,21 @@ namespace MeatGeek.MockDevice.Models;
 
 public class MockSmokerStatus
 {
+    [JsonPropertyName("id")]
+    public string? Id { get; set; }
+
+    [JsonPropertyName("ttl")]
+    public int? Ttl { get; set; }
+
+    [JsonPropertyName("smokerId")]
+    public string? SmokerId { get; set; }
+
+    [JsonPropertyName("sessionId")]
+    public string? SessionId { get; set; }
+
+    [JsonPropertyName("type")]
+    public string? Type { get; set; }
+
     [JsonPropertyName("augerOn")]
     public bool AugerOn { get; set; }
 

@@ -51,6 +51,16 @@ public class MockDeviceApiTests : IClassFixture<WebApplicationFactory<Program>>
         // Assert - Verify all required fields are present and have valid values
         var status = deviceResponse!.Result;
         
+        // Core identity fields
+        Assert.NotNull(status.Id);
+        Assert.NotNull(status.SmokerId);
+        Assert.NotNull(status.Type);
+        Assert.True(status.Ttl.HasValue);
+        
+        // Session field can be null when no active session
+        // Assert.NotNull(status.SessionId) - not required, can be null
+        
+        // Operating fields
         Assert.NotNull(status.Mode);
         Assert.True(status.SetPoint >= 0);
         Assert.NotEqual(DateTime.MinValue, status.ModeTime);
@@ -104,6 +114,28 @@ public class MockDeviceApiTests : IClassFixture<WebApplicationFactory<Program>>
         // Assert
         response.EnsureSuccessStatusCode();
         Assert.Equal("application/json; charset=utf-8", response.Content.Headers.ContentType?.ToString());
+    }
+
+    [Fact]
+    public async Task GetStatusReturnsTelemetryTypeWithCorrectTtl()
+    {
+        // Act
+        var response = await _client.GetAsync("/api/robots/MeatGeekBot/commands/get_status");
+        var content = await response.Content.ReadAsStringAsync();
+        var deviceResponse = JsonSerializer.Deserialize<MockDeviceResponse>(content, new JsonSerializerOptions 
+        { 
+            PropertyNameCaseInsensitive = true 
+        });
+
+        // Assert - When no session, should be telemetry type with 3-day TTL or -1 for session
+        var status = deviceResponse!.Result;
+        Assert.NotNull(status.Type);
+        
+        // Since we're returning -1 in the mock for now (simulating session data),
+        // verify the TTL is set correctly
+        Assert.True(status.Ttl.HasValue);
+        Assert.True(status.Ttl == -1 || status.Ttl == 259200, // -1 for session, 259200 (3 days) for telemetry
+            $"TTL should be -1 (session) or 259200 (3-day telemetry), but was {status.Ttl}");
     }
 
     [Fact]

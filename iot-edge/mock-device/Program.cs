@@ -30,6 +30,11 @@ app.MapGet("/api/robots/MeatGeekBot/commands/get_status", () =>
     {
         Result = new MockSmokerStatus
         {
+            Id = Guid.NewGuid().ToString(),
+            Ttl = -1, // -1 for session data, 259200 (3 days) for telemetry
+            SmokerId = "test-device-001",
+            SessionId = null, // Will be set when session is active
+            Type = "telemetry", // "telemetry" or "status" when session active
             AugerOn = true,
             BlowerOn = false,
             IgniterOn = false,
