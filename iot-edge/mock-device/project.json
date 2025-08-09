@@ -1,0 +1,70 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "MockDevice",
+  "projectType": "application",
+  "sourceRoot": "iot-edge/mock-device",
+  "targets": {
+    "build": {
+      "executor": "@nx-dotnet/core:build",
+      "outputs": [
+        "{workspaceRoot}/dist/iot-edge/mock-device",
+        "{workspaceRoot}/dist/intermediates/iot-edge/mock-device",
+        "{projectRoot}/bin",
+        "{projectRoot}/obj"
+      ],
+      "cache": true,
+      "dependsOn": ["^build"],
+      "options": {
+        "configuration": "Debug",
+        "noDependencies": true
+      },
+      "configurations": {
+        "production": {
+          "configuration": "Release"
+        }
+      },
+      "parallelism": true
+    },
+    "serve": {
+      "executor": "@nx-dotnet/core:serve",
+      "cache": false,
+      "options": {
+        "configuration": "Debug"
+      },
+      "configurations": {
+        "production": {
+          "configuration": "Release"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx-dotnet/core:format",
+      "cache": true,
+      "outputs": [],
+      "options": {
+        "include": "**/*.cs",
+        "exclude": "**/bin/**,**/obj/**"
+      }
+    },
+    "docker-build": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "outputs": [],
+      "options": {
+        "command": "docker build -t meatgeek-mock-device:latest .",
+        "cwd": "iot-edge/mock-device"
+      }
+    },
+    "docker-run": {
+      "executor": "nx:run-commands",
+      "cache": false,
+      "dependsOn": ["docker-build"],
+      "options": {
+        "command": "docker run --rm -p 3000:3000 meatgeek-mock-device:latest",
+        "cwd": "iot-edge/mock-device"
+      }
+    }
+  },
+  "tags": ["scope:iot-edge", "type:application", "platform:dotnet"],
+  "implicitDependencies": []
+}
