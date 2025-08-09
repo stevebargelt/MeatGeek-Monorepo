@@ -5,6 +5,18 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MeatGeek.MockDevice</RootNamespace>
+    
+    <!-- Docker optimizations -->
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <PublishTrimmed>false</PublishTrimmed>
+    <PublishSingleFile>false</PublishSingleFile>
+    <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
+    
+    <!-- Assembly metadata -->
+    <AssemblyTitle>MeatGeek Mock BBQ Device API</AssemblyTitle>
+    <AssemblyDescription>Mock BBQ device API for IoT Edge testing with realistic telemetry simulation</AssemblyDescription>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
