@@ -307,3 +307,289 @@ scp pi@10.0.20.30:/home/pi/support_bundle.zip ./support_bundle.zip
 - Validate container registry credentials
 
 This comprehensive architecture enables robust, scalable, and maintainable IoT edge computing for the MeatGeek BBQ platform, with enterprise-grade logging, monitoring, and operational capabilities.
+
+## Testing and Development
+
+### Local Testing with Mock Device
+
+The MeatGeek IoT Edge solution includes a comprehensive testing framework using a mock BBQ device that simulates realistic telemetry data.
+
+#### Quick Start - Local Testing
+
+1. **Set up test environment variables:**
+   ```bash
+   export TEST_DEVICE_CONNECTION_STRING="HostName=your-iothub.azure-devices.net;DeviceId=test-device;SharedAccessKey=your-key"
+   ```
+
+2. **Run integration tests:**
+   ```bash
+   cd iot-edge/integration-tests
+   ./test-runner.sh
+   ```
+
+3. **View test results:**
+   ```bash
+   ls -la test-results/
+   ```
+
+### Mock Device Features
+
+The mock device (`iot-edge/mock-device/`) provides:
+- **Realistic BBQ simulation** with temperature curves, component cycling, and cooking scenarios
+- **Configurable parameters** for different test scenarios
+- **Health check endpoint** for container orchestration
+- **Multiple cooking scenarios** (startup, steady-state, temperature ramping)
+
+#### Mock Device API Endpoints
+
+- **Status**: `GET /api/robots/MeatGeekBot/commands/get_status` - Returns complete SmokerStatus JSON
+- **Health**: `GET /health` - Container health check endpoint
+
+### Testing Strategies
+
+#### 1. Unit Testing
+
+Run unit tests for individual components:
+
+```bash
+# Mock device tests
+nx test MockDevice.Tests
+
+# Telemetry module tests (if available)
+nx test Telemetry.Tests
+```
+
+#### 2. Integration Testing
+
+**Full Stack Testing** (mock device + telemetry module + edge hub simulation):
+```bash
+cd iot-edge/integration-tests
+./test-runner.sh
+```
+
+**Docker Compose Testing** (simplified local testing):
+```bash
+cd iot-edge
+docker-compose -f docker-compose.test.yml up -d
+```
+
+**Manual Testing** (individual components):
+```bash
+# Start mock device only
+cd iot-edge/mock-device
+nx serve MockDevice
+
+# Test telemetry collection manually
+curl http://localhost:3000/api/robots/MeatGeekBot/commands/get_status
+```
+
+#### 3. Azure IoT Hub Testing
+
+**Prerequisites:**
+- Azure IoT Hub with device registration
+- Device connection string configured
+- Azure CLI installed and authenticated
+
+**Register test device:**
+```bash
+az iot hub device-identity create --hub-name your-iothub --device-id integration-test-device
+```
+
+**Deploy to test device:**
+```bash
+az iot edge set-modules --device-id integration-test-device --hub-name your-iothub --content iot-edge/config/deployment.test.amd64.json
+```
+
+**Monitor telemetry:**
+```bash
+az iot hub monitor-events --hub-name your-iothub --device-id integration-test-device
+```
+
+### Test Scenarios
+
+#### Session Management Testing
+
+1. **Session Start/End Workflow:**
+   ```bash
+   # Call SetSessionId direct method
+   az iot hub invoke-device-method --device-id your-device --hub-name your-iothub --method-name SetSessionId --method-payload '{"sessionId":"test-session-001"}'
+   
+   # Verify session tagging in telemetry
+   az iot hub monitor-events --hub-name your-iothub --device-id your-device
+   
+   # End session
+   az iot hub invoke-device-method --device-id your-device --hub-name your-iothub --method-name EndSession
+   ```
+
+2. **Telemetry Interval Adjustment:**
+   ```bash
+   # Change polling frequency to 10 seconds
+   az iot hub invoke-device-method --device-id your-device --hub-name your-iothub --method-name SetTelemetryInterval --method-payload '{"interval":10}'
+   ```
+
+#### Performance Testing
+
+**Load Testing** (multiple concurrent sessions):
+```bash
+# Start multiple mock devices
+for i in {1..5}; do
+  docker run -d -p $((3000+i)):3000 --name mock-device-$i mock-device:latest
+done
+```
+
+**Stress Testing** (high frequency telemetry):
+```bash
+export TELEMETRY_INTERVAL=1  # 1-second intervals
+./test-runner.sh
+```
+
+### Troubleshooting
+
+#### Common Issues
+
+1. **Mock Device Not Responding:**
+   ```bash
+   # Check container status
+   docker-compose -f docker-compose.test.yml ps
+   
+   # Check logs
+   docker-compose -f docker-compose.test.yml logs mock-device
+   
+   # Test directly
+   curl -v http://localhost:3000/health
+   ```
+
+2. **Telemetry Module Connection Issues:**
+   ```bash
+   # Check environment variables
+   docker-compose -f docker-compose.test.yml exec telemetry-module env | grep IOTEDGE
+   
+   # Check connectivity to mock device
+   docker-compose -f docker-compose.test.yml exec telemetry-module wget -q -O- http://mock-device:3000/health
+   ```
+
+3. **Azure IoT Hub Connectivity:**
+   ```bash
+   # Validate connection string
+   echo $TEST_DEVICE_CONNECTION_STRING | grep -o 'HostName=.*\.azure-devices\.net'
+   
+   # Test connection with Azure CLI
+   az iot hub device-identity show --device-id your-device --hub-name your-iothub
+   ```
+
+#### Log Collection and Analysis
+
+**Integration Test Logs:**
+```bash
+# View test results
+cat integration-tests/test-results/integration_test_report_*.json
+
+# Extract performance metrics
+jq '.testRun.duration' integration-tests/test-results/integration_test_report_*.json
+```
+
+**Component Logs:**
+```bash
+# Mock device logs
+docker-compose -f integration-tests/docker-compose.integration.yml logs mock-device
+
+# Telemetry module logs
+docker-compose -f integration-tests/docker-compose.integration.yml logs telemetry-module
+
+# Edge hub simulation logs
+docker-compose -f integration-tests/docker-compose.integration.yml logs edgehub
+```
+
+### CI/CD Integration
+
+#### GitHub Actions Workflow
+
+The integration tests can be incorporated into CI/CD pipelines:
+
+```yaml
+- name: Run IoT Edge Integration Tests
+  env:
+    TEST_DEVICE_CONNECTION_STRING: ${{ secrets.TEST_DEVICE_CONNECTION_STRING }}
+  run: |
+    cd iot-edge/integration-tests
+    ./test-runner.sh
+```
+
+#### Test Result Artifacts
+
+Integration tests generate the following artifacts:
+- **JSON test report** with metrics and status
+- **Service logs** for debugging
+- **Performance measurements** for trend analysis
+- **Docker container health status**
+
+### Development Workflow
+
+#### Adding New Test Scenarios
+
+1. **Extend Mock Device** (`iot-edge/mock-device/Services/TelemetrySimulator.cs`):
+   ```csharp
+   public class CustomScenario : ICookingScenario
+   {
+       public SmokerStatus GenerateStatus(DateTime currentTime) { /* implementation */ }
+   }
+   ```
+
+2. **Add Integration Test** (`iot-edge/integration-tests/test-runner.sh`):
+   ```bash
+   test_custom_scenario() {
+       # Test implementation
+   }
+   ```
+
+3. **Update Docker Configuration** (`integration-tests/docker-compose.integration.yml`):
+   ```yaml
+   environment:
+     - SIMULATION_SCENARIO=custom_scenario
+   ```
+
+#### Best Practices
+
+- **Test Environment Isolation**: Each test run uses fresh containers and networks
+- **Deterministic Testing**: Mock device provides consistent, predictable data
+- **Comprehensive Validation**: Tests cover API responses, message flow, and error handling
+- **Performance Monitoring**: Track response times and throughput metrics
+- **Log Correlation**: Use correlation IDs to track messages through the pipeline
+- **Health Checks**: Implement proper readiness and liveness probes
+
+### Azure Deployment Testing
+
+#### Edge Device Registration
+
+```bash
+# Create IoT Hub (if needed)
+az iot hub create --name your-iothub --resource-group your-rg --sku S1
+
+# Register Edge device
+az iot hub device-identity create --hub-name your-iothub --device-id your-edge-device --edge-enabled
+
+# Get connection string
+az iot hub device-identity connection-string show --device-id your-edge-device --hub-name your-iothub
+```
+
+#### Deployment Manifest Validation
+
+```bash
+# Validate deployment manifest
+az iot edge deployment create --deployment-id test-deployment --hub-name your-iothub --content ./config/deployment.test.amd64.json --target-condition "deviceId='your-edge-device'" --priority 10
+```
+
+#### Remote Monitoring and Diagnostics
+
+```bash
+# Monitor device telemetry
+az iot hub monitor-events --hub-name your-iothub --device-id your-edge-device
+
+# Check module status
+az iot hub module-identity list --device-id your-edge-device --hub-name your-iothub
+
+# Collect device logs remotely
+az iot hub invoke-device-method --device-id your-edge-device --hub-name your-iothub --method-name GetLogs
+```
+
+This comprehensive testing framework ensures the MeatGeek IoT Edge solution is robust, reliable, and ready for production deployment with full observability and debugging capabilities.
