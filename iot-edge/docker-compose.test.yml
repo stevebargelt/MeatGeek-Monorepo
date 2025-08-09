@@ -1,0 +1,55 @@
+services:
+  mock-device:
+    build:
+      context: ./mock-device
+      dockerfile: Dockerfile
+    container_name: meatgeek-mock-device
+    ports:
+      - "3000:3000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:3000
+    networks:
+      - iot-edge-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  telemetry-module:
+    build:
+      context: ../
+      dockerfile: ./iot-edge/modules/Telemetry/Dockerfile.amd64
+    container_name: meatgeek-telemetry-module
+    depends_on:
+      mock-device:
+        condition: service_healthy
+    environment:
+      - IOTEDGE_MODULEID=TelemetryModule
+      - IOTEDGE_DEVICEID=${DEVICE_ID:-test-device-001}
+      - IOTEDGE_GATEWAYHOSTNAME=localhost
+      - ClientTransportType=MQTT
+      - RuntimeLogLevel=${LOG_LEVEL:-info}
+      - TelemetryInterval=30
+      - SESSION_ID=${SESSION_ID:-}
+    networks:
+      - iot-edge-network
+    restart: unless-stopped
+    # Note: In a real IoT Edge deployment, this would connect to EdgeHub
+    # For testing, we're running standalone without IoT Hub connectivity
+    profiles:
+      - full-stack
+
+networks:
+  iot-edge-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  mock-device-data:
+    driver: local
