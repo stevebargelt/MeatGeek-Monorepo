@@ -14,12 +14,16 @@ jobs:
     - name: Set up secret file
       env:
         IOT_HUB_RESOURCE_ID: ${{ secrets.IOT_HUB_RESOURCE_ID }}
+        IOT_HUB_SHARED_ACCESS_CONN_STRING: ${{ secrets.IOT_HUB_SHARED_ACCESS_CONN_STRING }}
         ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
         ACR_PASSWORD: ${{ secrets.ACR_PASSWORD }}
         ACR_LOGIN_SERVER: ${{ secrets.ACR_LOGIN_SERVER }}   
         LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.IOT_LOG_ANALYTICS_WORKSPACE_ID }}   
         LOG_ANALYTICS_SHARED_KEY: ${{ secrets.IOT_LOG_ANALYTICS_SHARED_KEY }}   
       run: |
+        printf 'IOT HUB SHARED ACCESS CONNECTION STRING:\n'
+        echo ${{ secrets.IOT_HUB_SHARED_ACCESS_CONN_STRING }}" | sed 's/./& /g'
+        printf '\n\n'
         echo ${{secrets.IOT_HUB_RESOURCE_ID}} | sed 's/./& /g'
         echo ${{secrets.ACR_USERNAME}} | sed 's/./& /g'
         echo ${{secrets.ACR_PASSWORD}} | sed 's/./& /g'
