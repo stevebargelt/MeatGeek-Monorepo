@@ -17,7 +17,9 @@ This repository contains the IoT Edge components for the MeatGeek BBQ platform, 
 See [production/README.md](production/README.md) for deploying to real IoT Edge devices.
 
 ### Test Device Setup
-See [test-device/README.md](test-device/README.md) for running a simulated BBQ device.
+Quick start: `./start-test-device.sh` 
+
+See [test-device/README.md](test-device/README.md) for detailed documentation.
 
 ## Architecture Overview
 

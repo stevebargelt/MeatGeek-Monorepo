@@ -12,16 +12,18 @@ This directory contains all components for running a simulated IoT Edge test dev
 
 ## Quick Start
 
+Run these commands from the `iot-edge/` root directory:
+
 1. Copy the environment template:
 ```bash
-cp .env.azure.example .env
+cp test-device/.env.azure.example test-device/.env
 ```
 
-2. Update `.env` with your Azure IoT Hub connection string
+2. Update `test-device/.env` with your Azure IoT Hub connection string
 
 3. Start the test device:
 ```bash
-./scripts/start-test-device.sh
+./test-device/scripts/start-test-device.sh
 ```
 
 4. Monitor telemetry:
