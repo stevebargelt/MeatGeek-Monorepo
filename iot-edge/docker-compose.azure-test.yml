@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # Mock BBQ Device - Simulates real hardware with realistic telemetry
+  mock-device:
+    build:
+      context: ./mock-device
+      dockerfile: Dockerfile
+    container_name: meatgeek-mock-device-azure
+    ports:
+      - "3000:3000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:3000
+      - SIMULATION_AUTO_START=true
+      - SIMULATION_DEFAULT_SCENARIO=brisket
+      - SIMULATION_UPDATE_INTERVAL=5
+    networks:
+      - azure-test-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # IoT Edge Runtime - Simulated Edge Agent and Hub
+  iotedge-simulator:
+    image: mcr.microsoft.com/azureiotedge-simulated-temperature-sensor:1.0
+    container_name: edge-simulator
+    environment:
+      - EdgeHubConnectionString=${EDGE_CONNECTION_STRING:-HostName=testhubmeatgeek.azure-devices.net;DeviceId=meatgeek3;SharedAccessKey=L6GcsAWNvx3yiLJxhpVG8+4fwQOzen4opU5ONR3QDG0=}
+      - IotHubConnectionString=${IOT_HUB_CONNECTION_STRING}
+    networks:
+      - azure-test-network
+    depends_on:
+      mock-device:
+        condition: service_healthy
+
+  # Telemetry Module - Modified to work with direct IoT Hub connection
+  telemetry-direct:
+    build:
+      context: .
+      dockerfile: Dockerfile.telemetry-direct
+    container_name: telemetry-direct
+    environment:
+      # Device identity
+      - DEVICE_CONNECTION_STRING=${DEVICE_CONNECTION_STRING:-HostName=testhubmeatgeek.azure-devices.net;DeviceId=e2e-test-device-1;SharedAccessKey=1TP4RTor3mGhARSha5f19jF9UcdQWuoZyh4QtOyOmpA=}
+      - DEVICE_ID=${DEVICE_ID:-e2e-test-device-1}
+
+      # Mock device endpoint
+      - MOCK_DEVICE_URL=http://mock-device:3000
+      - STATUS_ENDPOINT=/api/robots/MeatGeekBot/commands/get_status
+      
+      # Telemetry settings
+      - TELEMETRY_INTERVAL=${TELEMETRY_INTERVAL_SECONDS:-30}
+      - SESSION_ID=${SESSION_ID:-}
+      
+      # Logging
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      
+      # Transport
+      - CLIENT_TRANSPORT_TYPE=${CLIENT_TRANSPORT_TYPE:-MQTT}
+    networks:
+      - azure-test-network
+    depends_on:
+      mock-device:
+        condition: service_healthy
+    restart: unless-stopped
+
+networks:
+  azure-test-network:
+    driver: bridge
+
+volumes:
+  iotedge-data:
+    driver: local
