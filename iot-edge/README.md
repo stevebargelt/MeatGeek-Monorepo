@@ -1,4 +1,25 @@
-# MeatGeek IoT Edge - Technical Architecture & Implementation Guide
+# MeatGeek IoT Edge
+
+This repository contains the IoT Edge components for the MeatGeek BBQ platform, including production modules and comprehensive testing infrastructure.
+
+## Structure
+
+- **[production/](production/)** - Production IoT Edge modules and deployment manifests
+- **[test-device/](test-device/)** - Complete test device setup with mock BBQ simulator
+- **[integration-tests/](integration-tests/)** - End-to-end integration testing framework
+- **[unit-tests/](unit-tests/)** - Unit test projects
+- **[development/](development/)** - Development tools and debug configurations
+- **[docs/](docs/)** - Technical documentation and architecture guides
+
+## Quick Start
+
+### Production Deployment
+See [production/README.md](production/README.md) for deploying to real IoT Edge devices.
+
+### Test Device Setup
+See [test-device/README.md](test-device/README.md) for running a simulated BBQ device.
+
+## Architecture Overview
 
 This document provides a comprehensive analysis of the MeatGeek IoT Edge components, their architecture, communication patterns, and operational details.
 

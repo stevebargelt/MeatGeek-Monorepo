@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../mock-device/MockDevice.csproj" />
+    <ProjectReference Include="../../test-device/mock-device/MockDevice.csproj" />
   </ItemGroup>
 
 </Project>

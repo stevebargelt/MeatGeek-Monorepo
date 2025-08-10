@@ -10,16 +10,16 @@ echo "MeatGeek IoT Test Device Startup"
 echo "========================================="
 
 # Check if .env exists
-if [ ! -f .env ]; then
-    echo "Creating .env from .env.azure template..."
-    cp .env.azure .env
+if [ ! -f ../.env ]; then
+    echo "Creating .env from .env.azure.example template..."
+    cp ../.env.azure.example ../.env
     echo "Please edit .env with your Azure IoT Hub connection string"
     echo "Then run this script again"
     exit 1
 fi
 
 # Load environment variables
-export $(cat .env | grep -v '^#' | xargs)
+export $(cat ../.env | grep -v '^#' | xargs)
 
 # Verify connection string
 if [ -z "$DEVICE_CONNECTION_STRING" ]; then
@@ -37,7 +37,7 @@ echo ""
 
 # Build and start services
 echo "Starting services..."
-docker-compose -f docker-compose.azure-test.yml up --build -d
+docker-compose -f ../deployments/docker-compose.azure.yml up --build -d
 
 echo ""
 echo "Services started!"
@@ -46,10 +46,10 @@ echo "To monitor telemetry in Azure:"
 echo "  az iot hub monitor-events --hub-name ${IOT_HUB_NAME:-testhubmeatgeek} --device-id ${DEVICE_ID:-meatgeek3}"
 echo ""
 echo "To view logs:"
-echo "  docker-compose -f docker-compose.azure-test.yml logs -f"
+echo "  docker-compose -f deployments/docker-compose.azure.yml logs -f"
 echo ""
 echo "To stop:"
-echo "  docker-compose -f docker-compose.azure-test.yml down"
+echo "  docker-compose -f deployments/docker-compose.azure.yml down"
 echo ""
 echo "Mock Device API available at: http://localhost:3000"
 echo "  - Health: http://localhost:3000/health"

@@ -4,7 +4,7 @@ services:
   # Mock BBQ Device - Simulates real hardware with realistic telemetry
   mock-device:
     build:
-      context: ./mock-device
+      context: ../mock-device
       dockerfile: Dockerfile
     container_name: meatgeek-mock-device-azure
     ports:
@@ -41,8 +41,8 @@ services:
   # Telemetry Module - Modified to work with direct IoT Hub connection
   telemetry-direct:
     build:
-      context: .
-      dockerfile: Dockerfile.telemetry-direct
+      context: ../telemetry-direct
+      dockerfile: Dockerfile
     container_name: telemetry-direct
     environment:
       # Device identity
