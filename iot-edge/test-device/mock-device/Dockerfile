@@ -2,17 +2,20 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy csproj and restore dependencies (for better caching)
-COPY MockDevice.csproj .
-RUN dotnet restore
+# Copy shared library first (for better layer caching)
+COPY shared/ shared/
 
-# Copy source code and build
-COPY . .
-RUN dotnet build -c Release --no-restore
+# Copy project files and restore dependencies (for better caching)
+COPY test-device/mock-device/MockDevice.csproj test-device/mock-device/
+RUN dotnet restore test-device/mock-device/MockDevice.csproj
+
+# Copy application source code and build
+COPY test-device/mock-device/ test-device/mock-device/
+RUN dotnet build test-device/mock-device/MockDevice.csproj -c Release --no-restore
 
 # Publish stage
 FROM build AS publish
-RUN dotnet publish -c Release --no-build --no-restore -o /app/publish
+RUN dotnet publish test-device/mock-device/MockDevice.csproj -c Release --no-build --no-restore -o /app/publish
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final

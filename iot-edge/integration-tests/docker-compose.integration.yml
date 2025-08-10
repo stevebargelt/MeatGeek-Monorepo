@@ -4,7 +4,7 @@ services:
   # Mock BBQ Device API that simulates real hardware
   mock-device:
     build:
-      context: ../mock-device
+      context: ../test-device/mock-device
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
@@ -28,7 +28,7 @@ services:
   # Telemetry Module for data collection
   telemetry-module:
     build:
-      context: ../modules/Telemetry
+      context: ../production/modules/Telemetry
       dockerfile: Dockerfile.amd64
     depends_on:
       mock-device:

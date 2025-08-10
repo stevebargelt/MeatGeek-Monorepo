@@ -1,7 +1,7 @@
 services:
   mock-device:
     build:
-      context: ./mock-device
+      context: ../mock-device
       dockerfile: Dockerfile
     container_name: meatgeek-mock-device
     ports:
@@ -21,8 +21,8 @@ services:
 
   telemetry-module:
     build:
-      context: ../
-      dockerfile: ./iot-edge/modules/Telemetry/Dockerfile.amd64
+      context: ../../production/modules/Telemetry
+      dockerfile: Dockerfile.amd64
     container_name: meatgeek-telemetry-module
     depends_on:
       mock-device:

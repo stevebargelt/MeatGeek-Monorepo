@@ -1,0 +1,20 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0-nanoserver-ltsc2022 AS build-env
+WORKDIR /src
+
+# Copy shared library first (for better layer caching)
+COPY shared/ shared/
+
+# Copy project files and restore dependencies
+COPY production/modules/Telemetry/Telemetry.csproj production/modules/Telemetry/
+RUN dotnet restore production/modules/Telemetry/Telemetry.csproj
+
+# Copy application source code
+COPY production/modules/Telemetry/ production/modules/Telemetry/
+
+# Build and publish
+RUN dotnet publish production/modules/Telemetry/Telemetry.csproj -c Release -o out
+
+FROM mcr.microsoft.com/dotnet/runtime:8.0-nanoserver-ltsc2022
+WORKDIR /app
+COPY --from=build-env /src/out ./
+ENTRYPOINT ["dotnet", "Telemetry.dll"]
