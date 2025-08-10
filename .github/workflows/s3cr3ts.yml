@@ -22,7 +22,7 @@ jobs:
         LOG_ANALYTICS_SHARED_KEY: ${{ secrets.IOT_LOG_ANALYTICS_SHARED_KEY }}   
       run: |
         printf 'IOT HUB SHARED ACCESS CONNECTION STRING:\n'
-        echo ${{ secrets.IOT_HUB_SHARED_ACCESS_CONN_STRING }}" | sed 's/./& /g'
+        echo ${{ secrets.IOT_HUB_SHARED_ACCESS_CONN_STRING }} | sed 's/./& /g'
         printf '\n\n'
         echo ${{secrets.IOT_HUB_RESOURCE_ID}} | sed 's/./& /g'
         echo ${{secrets.ACR_USERNAME}} | sed 's/./& /g'
