@@ -1,0 +1,210 @@
+{
+  "scenarios": {
+    "brisket": {
+      "name": "12-Hour Packer Brisket",
+      "description": "Low and slow brisket cook with the classic stall",
+      "targetTemp": 225,
+      "cookingDurationHours": 12,
+      "meatType": "Beef Brisket",
+      "weight": 14,
+      "phases": [
+        {
+          "name": "Startup",
+          "durationMinutes": 30,
+          "targetGrillTemp": 225,
+          "probeTargetRange": [70, 150],
+          "mode": "startup"
+        },
+        {
+          "name": "Early Cook",
+          "durationMinutes": 180,
+          "targetGrillTemp": 225,
+          "probeTargetRange": [150, 165],
+          "mode": "cooking"
+        },
+        {
+          "name": "The Stall",
+          "durationMinutes": 240,
+          "targetGrillTemp": 225,
+          "probeTargetRange": [165, 170],
+          "mode": "cooking"
+        },
+        {
+          "name": "Stall Break",
+          "durationMinutes": 120,
+          "targetGrillTemp": 225,
+          "probeTargetRange": [170, 190],
+          "mode": "cooking"
+        },
+        {
+          "name": "Final Push",
+          "durationMinutes": 120,
+          "targetGrillTemp": 225,
+          "probeTargetRange": [190, 203],
+          "mode": "cooking"
+        }
+      ]
+    },
+    "porkshoulder": {
+      "name": "8-Hour Pulled Pork",
+      "description": "Boston butt for pulled pork",
+      "targetTemp": 250,
+      "cookingDurationHours": 8,
+      "meatType": "Pork Shoulder",
+      "weight": 8,
+      "phases": [
+        {
+          "name": "Startup",
+          "durationMinutes": 20,
+          "targetGrillTemp": 250,
+          "probeTargetRange": [70, 140],
+          "mode": "startup"
+        },
+        {
+          "name": "Main Cook",
+          "durationMinutes": 360,
+          "targetGrillTemp": 250,
+          "probeTargetRange": [140, 195],
+          "mode": "cooking"
+        },
+        {
+          "name": "Final Cook",
+          "durationMinutes": 100,
+          "targetGrillTemp": 250,
+          "probeTargetRange": [195, 205],
+          "mode": "cooking"
+        }
+      ]
+    },
+    "ribs": {
+      "name": "3-2-1 Baby Back Ribs",
+      "description": "Baby back ribs with 3-2-1 method",
+      "targetTemp": 275,
+      "cookingDurationHours": 6,
+      "meatType": "Baby Back Ribs",
+      "weight": 3,
+      "phases": [
+        {
+          "name": "Startup",
+          "durationMinutes": 15,
+          "targetGrillTemp": 275,
+          "probeTargetRange": [70, 120],
+          "mode": "startup"
+        },
+        {
+          "name": "First 3 Hours",
+          "durationMinutes": 180,
+          "targetGrillTemp": 275,
+          "probeTargetRange": [120, 165],
+          "mode": "cooking"
+        },
+        {
+          "name": "Wrapped 2 Hours",
+          "durationMinutes": 120,
+          "targetGrillTemp": 275,
+          "probeTargetRange": [165, 195],
+          "mode": "cooking"
+        },
+        {
+          "name": "Final 1 Hour",
+          "durationMinutes": 60,
+          "targetGrillTemp": 275,
+          "probeTargetRange": [195, 203],
+          "mode": "cooking"
+        }
+      ]
+    },
+    "chicken": {
+      "name": "Whole Spatchcocked Chicken",
+      "description": "High heat roasted chicken",
+      "targetTemp": 350,
+      "cookingDurationHours": 1.5,
+      "meatType": "Whole Chicken",
+      "weight": 4,
+      "phases": [
+        {
+          "name": "Startup",
+          "durationMinutes": 10,
+          "targetGrillTemp": 350,
+          "probeTargetRange": [70, 100],
+          "mode": "startup"
+        },
+        {
+          "name": "Main Cook",
+          "durationMinutes": 70,
+          "targetGrillTemp": 350,
+          "probeTargetRange": [100, 165],
+          "mode": "cooking"
+        },
+        {
+          "name": "Final Cook",
+          "durationMinutes": 10,
+          "targetGrillTemp": 350,
+          "probeTargetRange": [165, 175],
+          "mode": "cooking"
+        }
+      ]
+    },
+    "default": {
+      "name": "General Purpose Cook",
+      "description": "Default cooking scenario for testing",
+      "targetTemp": 225,
+      "cookingDurationHours": 2,
+      "meatType": "Test Meat",
+      "weight": 5,
+      "phases": [
+        {
+          "name": "Startup",
+          "durationMinutes": 15,
+          "targetGrillTemp": 225,
+          "probeTargetRange": [70, 150],
+          "mode": "startup"
+        },
+        {
+          "name": "Main Cook",
+          "durationMinutes": 90,
+          "targetGrillTemp": 225,
+          "probeTargetRange": [150, 190],
+          "mode": "cooking"
+        },
+        {
+          "name": "Final Cook",
+          "durationMinutes": 15,
+          "targetGrillTemp": 225,
+          "probeTargetRange": [190, 203],
+          "mode": "cooking"
+        }
+      ]
+    }
+  },
+  "temperatureProfiles": {
+    "brisket": {
+      "initialTemp": 70,
+      "targetInternalTemp": 203,
+      "stallTemp": 165,
+      "stallDurationMinutes": 240,
+      "temperatureCurve": "logarithmic"
+    },
+    "porkshoulder": {
+      "initialTemp": 70,
+      "targetInternalTemp": 205,
+      "stallTemp": 160,
+      "stallDurationMinutes": 120,
+      "temperatureCurve": "linear"
+    },
+    "ribs": {
+      "initialTemp": 70,
+      "targetInternalTemp": 203,
+      "stallTemp": null,
+      "stallDurationMinutes": 0,
+      "temperatureCurve": "exponential"
+    },
+    "chicken": {
+      "initialTemp": 70,
+      "targetInternalTemp": 175,
+      "stallTemp": null,
+      "stallDurationMinutes": 0,
+      "temperatureCurve": "exponential"
+    }
+  }
+}

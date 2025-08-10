@@ -1,0 +1,99 @@
+# Minimal Docker Compose for E2E integration testing
+# Focuses on MockDevice + local services without complex IoT Edge module builds
+version: '3.8'
+
+services:
+  # Mock BBQ Device API that simulates real hardware
+  mock-device:
+    build:
+      context: ../../iot-edge/mock-device
+      dockerfile: Dockerfile
+    ports:
+      - "8080:3000"  # Changed port to avoid conflicts
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:3000
+      - COOKING_SCENARIO=brisket
+      - TELEMETRY_INTERVAL_SECONDS=2  # Faster for testing
+      - SIMULATION_AUTO_START=false
+      - LOG_LEVEL=info
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/health || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - e2e-testing
+    container_name: mock-device-e2e
+
+  # Local Workload API simulation (simple HTTP server)
+  local-workload:
+    image: node:18-alpine
+    ports:
+      - "15580:15580"
+    environment:
+      - NODE_ENV=development
+      - LOCAL_TESTING=true
+    networks:
+      - e2e-testing
+    container_name: local-workload-e2e
+    working_dir: /app
+    volumes:
+      - ./local-workload:/app
+    command: ["node", "server.js"]
+
+  # Local Edge Hub simulation (simple HTTP server instead of nginx with SSL)
+  local-edgehub:
+    image: node:18-alpine
+    ports:
+      - "8443:8443"
+      - "8883:8883"
+    environment:
+      - NODE_ENV=development
+      - LOCAL_TESTING=true
+    networks:
+      - e2e-testing
+    container_name: local-edgehub-e2e
+    working_dir: /app
+    volumes:
+      - ./local-edgehub:/app
+    command: ["node", "server.js"]
+
+  # Message collector for validation (lightweight Node.js service)
+  message-collector:
+    image: node:18-alpine
+    ports:
+      - "3001:3001"
+    environment:
+      - COLLECTOR_MODE=e2e
+      - EXPECTED_MESSAGE_COUNT=30
+      - COLLECTION_TIMEOUT=120
+      - LOG_LEVEL=info
+    networks:
+      - e2e-testing
+    container_name: message-collector-e2e
+    working_dir: /app
+    volumes:
+      - ./message-collector:/app
+      - e2e_logs:/app/logs
+      - ./test-results:/app/results
+    command: ["node", "collector.js"]
+
+networks:
+  e2e-testing:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
+
+volumes:
+  e2e_logs:
+
+# Health check configuration
+x-healthcheck-config:
+  &default-healthcheck
+  interval: 10s
+  timeout: 5s
+  retries: 3
+  start_period: 20s

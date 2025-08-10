@@ -1,0 +1,292 @@
+name: MeatGeek E2E Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'e2e-tests/**'
+      - 'iot-edge/**'
+      - 'sessions/**'
+      - 'device/**'
+      - 'iot/**'
+      - '.github/workflows/e2e-tests.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'e2e-tests/**'
+      - 'iot-edge/**'
+      - 'sessions/**'
+      - 'device/**'
+      - 'iot/**'
+      - '.github/workflows/e2e-tests.yml'
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_pattern:
+        description: 'Test pattern to filter (optional)'
+        required: false
+        default: ''
+      enable_coverage:
+        description: 'Enable code coverage'
+        type: boolean
+        default: false
+      timeout_minutes:
+        description: 'Test timeout in minutes'
+        required: false
+        default: '15'
+
+env:
+  NODE_VERSION: '20'
+  E2E_TIMEOUT_MINUTES: ${{ github.event.inputs.timeout_minutes || '15' }}
+  E2E_PARALLEL_WORKERS: 2
+  E2E_TEST_PATTERN: ${{ github.event.inputs.test_pattern || '' }}
+  E2E_COVERAGE: ${{ github.event.inputs.enable_coverage || 'false' }}
+
+jobs:
+  e2e-quick-validation:
+    name: Quick E2E Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: e2e-tests/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: e2e-tests
+      run: npm ci
+      
+    - name: Run TypeScript compilation check
+      working-directory: e2e-tests
+      run: npm run build
+      
+    - name: Run ESLint
+      working-directory: e2e-tests
+      run: npm run lint
+      
+    - name: Run unit tests for E2E utilities
+      working-directory: e2e-tests
+      run: |
+        npm test -- test-data-factory.test.ts --testTimeout=30000
+        npm test -- mock-device-controller.simple.test.ts --testTimeout=30000
+
+  e2e-workflow-tests:
+    name: E2E Workflow Tests
+    runs-on: ubuntu-latest
+    needs: e2e-quick-validation
+    timeout-minutes: 20
+    
+    strategy:
+      matrix:
+        test-suite:
+          - name: "Multi-Scenario Validation"
+            pattern: "multi-scenario-validation.test.ts"
+            timeout: 5
+          - name: "Cross-Service Integration"
+            pattern: "cross-service-communication.test.ts"
+            timeout: 8
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: e2e-tests/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: e2e-tests
+      run: npm ci
+      
+    - name: Create test results directory
+      working-directory: e2e-tests
+      run: mkdir -p test-results logs
+      
+    - name: Run ${{ matrix.test-suite.name }}
+      working-directory: e2e-tests
+      run: |
+        timeout ${{ matrix.test-suite.timeout }}m npm test -- ${{ matrix.test-suite.pattern }} \
+          --testTimeout=$((${{ matrix.test-suite.timeout }} * 60 * 1000)) \
+          --maxWorkers=2 \
+          --verbose \
+          --forceExit \
+          --detectOpenHandles
+          
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ matrix.test-suite.name }}-${{ github.run_number }}
+        path: |
+          e2e-tests/test-results/
+          e2e-tests/logs/
+        retention-days: 7
+
+  e2e-full-workflow:
+    name: Full E2E Workflow Tests
+    runs-on: ubuntu-latest
+    needs: e2e-workflow-tests
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[full-e2e]') }}
+    timeout-minutes: 25
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: e2e-tests/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: e2e-tests
+      run: npm ci
+      
+    - name: Create test results directory
+      working-directory: e2e-tests
+      run: mkdir -p test-results logs
+      
+    - name: Run complete brisket cooking journey
+      working-directory: e2e-tests
+      run: |
+        timeout 20m npm test -- brisket-cooking-journey.test.ts \
+          --testTimeout=1200000 \
+          --maxWorkers=1 \
+          --verbose \
+          --forceExit \
+          --detectOpenHandles
+          
+    - name: Run system resilience tests
+      working-directory: e2e-tests
+      if: always()
+      run: |
+        timeout 15m npm test -- system-fault-tolerance.test.ts \
+          --testTimeout=900000 \
+          --maxWorkers=2 \
+          --verbose \
+          --forceExit \
+          --detectOpenHandles
+          
+    - name: Upload full workflow results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: full-workflow-results-${{ github.run_number }}
+        path: |
+          e2e-tests/test-results/
+          e2e-tests/logs/
+        retention-days: 14
+
+  e2e-coverage-report:
+    name: E2E Coverage Report
+    runs-on: ubuntu-latest
+    needs: [e2e-workflow-tests]
+    if: ${{ github.event.inputs.enable_coverage == 'true' || github.event_name == 'schedule' }}
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: e2e-tests/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: e2e-tests
+      run: npm ci
+      
+    - name: Run tests with coverage
+      working-directory: e2e-tests
+      run: |
+        npm test -- --coverage \
+          --coverageDirectory=test-results/coverage \
+          --testTimeout=300000 \
+          --maxWorkers=2
+          
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: e2e-coverage-${{ github.run_number }}
+        path: e2e-tests/test-results/coverage/
+        retention-days: 30
+
+  e2e-summary:
+    name: E2E Test Summary
+    runs-on: ubuntu-latest
+    needs: [e2e-quick-validation, e2e-workflow-tests]
+    if: always()
+    
+    steps:
+    - name: Download test results
+      if: always()
+      uses: actions/download-artifact@v4
+      with:
+        pattern: test-results-*
+        path: all-test-results
+        merge-multiple: true
+        
+    - name: Generate summary report
+      if: always()
+      run: |
+        echo "# MeatGeek E2E Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Test Status" >> $GITHUB_STEP_SUMMARY
+        
+        if [[ "${{ needs.e2e-quick-validation.result }}" == "success" ]]; then
+          echo "✅ Quick Validation: **PASSED**" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Quick Validation: **FAILED**" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        if [[ "${{ needs.e2e-workflow-tests.result }}" == "success" ]]; then
+          echo "✅ Workflow Tests: **PASSED**" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Workflow Tests: **FAILED**" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Configuration" >> $GITHUB_STEP_SUMMARY
+        echo "- **Node.js Version**: ${{ env.NODE_VERSION }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Timeout**: ${{ env.E2E_TIMEOUT_MINUTES }} minutes" >> $GITHUB_STEP_SUMMARY
+        echo "- **Workers**: ${{ env.E2E_PARALLEL_WORKERS }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Test Pattern**: ${{ env.E2E_TEST_PATTERN || 'All tests' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Coverage Enabled**: ${{ env.E2E_COVERAGE }}" >> $GITHUB_STEP_SUMMARY
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Workflow Run" >> $GITHUB_STEP_SUMMARY
+        echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Run Number**: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+
+  # Post-test notifications and cleanup
+  notify-results:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [e2e-summary]
+    if: failure() && (github.event_name == 'schedule' || github.ref == 'refs/heads/main')
+    
+    steps:
+    - name: Notify on failure
+      run: |
+        echo "E2E tests failed on ${{ github.ref_name }}"
+        echo "This would typically send a notification to the team"
+        echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

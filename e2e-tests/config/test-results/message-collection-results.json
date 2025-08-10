@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "totalMessages": 0,
+    "expectedMessages": 30,
+    "successRate": 0,
+    "elapsedSeconds": 120,
+    "messagesPerSecond": 0,
+    "status": "incomplete"
+  },
+  "messages": [],
+  "validation": {
+    "hasDeviceId": true,
+    "hasTemperatureData": true,
+    "hasTimestamps": true,
+    "temperatureRangeValid": true
+  }
+}
