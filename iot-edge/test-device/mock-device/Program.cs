@@ -1,4 +1,4 @@
-using MeatGeek.MockDevice.Models;
+using MeatGeek.IoT.Edge.Shared.Models;
 using MeatGeek.MockDevice.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,7 +34,7 @@ app.MapGet("/health", () => new { status = "healthy", timestamp = DateTime.UtcNo
 app.MapGet("/api/robots/MeatGeekBot/commands/get_status", (ITelemetrySimulator simulator) =>
 {
     var status = simulator.GetCurrentStatus();
-    var response = new MockDeviceResponse
+    var response = new DeviceResponse
     {
         Result = status
     };

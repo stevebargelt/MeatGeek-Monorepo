@@ -14,6 +14,8 @@ namespace Telemetry
     using Serilog;
     using Serilog.Core;
     using Serilog.Events;
+    using MeatGeek.IoT.Edge.Shared.Models;
+    using MeatGeek.IoT.Edge.Shared.Constants;
 
     class Program
     {
@@ -169,13 +171,13 @@ namespace Telemetry
                 if (!string.IsNullOrEmpty(SessionID)) 
                 {
                     status.SessionId = SessionID;
-                    status.Type = "status";
-                    status.ttl = -1; //status as part of a session needs to live 'forever'
+                    status.Type = TelemetryConstants.Types.Status;
+                    status.Ttl = TelemetryConstants.Ttl.SessionData; //status as part of a session needs to live 'forever'
                 }
                 else
                 {
-                    status.Type = "telemetry";
-                    status.ttl = 60*60*24*3; //3 days TTL for non session-related messages
+                    status.Type = TelemetryConstants.Types.Telemetry;
+                    status.Ttl = TelemetryConstants.Ttl.TelemetryData; //3 days TTL for non session-related messages
                 }
                 
                 if (string.IsNullOrEmpty(status.Id))
@@ -344,50 +346,6 @@ namespace Telemetry
             Log.Information($"Initializied logger with log level {logLevel}");
         }
 
-    public class SmokerStatus
-    {
-        [JsonProperty("id")] 
-        public string Id { get; set; }
-        [JsonProperty] 
-        public int? ttl { get; set; }
-        [JsonProperty("smokerId")] 
-        public string SmokerId { get; set; }
-        [JsonProperty("sessionId")] 
-        public string SessionId { get; set; }
-        [JsonProperty("type")] 
-        public string Type { get; set; }
-        [JsonProperty("augerOn")] 
-        public bool AugerOn { get; set; }
-        [JsonProperty("blowerOn")] 
-        public bool BlowerOn { get; set; }
-        [JsonProperty("igniterOn")] 
-        public bool IgniterOn { get; set; }
-        [JsonProperty("temps")] 
-        public Temps Temps { get; set; }
-        [JsonProperty("fireHealthy")] 
-        public bool FireHealthy { get; set; }
-        [JsonProperty("mode")] 
-        public string Mode { get; set; }
-        [JsonProperty("setPoint")] 
-        public int SetPoint { get; set; }
-        [JsonProperty("modeTime")] 
-        public DateTime ModeTime { get; set; }
-        [JsonProperty("currentTime")] 
-        public DateTime CurrentTime { get; set; }
-    }
-    public class Temps
-    {
-        [JsonProperty("grillTemp")] 
-        public double GrillTemp { get; set; }
-        [JsonProperty("probe1Temp")] 
-        public double Probe1Temp { get; set; }
-        [JsonProperty("probe2Temp")] 
-        public double Probe2Temp { get; set; }
-        [JsonProperty("probe3Temp")] 
-        public double Probe3Temp { get; set; }
-        [JsonProperty("probe4Temp")] 
-        public double Probe4Temp { get; set; }
-    }
 
     }
 

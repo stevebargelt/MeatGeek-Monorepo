@@ -1,4 +1,5 @@
-using MeatGeek.MockDevice.Models;
+using MeatGeek.IoT.Edge.Shared.Models;
+using MeatGeek.IoT.Edge.Shared.Constants;
 
 namespace MeatGeek.MockDevice.Services;
 
@@ -10,7 +11,7 @@ public interface ITelemetrySimulator
     /// <summary>
     /// Gets the current simulated smoker status
     /// </summary>
-    MockSmokerStatus GetCurrentStatus();
+    SmokerStatus GetCurrentStatus();
 
     /// <summary>
     /// Starts a cooking session with the specified scenario
@@ -78,21 +79,21 @@ public class TelemetrySimulator : ITelemetrySimulator
         } 
     }
 
-    public MockSmokerStatus GetCurrentStatus()
+    public SmokerStatus GetCurrentStatus()
     {
         lock (_lock)
         {
-            return new MockSmokerStatus
+            return new SmokerStatus
             {
                 Id = Guid.NewGuid().ToString(),
-                Ttl = _isCooking ? -1 : 259200, // -1 for session data, 3 days for telemetry
+                Ttl = _isCooking ? TelemetryConstants.Ttl.SessionData : TelemetryConstants.Ttl.TelemetryData,
                 SmokerId = "test-device-001",
                 SessionId = _isCooking ? "simulation-session" : null,
-                Type = _isCooking ? "status" : "telemetry",
+                Type = _isCooking ? TelemetryConstants.Types.Status : TelemetryConstants.Types.Telemetry,
                 AugerOn = _augerOn,
                 BlowerOn = _blowerOn,
                 IgniterOn = _igniterOn,
-                Temps = new MockTemps
+                Temps = new Temps
                 {
                     GrillTemp = Math.Round(_currentGrillTemp, 1),
                     Probe1Temp = Math.Round(_currentProbeTemp, 1),

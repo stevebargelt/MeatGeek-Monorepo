@@ -1,15 +1,22 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0-bullseye-slim-arm64v8 AS build-env
-WORKDIR /app
+WORKDIR /src
 
-COPY *.csproj ./
-RUN dotnet restore
+# Copy shared library first (for better layer caching)
+COPY shared/ shared/
 
-COPY . ./
-RUN dotnet publish -c Release -o out -r linux-arm64 --self-contained=false
+# Copy project files and restore dependencies
+COPY production/modules/Telemetry/Telemetry.csproj production/modules/Telemetry/
+RUN dotnet restore production/modules/Telemetry/Telemetry.csproj
+
+# Copy application source code
+COPY production/modules/Telemetry/ production/modules/Telemetry/
+
+# Build and publish
+RUN dotnet publish production/modules/Telemetry/Telemetry.csproj -c Release -o out -r linux-arm64 --self-contained=false
 
 FROM mcr.microsoft.com/dotnet/runtime:8.0-bullseye-slim-arm64v8
 WORKDIR /app
-COPY --from=build-env /app/out ./
+COPY --from=build-env /src/out ./
 
 RUN useradd -ms /bin/bash moduleuser
 USER moduleuser
