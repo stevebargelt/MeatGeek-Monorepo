@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
@@ -20,12 +21,12 @@ namespace MeatGeek.Sessions
 {
     public class EndSession
     {
-        private readonly ILogger<EndSession> _log;
+        private readonly ILogger<EndSession> __log;
         private readonly ISessionsService _sessionsService;
 
-        public EndSession(ILogger<EndSession> log, ISessionsService sessionsService)
+        public EndSession(ILogger<EndSession> _log, ISessionsService sessionsService)
         {
-            _log = log;
+            __log = _log;
             _sessionsService = sessionsService;
         }
 
@@ -35,27 +36,31 @@ namespace MeatGeek.Sessions
                 string smokerId,
                 string id)
         {
-            log.LogInformation("EndSession Called");
+            __log.LogInformation("EndSession Called");
 
             if (string.IsNullOrEmpty(smokerId))
             {
-                log.LogError("EndSession: Missing smokerId - url should be /endsession/{smokerId}/{id}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
+                __log.LogError("EndSession: Missing smokerId - url should be /endsession/{smokerId}/{id}");
+                var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await errorResponse.WriteAsJsonAsync(new { error = "Missing required property 'smokerId'." });
+                return errorResponse;
             }
 
             if (string.IsNullOrEmpty(id))
             {
-                log.LogError("EndSession: Missing id - url should be /endsession/{smokerId}/{id}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'id'." });
+                __log.LogError("EndSession: Missing id - url should be /endsession/{smokerId}/{id}");
+                var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await errorResponse.WriteAsJsonAsync(new { error = "Missing required property 'id'." });
+                return errorResponse;
             }
 
             var updateData = new EndSessionRequest { };
             updateData.SmokerId = smokerId;
-            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var requestBody = await req.ReadAsStringAsync();
             if (string.IsNullOrEmpty(requestBody))
             {
                 updateData.EndTime = DateTime.UtcNow;
-                log.LogInformation($"No JSON body, EndTime not provided using current time: {updateData.EndTime}");
+                __log.LogInformation($"No JSON body, EndTime not provided using current time: {updateData.EndTime}");
             }
             else
             {
@@ -66,22 +71,24 @@ namespace MeatGeek.Sessions
                 }
                 catch (JsonReaderException)
                 {
-                    log.LogWarning("EndSession: Could not parse JSON");
-                    return new BadRequestObjectResult(new { error = "Body should be provided in JSON format." });
+                    __log.LogWarning("EndSession: Could not parse JSON");
+                    var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                    await errorResponse.WriteAsJsonAsync(new { error = "Body should be provided in JSON format." });
+                    return errorResponse;
                 }
-                log.LogInformation("Made it past data = JObject.Parse(requestBody)");
+                __log.LogInformation("Made it past data = JObject.Parse(requestBody)");
                 if (!data.HasValues)
                 {
                     updateData.EndTime = DateTime.UtcNow;
-                    log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
+                    __log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
                 }
                 else
                 {
                     JToken endTimeToken = data["endTime"];
-                    log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
+                    _log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
                     if (endTimeToken != null && (endTimeToken.Type == JTokenType.Date || endTimeToken.Type == JTokenType.String))
                     {
-                        log.LogInformation($"endTime= {endTimeToken.ToString()}");
+                        _log.LogInformation($"endTime= {endTimeToken.ToString()}");
                         try
                         {
                             DateTimeOffset dto = DateTimeOffset.Parse(endTimeToken.ToString(), null, DateTimeStyles.RoundtripKind);
@@ -89,56 +96,60 @@ namespace MeatGeek.Sessions
                         }
                         catch (ArgumentNullException argNullEx)
                         {
-                            log.LogError(argNullEx, $"Argument NUll exception");
+                            _log.LogError(argNullEx, $"Argument NUll exception");
                             updateData.EndTime = DateTime.UtcNow;
-                            log.LogInformation($"Failed to parse endTime, using current time: {updateData.EndTime}");
+                            _log.LogInformation($"Failed to parse endTime, using current time: {updateData.EndTime}");
                         }
                         catch (ArgumentException argEx)
                         {
-                            log.LogError(argEx, $"Argument exception");
+                            _log.LogError(argEx, $"Argument exception");
                             updateData.EndTime = DateTime.UtcNow;
-                            log.LogInformation($"Failed to parse endTime, using current time: {updateData.EndTime}");
+                            _log.LogInformation($"Failed to parse endTime, using current time: {updateData.EndTime}");
                         }
                         catch (FormatException formatEx)
                         {
-                            log.LogError(formatEx, $"Format exception");
+                            _log.LogError(formatEx, $"Format exception");
                             updateData.EndTime = DateTime.UtcNow;
-                            log.LogInformation($"Failed to parse endTime, using current time: {updateData.EndTime}");
+                            _log.LogInformation($"Failed to parse endTime, using current time: {updateData.EndTime}");
                         }
                         catch (Exception ex)
                         {
-                            log.LogError(ex, $"Unhandled Exception from DateTimeParse");
+                            _log.LogError(ex, $"Unhandled Exception from DateTimeParse");
                             updateData.EndTime = DateTime.UtcNow;
-                            log.LogInformation($"Failed to parse endTime, using current time: {updateData.EndTime}");
+                            _log.LogInformation($"Failed to parse endTime, using current time: {updateData.EndTime}");
                         }
-                        log.LogInformation($"EndTime will be updated to {updateData.EndTime.ToString()}");
+                        _log.LogInformation($"EndTime will be updated to {updateData.EndTime.ToString()}");
                     }
                     else
                     {
                         updateData.EndTime = DateTime.UtcNow;
-                        log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
+                        _log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
                     }
                 }
             }
             try
             {
-                log.LogWarning($"BEFORE: _sessionsService.EndSessionAsync");
-                log.LogInformation("updateData.SmokerId = " + updateData.SmokerId);
-                log.LogInformation("updateData.StartTime = " + updateData.EndTime.Value);
+                _log.LogWarning($"BEFORE: _sessionsService.EndSessionAsync");
+                _log.LogInformation("updateData.SmokerId = " + updateData.SmokerId);
+                _log.LogInformation("updateData.StartTime = " + updateData.EndTime.Value);
                 var result = await _sessionsService.EndSessionAsync(id, updateData.SmokerId, updateData.EndTime.Value);
-                log.LogWarning($"AFTER: _sessionsService.EndSessionAsync");
+                __log.LogWarning($"AFTER: _sessionsService.EndSessionAsync");
                 if (result == EndSessionResult.NotFound)
                 {
-                    log.LogWarning($"SessionID {id} not found.");
-                    return new NotFoundResult();
+                    __log.LogWarning($"SessionID {id} not found.");
+                    var notFoundResponse = req.CreateResponse(HttpStatusCode.NotFound);
+                    return notFoundResponse;
                 }
-                log.LogInformation("EndSession completing");
-                return new NoContentResult();
+                __log.LogInformation("EndSession completing");
+                var response = req.CreateResponse(HttpStatusCode.NoContent);
+                return response;
             }
             catch (Exception ex)
             {
-                log.LogError(ex, "EndSession: Unhandled exception");
-                return new ExceptionResult(ex, false);
+                __log.LogError(ex, "EndSession: Unhandled exception");
+                var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
+                await errorResponse.WriteAsJsonAsync(new { error = "Internal server error occurred." });
+                return errorResponse;
             }
 
         }
