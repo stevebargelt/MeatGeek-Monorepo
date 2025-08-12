@@ -1,0 +1,26 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "FUNCTIONS_EXTENSION_VERSION": "~4",
+    
+    "CosmosDBConnection": "<YOUR_COSMOSDB_CONNECTION_STRING>",
+    "DatabaseName": "meatgeek",
+    "CollectionName": "meatgeek",
+    
+    "EventGridTopicEndpoint": "https://dummy-endpoint.eventgrid.azure.net/api/events",
+    "EventGridTopicKey": "dummy-key-for-local-development",
+    
+    "APPINSIGHTS_INSTRUMENTATIONKEY": "",
+    
+    "AzureFunctionsJobHost__logging__console__isEnabled": "true",
+    "AzureFunctionsJobHost__logging__logLevel__default": "Information",
+    "AzureFunctionsJobHost__logging__logLevel__MeatGeek.Sessions": "Debug"
+  },
+  "Host": {
+    "LocalHttpPort": 7071,
+    "CORS": "*",
+    "CORSCredentials": false
+  }
+}
