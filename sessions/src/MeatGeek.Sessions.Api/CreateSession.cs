@@ -1,17 +1,11 @@
 using System;
 using System.IO;
 using System.Net;
-using System.Web.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.OpenApi.Models;
 
 using MeatGeek.Sessions.Services.Models;
 using MeatGeek.Sessions.Services;
@@ -36,15 +30,9 @@ namespace MeatGeek.Sessions
             _sessionsService = sessionsService;
         }
 
-        [FunctionName("CreateSession")]
-        [OpenApiOperation(operationId: "CreateSession", tags: new[] { "session" }, Summary = "Start a new session.", Description = "This add a new session (sessions are 'cooks' or BBQ sessions).", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiParameter(name: "smokerId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "the Smoker Id", Description = "The Smoker Id. ", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(CreateSessionRequest), Required = true, Description = "Session object that needs to be added to the store")]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionCreated), Summary = "New session created", Description = "New session created.")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Summary = "Invalid input", Description = "Invalid input")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception or internal server error has occurred", Description = "An exception or internal server has occurred.")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sessions/{smokerId}")] HttpRequest req,
+        [Function("CreateSession")]
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sessions/{smokerId}")] HttpRequestData req,
             string smokerId)
         {
             _log.LogInformation("CreateSession API Triggered");
@@ -52,10 +40,12 @@ namespace MeatGeek.Sessions
             if (string.IsNullOrEmpty(smokerId))
             {
                 _log.LogError("CreateSession: Missing smokerId - url should be /sessions/{smokerId}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
+                var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await errorResponse.WriteAsJsonAsync(new { error = "Missing required property 'smokerId'." });
+                return errorResponse;
             }
 
-            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var requestBody = await req.ReadAsStringAsync();
             CreateSessionRequest newSession;
             try
             {
@@ -63,7 +53,9 @@ namespace MeatGeek.Sessions
             }
             catch (JsonReaderException)
             {
-                return new BadRequestObjectResult(new { error = "Body should be provided in JSON format." });
+                var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await errorResponse.WriteAsJsonAsync(new { error = "Body should be provided in JSON format." });
+                return errorResponse;
             }
 
             newSession.SmokerId = smokerId;
@@ -71,7 +63,9 @@ namespace MeatGeek.Sessions
             // validate request
             if (newSession == null || string.IsNullOrEmpty(newSession.Title))
             {
-                return new BadRequestObjectResult(new { error = "Missing required property 'title'." });
+                var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await errorResponse.WriteAsJsonAsync(new { error = "Missing required property 'title'." });
+                return errorResponse;
             }
 
             if (!newSession.StartTime.HasValue)
@@ -87,13 +81,17 @@ namespace MeatGeek.Sessions
                 if (summaries != null && summaries.Count > 0)
                 {
                     _log.LogError($"CreateSession: Will not create a new session when there is already an active session.");
-                    return new ConflictObjectResult(summaries);
+                    var conflictResponse = req.CreateResponse(HttpStatusCode.Conflict);
+                    await conflictResponse.WriteAsJsonAsync(summaries);
+                    return conflictResponse;
                 }
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "<-- From CreateSession -> GetRunningSessionsAsync Unhandled exception");
-                return new ExceptionResult(ex, false);
+                var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
+                await errorResponse.WriteAsJsonAsync(new { error = "Internal server error occurred." });
+                return errorResponse;
             }
 
             // create session
@@ -105,12 +103,16 @@ namespace MeatGeek.Sessions
                 _log.LogInformation("data.StartTime = " + newSession.StartTime.Value);
                 var sessionId = await _sessionsService.AddSessionAsync(newSession.Title, newSession.Description, newSession.SmokerId, newSession.StartTime.Value);
                 _log.LogInformation("AFTER SessionService Call");
-                return new OkObjectResult(new { id = sessionId });
+                var response = req.CreateResponse(HttpStatusCode.OK);
+                await response.WriteAsJsonAsync(new { id = sessionId });
+                return response;
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "<-- Exception from CreateSession");
-                return new ExceptionResult(ex, false);
+                var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
+                await errorResponse.WriteAsJsonAsync(new { error = "Internal server error occurred." });
+                return errorResponse;
             }
         }
 

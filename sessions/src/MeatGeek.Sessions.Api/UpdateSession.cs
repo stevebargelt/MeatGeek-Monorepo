@@ -2,15 +2,10 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Net;
-using System.Web.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 
 using MeatGeek.Sessions.Services.Models;
 using MeatGeek.Sessions.Services;
@@ -27,33 +22,26 @@ namespace MeatGeek.Sessions
 {
     public class UpdateSession
     {
-        private readonly ILogger<CreateSession> _log;
+        private readonly ILogger<UpdateSession> _log;
         private readonly ISessionsService _sessionsService;
 
-        public UpdateSession(ILogger<CreateSession> log, ISessionsService sessionsService)
+        public UpdateSession(ILogger<UpdateSession> log, ISessionsService sessionsService)
         {
             _log = log;
             _sessionsService = sessionsService;
         }
 
-        [FunctionName("UpdateSession")]
-        [OpenApiOperation(operationId: "UpdateSession", tags: new[] { "session" }, Summary = "Updated an existing session.", Description = "Updates a session (sessions are 'cooks' or BBQ sessions).", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(SessionDetails), Required = true, Description = "Session object with updated values")]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionDetails), Summary = "Session dtails updated", Description = "Session details updated")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.MethodNotAllowed, Summary = "Invalid input", Description = "Invalid input")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session not found", Description = "Session not found")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception occurred", Description = "An exception occurred.")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "patch", "put", Route = "sessions/{smokerId}/{id}")] HttpRequest req,
-                ILogger log,
+        [Function("UpdateSession")]
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "patch", "put", Route = "sessions/{smokerId}/{id}")] HttpRequestData req,
                 string smokerId,
                 string id)
         {
-            log.LogInformation("UpdateSession: Called");
-            log.LogInformation($"UpdateSession: SmokerID = {smokerId} SessionID = {id}");
+            _log.LogInformation("UpdateSession: Called");
+            _log.LogInformation($"UpdateSession: SmokerID = {smokerId} SessionID = {id}");
 
             // get the request body
-            var requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var requestBody = await req.ReadAsStringAsync();
             var updateData = new UpdateSessionRequest { };
             updateData.SmokerId = smokerId;
             JObject data;
@@ -63,40 +51,44 @@ namespace MeatGeek.Sessions
             }
             catch (JsonReaderException)
             {
-                log.LogWarning("UpdateSession: Could not parse JSON");
-                return new BadRequestObjectResult(new { error = "Body should be provided in JSON format." });
+                _log.LogWarning("UpdateSession: Could not parse JSON");
+                var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await errorResponse.WriteAsJsonAsync(new { error = "Body should be provided in JSON format." });
+                return errorResponse;
             }
-            log.LogInformation("Made it past data = JObject.Parse(requestBody)");
+            _log.LogInformation("Made it past data = JObject.Parse(requestBody)");
             if (!data.HasValues)
             {
-                log.LogWarning("UpdateSession: data has no values.");
-                return new BadRequestObjectResult(new { error = "Missing required properties. Nothing to update." });
+                _log.LogWarning("UpdateSession: data has no values.");
+                var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await errorResponse.WriteAsJsonAsync(new { error = "Missing required properties. Nothing to update." });
+                return errorResponse;
             }
             JToken titleToken = data["title"];
             if (titleToken != null && titleToken.Type == JTokenType.String && titleToken.ToString() != String.Empty)
             {
                 updateData.Title = titleToken.ToString();
-                log.LogInformation($"Title will be updated to {updateData.Title}");
+                _log.LogInformation($"Title will be updated to {updateData.Title}");
             }
             else
             {
-                log.LogInformation($"Title will NOT be updated.");
+                _log.LogInformation($"Title will NOT be updated.");
             }
             JToken descriptionToken = data["description"];
             if (descriptionToken != null && descriptionToken.Type == JTokenType.String && descriptionToken.ToString() != String.Empty)
             {
                 updateData.Description = descriptionToken.ToString();
-                log.LogInformation($"Description will be updated to {updateData.Description}");
+                _log.LogInformation($"Description will be updated to {updateData.Description}");
             }
             else
             {
-                log.LogInformation($"Description will NOT be updated");
+                _log.LogInformation($"Description will NOT be updated");
             }
             JToken endTimeToken = data["endTime"];
-            log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
+            _log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
             if (endTimeToken != null && endTimeToken.Type == JTokenType.Date)
             {
-                log.LogInformation($"endTime= {endTimeToken.ToString()}");
+                _log.LogInformation($"endTime= {endTimeToken.ToString()}");
                 try
                 {
                     DateTimeOffset dto = DateTimeOffset.Parse(endTimeToken.ToString());
@@ -104,46 +96,50 @@ namespace MeatGeek.Sessions
                 }
                 catch (ArgumentNullException argNullEx)
                 {
-                    log.LogError(argNullEx, $"Argument NUll exception");
+                    _log.LogError(argNullEx, $"Argument NUll exception");
                     throw;
                 }
                 catch (ArgumentException argEx)
                 {
-                    log.LogError(argEx, $"Argument exception");
+                    _log.LogError(argEx, $"Argument exception");
                     throw;
                 }
                 catch (FormatException formatEx)
                 {
-                    log.LogError(formatEx, $"Format exception");
+                    _log.LogError(formatEx, $"Format exception");
                     throw;
                 }
                 catch (Exception ex)
                 {
-                    log.LogError(ex, $"Unhandled Exception from DateTimeParse");
+                    _log.LogError(ex, $"Unhandled Exception from DateTimeParse");
                     throw;
                 }
-                log.LogInformation($"EndTime will be updated to {updateData.EndTime.ToString()}");
+                _log.LogInformation($"EndTime will be updated to {updateData.EndTime.ToString()}");
             }
             else
             {
-                log.LogInformation($"EndTime will NOT be updated.");
+                _log.LogInformation($"EndTime will NOT be updated.");
             }
             try
             {
-                log.LogWarning($"BEFORE: _sessionsService.UpdateSessionAsync");
+                _log.LogWarning($"BEFORE: _sessionsService.UpdateSessionAsync");
                 var result = await _sessionsService.UpdateSessionAsync(id, updateData.SmokerId, updateData.Title, updateData.Description, updateData.EndTime);
                 if (result == UpdateSessionResult.NotFound)
                 {
-                    log.LogWarning($"SessionID {id} not found.");
-                    return new NotFoundResult();
+                    _log.LogWarning($"SessionID {id} not found.");
+                    var notFoundResponse = req.CreateResponse(HttpStatusCode.NotFound);
+                    return notFoundResponse;
                 }
-                log.LogInformation("UpdateSession completing");
-                return new NoContentResult();
+                _log.LogInformation("UpdateSession completing");
+                var response = req.CreateResponse(HttpStatusCode.NoContent);
+                return response;
             }
             catch (Exception ex)
             {
-                log.LogError(ex, "Unhandled exception");
-                return new ExceptionResult(ex, false);
+                _log.LogError(ex, "Unhandled exception");
+                var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
+                await errorResponse.WriteAsJsonAsync(new { error = "Internal server error occurred." });
+                return errorResponse;
             }
 
         }
