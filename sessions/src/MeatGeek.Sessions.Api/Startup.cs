@@ -41,7 +41,6 @@ namespace MeatGeek.Sessions
             builder.Services.AddScoped<ISessionsService, SessionsService>();
             builder.Services.AddScoped<ISessionsRepository, SessionsRepository>();
             builder.Services.AddScoped<IEventGridPublisherService, EventGridPublisherService>();
-            builder.Services.AddScoped<ISessionsRepository, SessionsRepository>();
             //builder.Services.AddScoped<IEventGridSubscriberServiceDI, EventGridSubscriberServiceDI>();
         }
 

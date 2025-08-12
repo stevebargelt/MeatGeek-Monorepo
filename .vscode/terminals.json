@@ -33,7 +33,7 @@
       "name": "iot-edge",
       "description": "IoT Edge",
       "icon": "code",
-      "cwd": "/Users/stevebargelt/code/MeatGeek-MonoRepo/iot-edge/modules/Telemetry",
+      "cwd": "/Users/stevebargelt/code/MeatGeek-MonoRepo/iot-edge/production/modules/Telemetry",
       "commands": ["ll"],
 
       "open": true,
