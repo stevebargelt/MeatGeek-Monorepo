@@ -1,17 +1,15 @@
 using System;
-using System.IO;
 using System.Net;
 using System.Web.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.OpenApi.Models;
+using Microsoft.Azure.Functions.Worker;
+// using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+// using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
+// using Microsoft.OpenApi.Models;
 
 using MeatGeek.Sessions.Services.Models;
 using MeatGeek.Sessions.Services;
@@ -36,13 +34,13 @@ namespace MeatGeek.Sessions
             _sessionsService = sessionsService;
         }
 
-        [FunctionName("CreateSession")]
-        [OpenApiOperation(operationId: "CreateSession", tags: new[] { "session" }, Summary = "Start a new session.", Description = "This add a new session (sessions are 'cooks' or BBQ sessions).", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiParameter(name: "smokerId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "the Smoker Id", Description = "The Smoker Id. ", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(CreateSessionRequest), Required = true, Description = "Session object that needs to be added to the store")]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionCreated), Summary = "New session created", Description = "New session created.")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Summary = "Invalid input", Description = "Invalid input")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception or internal server error has occurred", Description = "An exception or internal server has occurred.")]
+        [Function("CreateSession")]
+        // [OpenApiOperation(operationId: "CreateSession", tags: new[] { "session" }, Summary = "Start a new session.", Description = "This add a new session (sessions are 'cooks' or BBQ sessions).", Visibility = OpenApiVisibilityType.Important)]
+        // [OpenApiParameter(name: "smokerId", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "the Smoker Id", Description = "The Smoker Id. ", Visibility = OpenApiVisibilityType.Important)]
+        // [OpenApiRequestBody(contentType: "application/json", bodyType: typeof(CreateSessionRequest), Required = true, Description = "Session object that needs to be added to the store")]
+        // [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionCreated), Summary = "New session created", Description = "New session created.")]
+        // [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Summary = "Invalid input", Description = "Invalid input")]
+        // [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception or internal server error has occurred", Description = "An exception or internal server has occurred.")]
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "sessions/{smokerId}")] HttpRequest req,
             string smokerId)

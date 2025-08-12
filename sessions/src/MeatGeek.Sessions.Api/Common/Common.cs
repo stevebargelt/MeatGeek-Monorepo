@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Text;
 
 namespace MeatGeek.Sessions
 {
@@ -15,19 +12,23 @@ namespace MeatGeek.Sessions
                 ConnectionString = connectionString
             };
 
-            if (builder.TryGetValue("AccountKey", out object key))
+            if (builder.TryGetValue("AccountKey", out object? key) && key != null)
             {
                 AuthKey = key.ToString();
             }
 
-            if (builder.TryGetValue("AccountEndpoint", out object uri))
+            if (builder.TryGetValue("AccountEndpoint", out object? uri) && uri != null)
             {
-                ServiceEndpoint = new Uri(uri.ToString());
+                var uriString = uri.ToString();
+                if (!string.IsNullOrEmpty(uriString))
+                {
+                    ServiceEndpoint = new Uri(uriString);
+                }
             }
         }
 
-        public Uri ServiceEndpoint { get; set; }
+        public Uri? ServiceEndpoint { get; set; }
 
-        public string AuthKey { get; set; }
+        public string? AuthKey { get; set; }
     }
 }
