@@ -21,12 +21,12 @@ namespace MeatGeek.Sessions
 {
     public class EndSession
     {
-        private readonly ILogger<EndSession> __log;
+        private readonly ILogger<EndSession> _log;
         private readonly ISessionsService _sessionsService;
 
-        public EndSession(ILogger<EndSession> _log, ISessionsService sessionsService)
+        public EndSession(ILogger<EndSession> log, ISessionsService sessionsService)
         {
-            __log = _log;
+            _log = log;
             _sessionsService = sessionsService;
         }
 
@@ -36,11 +36,11 @@ namespace MeatGeek.Sessions
                 string smokerId,
                 string id)
         {
-            __log.LogInformation("EndSession Called");
+            _log.LogInformation("EndSession Called");
 
             if (string.IsNullOrEmpty(smokerId))
             {
-                __log.LogError("EndSession: Missing smokerId - url should be /endsession/{smokerId}/{id}");
+                _log.LogError("EndSession: Missing smokerId - url should be /endsession/{smokerId}/{id}");
                 var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
                 await errorResponse.WriteAsJsonAsync(new { error = "Missing required property 'smokerId'." });
                 return errorResponse;
@@ -48,7 +48,7 @@ namespace MeatGeek.Sessions
 
             if (string.IsNullOrEmpty(id))
             {
-                __log.LogError("EndSession: Missing id - url should be /endsession/{smokerId}/{id}");
+                _log.LogError("EndSession: Missing id - url should be /endsession/{smokerId}/{id}");
                 var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
                 await errorResponse.WriteAsJsonAsync(new { error = "Missing required property 'id'." });
                 return errorResponse;
@@ -60,7 +60,7 @@ namespace MeatGeek.Sessions
             if (string.IsNullOrEmpty(requestBody))
             {
                 updateData.EndTime = DateTime.UtcNow;
-                __log.LogInformation($"No JSON body, EndTime not provided using current time: {updateData.EndTime}");
+                _log.LogInformation($"No JSON body, EndTime not provided using current time: {updateData.EndTime}");
             }
             else
             {
@@ -71,16 +71,16 @@ namespace MeatGeek.Sessions
                 }
                 catch (JsonReaderException)
                 {
-                    __log.LogWarning("EndSession: Could not parse JSON");
+                    _log.LogWarning("EndSession: Could not parse JSON");
                     var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
                     await errorResponse.WriteAsJsonAsync(new { error = "Body should be provided in JSON format." });
                     return errorResponse;
                 }
-                __log.LogInformation("Made it past data = JObject.Parse(requestBody)");
+                _log.LogInformation("Made it past data = JObject.Parse(requestBody)");
                 if (!data.HasValues)
                 {
                     updateData.EndTime = DateTime.UtcNow;
-                    __log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
+                    _log.LogInformation($"EndTime not provided using current time: {updateData.EndTime}");
                 }
                 else
                 {
@@ -133,20 +133,20 @@ namespace MeatGeek.Sessions
                 _log.LogInformation("updateData.SmokerId = " + updateData.SmokerId);
                 _log.LogInformation("updateData.StartTime = " + updateData.EndTime.Value);
                 var result = await _sessionsService.EndSessionAsync(id, updateData.SmokerId, updateData.EndTime.Value);
-                __log.LogWarning($"AFTER: _sessionsService.EndSessionAsync");
+                _log.LogWarning($"AFTER: _sessionsService.EndSessionAsync");
                 if (result == EndSessionResult.NotFound)
                 {
-                    __log.LogWarning($"SessionID {id} not found.");
+                    _log.LogWarning($"SessionID {id} not found.");
                     var notFoundResponse = req.CreateResponse(HttpStatusCode.NotFound);
                     return notFoundResponse;
                 }
-                __log.LogInformation("EndSession completing");
+                _log.LogInformation("EndSession completing");
                 var response = req.CreateResponse(HttpStatusCode.NoContent);
                 return response;
             }
             catch (Exception ex)
             {
-                __log.LogError(ex, "EndSession: Unhandled exception");
+                _log.LogError(ex, "EndSession: Unhandled exception");
                 var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
                 await errorResponse.WriteAsJsonAsync(new { error = "Internal server error occurred." });
                 return errorResponse;

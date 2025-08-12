@@ -1,18 +1,11 @@
 using System;
-using System.IO;
 using System.Net;
-using System.Web.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.Cosmos;
 using Newtonsoft.Json;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.OpenApi.Models;
 
 
 using MeatGeek.Sessions.Services;
@@ -24,44 +17,39 @@ namespace MeatGeek.Sessions
     public class GetSessionChart
     {
         private const string JsonContentType = "application/json";
-        private readonly ILogger<CreateSession> _log;
+        private readonly ILogger<GetSessionChart> _log;
         private readonly ISessionsService _sessionsService;
         private readonly CosmosClient _cosmosClient;
 
-        public GetSessionChart(ILogger<CreateSession> log, ISessionsService sessionsService, CosmosClient cosmosClient)
+        public GetSessionChart(ILogger<GetSessionChart> log, ISessionsService sessionsService, CosmosClient cosmosClient)
         {
             _log = log;
             _sessionsService = sessionsService;
             _cosmosClient = cosmosClient;
         }
 
-        [FunctionName("GetSessionChart")]
-        [OpenApiOperation(operationId: "GetSessionChart", tags: new[] { "Session Chart" }, Summary = "Returns all session statuses", Description = "Returns all statues for a given session.", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiParameter(name: "smokerid", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "The ID of the Smoker the session belings to", Description = "The ID of the Smoker the session belings to", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiParameter(name: "sessionid", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "ID of the Session to return", Description = "The ID of the session to return", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiParameter(name: "timeseries", In = ParameterLocation.Path, Required = false, Type = typeof(int), Summary = "Minutes to group the return data. Integer between 1 and 60.", Description = "Minutes to group the return data. Integer between 1 and 60.", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionStatuses), Summary = "successful operation", Description = "successful response")]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "application/json", bodyType: typeof(string), Summary = "Invalid input", Description = "Invalid input")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session Statuses not found", Description = "Session Statuses Not Found")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception occurred", Description = "An exception occurred.")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/statuses/{smokerId}/{sessionId}/{timeseries:int?}")] HttpRequest req,
+        [Function("GetSessionChart")]
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/statuses/{smokerId}/{sessionId}/{timeseries:int?}")] HttpRequestData req,
                 string smokerId,
                 string sessionId,
-                int? timeSeries,
-                ILogger log)
+                int? timeSeries)
         {
-            log.LogInformation("GetSessionChart triggered");
+            _log.LogInformation("GetSessionChart triggered");
 
             if (string.IsNullOrEmpty(smokerId))
             {
                 _log.LogError("GetSessionChart: Missing smokerId - url should be /sessions/statuses/{smokerId}/{sessionId}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
+                var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await errorResponse.WriteAsJsonAsync(new { error = "Missing required property 'smokerId'." });
+                return errorResponse;
             }
             if (string.IsNullOrEmpty(sessionId))
             {
                 _log.LogError("GetSessionChart: Missing sessionId - url should be /sessions/statuses/{smokerId}/{sessionId}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'sessionId'." });
+                var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await errorResponse.WriteAsJsonAsync(new { error = "Missing required property 'sessionId'." });
+                return errorResponse;
             }
             if (!timeSeries.HasValue || timeSeries <= 0)
             {
@@ -79,7 +67,8 @@ namespace MeatGeek.Sessions
                 if (statuses == null)
                 {
                     _log.LogInformation($"GetSessionChart no statuses found");
-                    return new NotFoundResult();
+                    var notFoundResponse = req.CreateResponse(HttpStatusCode.NotFound);
+                    return notFoundResponse;
                 }
                 _log.LogInformation($"GetSessionChart Numer of statuses = {statuses.Count}");
 
@@ -91,17 +80,17 @@ namespace MeatGeek.Sessions
                 //settings.Converters.Add(new SessionSummariesConverter());
                 var json = JsonConvert.SerializeObject(statuses, settings);
 
-                return new ContentResult
-                {
-                    Content = json,
-                    ContentType = JsonContentType,
-                    StatusCode = StatusCodes.Status200OK
-                };
+                var response = req.CreateResponse(HttpStatusCode.OK);
+                response.Headers.Add("Content-Type", JsonContentType);
+                await response.WriteStringAsync(json);
+                return response;
             }
             catch (Exception ex)
             {
-                log.LogError(ex, "<-- GetSessionChart Unhandled exception");
-                return new ExceptionResult(ex, false);
+                _log.LogError(ex, "<-- GetSessionChart Unhandled exception");
+                var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
+                await errorResponse.WriteAsJsonAsync(new { error = "Internal server error occurred." });
+                return errorResponse;
             }
         }
     }

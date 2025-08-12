@@ -1,19 +1,12 @@
 using System;
-using System.IO;
 using System.Net;
-using System.Web.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
-using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
-using Microsoft.OpenApi.Models;
 
 
 using MeatGeek.Sessions.Services;
@@ -26,42 +19,38 @@ namespace MeatGeek.Sessions
     {
 
         private const string JsonContentType = "application/json";
-        private readonly ILogger<CreateSession> _log;
+        private readonly ILogger<GetAllSessionStatuses> _log;
         private readonly ISessionsService _sessionsService;
         private readonly CosmosClient _cosmosClient;
 
-        public GetAllSessionStatuses(ILogger<CreateSession> log, ISessionsService sessionsService, CosmosClient cosmosClient)
+        public GetAllSessionStatuses(ILogger<GetAllSessionStatuses> log, ISessionsService sessionsService, CosmosClient cosmosClient)
         {
             _log = log;
             _sessionsService = sessionsService;
             _cosmosClient = cosmosClient;
         }
 
-        [FunctionName("GetAllSessionStatuses")]
-        [OpenApiOperation(operationId: "GetAllSessionStatuses", tags: new[] { "Session Status" }, Summary = "Returns all session statuses", Description = "Returns all statues for a given session.", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiParameter(name: "smokerid", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "The ID of the Smoker the session belings to", Description = "The ID of the Smoker the session belings to", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiParameter(name: "id", In = ParameterLocation.Path, Required = true, Type = typeof(string), Summary = "ID of the Session to return", Description = "The ID of the session to return", Visibility = OpenApiVisibilityType.Important)]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(SessionStatuses), Summary = "successful operation", Description = "successful response")]
-        [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "application/json", bodyType: typeof(string), Summary = "Invalid input", Description = "Invalid input")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session Statuses not found", Description = "Session Statuses Not Found")]
-        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception occurred", Description = "An exception occurred.")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/statuses/{smokerId}/{sessionId}")] HttpRequest req,
+        [Function("GetAllSessionStatuses")]
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/statuses/{smokerId}/{sessionId}")] HttpRequestData req,
                 string smokerId,
-                string sessionId,
-                ILogger log)
+                string sessionId)
         {
-            log.LogInformation("GetAllSessionStatuses triggered");
+            _log.LogInformation("GetAllSessionStatuses triggered");
 
             if (string.IsNullOrEmpty(smokerId))
             {
                 _log.LogError("GetAllSessionStatuses: Missing smokerId - url should be /sessions/statuses/{smokerId}/{sessionId}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
+                var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await errorResponse.WriteAsJsonAsync(new { error = "Missing required property 'smokerId'." });
+                return errorResponse;
             }
             if (string.IsNullOrEmpty(sessionId))
             {
                 _log.LogError("GetAllSessionStatuses: Missing sessionId - url should be /sessions/statuses/{smokerId}/{sessionId}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'sessionId'." });
+                var errorResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await errorResponse.WriteAsJsonAsync(new { error = "Missing required property 'sessionId'." });
+                return errorResponse;
             }
 
             try
@@ -70,7 +59,8 @@ namespace MeatGeek.Sessions
                 if (statuses == null)
                 {
                     _log.LogInformation($"GetAllSessionStatuses no statuses found");
-                    return new NotFoundResult();
+                    var notFoundResponse = req.CreateResponse(HttpStatusCode.NotFound);
+                    return notFoundResponse;
                 }
                 _log.LogInformation($"GetAllSessionStatuses Numer of statuses = {statuses.Count}");
 
@@ -82,17 +72,17 @@ namespace MeatGeek.Sessions
                 //settings.Converters.Add(new SessionSummariesConverter());
                 var json = JsonConvert.SerializeObject(statuses, settings);
 
-                return new ContentResult
-                {
-                    Content = json,
-                    ContentType = JsonContentType,
-                    StatusCode = StatusCodes.Status200OK
-                };
+                var response = req.CreateResponse(HttpStatusCode.OK);
+                response.Headers.Add("Content-Type", JsonContentType);
+                await response.WriteStringAsync(json);
+                return response;
             }
             catch (Exception ex)
             {
-                log.LogError(ex, "<-- GetAllSessionStatuses Unhandled exception");
-                return new ExceptionResult(ex, false);
+                _log.LogError(ex, "<-- GetAllSessionStatuses Unhandled exception");
+                var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
+                await errorResponse.WriteAsJsonAsync(new { error = "Internal server error occurred." });
+                return errorResponse;
             }
         }
     }

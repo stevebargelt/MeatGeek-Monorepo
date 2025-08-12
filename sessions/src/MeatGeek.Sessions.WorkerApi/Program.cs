@@ -7,11 +7,10 @@ using MeatGeek.Sessions.Services.Repositories;
 using MeatGeek.Shared;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
+    .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices((context, services) =>
     {
         services.AddApplicationInsightsTelemetryWorkerService();
-        services.ConfigureFunctionsApplicationInsights();
 
         // Register services
         services.AddScoped<ISessionsService, SessionsService>();

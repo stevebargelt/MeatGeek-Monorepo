@@ -1,8 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.EventGrid.Models;
-using Microsoft.Azure.WebJobs.Extensions.EventGrid;
+using Microsoft.Azure.Functions.Worker;
+using Azure.Messaging.EventGrid;
 using Microsoft.Extensions.Logging;
 using MeatGeek.Sessions.WorkerApi.Models;
 
@@ -10,28 +9,28 @@ namespace MeatGeek.Sessions.WorkerApi
 {
     public class SessionTelemetryEventGridTrigger
     {
-        [FunctionName("SessionTelemetryEventGridTrigger")]
-        public static Task Run(            
-            [EventGridTrigger] EventGridEvent eventGridEvent,
-            SmokerStatus smokerStatus,
-            Int32 deliveryCount,
-            DateTime enqueuedTimeUtc,
-            string messageId,
-            IAsyncCollector<SmokerStatus> smokerStatusOut,            
-            ILogger log)
+        private readonly ILogger<SessionTelemetryEventGridTrigger> _log;
+
+        public SessionTelemetryEventGridTrigger(ILogger<SessionTelemetryEventGridTrigger> log)
+        {
+            _log = log;
+        }
+
+        [Function("SessionTelemetryEventGridTrigger")]
+        public Task Run([EventGridTrigger] EventGridEvent eventGridEvent)
         {
 
             // var exceptions = new List<Exception>();
-            log.LogInformation($"SessionTelemetryEventGridTrigger function processing Message ID = {messageId}");
+            _log.LogInformation($"SessionTelemetryEventGridTrigger function processing Event ID = {eventGridEvent.Id}");
 
-            log.LogInformation(eventGridEvent.Data.ToString());
+            _log.LogInformation(eventGridEvent.Data.ToString());
 
             //we could also try the JObject version 
             
             //var messageBody = Encoding.UTF8.GetString(smokerStatusData.Body.Array, smokerStatusData.Body.Offset, smokerStatusData.Body.Count);
             // var smokerStatusString = JsonConvert.SerializeObject(smokerStatus);
-            // log.LogInformation($"SmokerStatus: {smokerStatusString}"); 
-            // log.LogInformation($"SmokerID: {smokerStatus.SmokerId}");
+            // _log.LogInformation($"SmokerStatus: {smokerStatusString}"); 
+            // _log.LogInformation($"SmokerID: {smokerStatus.SmokerId}");
             
             return Task.CompletedTask;
             // if (smokerStatus.ttl is null || smokerStatus.ttl == 0 || smokerStatus.ttl == -1) {
@@ -40,10 +39,8 @@ namespace MeatGeek.Sessions.WorkerApi
             // smokerStatus.Type = "status";
             // await smokerStatusOut.AddAsync(smokerStatus);
  
-            // log.LogInformation("SessionTelemetryEventGridTrigger Called");
-            // log.LogInformation($"EnqueuedTimeUtc={enqueuedTimeUtc}");
-            // log.LogInformation($"DeliveryCount={deliveryCount}");
-            // log.LogInformation($"MessageId={messageId}");
+            // _log.LogInformation("SessionTelemetryEventGridTrigger Called");
+            // Additional event processing logic can be added here
 
         }
              
