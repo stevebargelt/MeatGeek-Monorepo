@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,14 +10,10 @@ using MeatGeek.Sessions.Services.Repositories;
 using MeatGeek.Shared;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication(builder =>
-    {
-        builder.UseNewtonsoftJson();
-    })
+    .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices((context, services) =>
     {
         services.AddApplicationInsightsTelemetryWorkerService();
-        services.ConfigureFunctionsApplicationInsights();
 
         // CosmosDB Configuration
         services.AddSingleton<CosmosClient>((serviceProvider) =>
@@ -29,7 +26,7 @@ var host = new HostBuilder()
                 throw new ArgumentNullException("Please specify a value for CosmosDBConnection in the application settings.");
             }
 
-            var cosmosDbConnectionString = new CosmosDbConnectionString(connectionString);
+            var cosmosDbConnectionString = new MeatGeek.Sessions.CosmosDbConnectionString(connectionString);
             CosmosClientBuilder configurationBuilder = new CosmosClientBuilder(
                 cosmosDbConnectionString.ServiceEndpoint.OriginalString, 
                 cosmosDbConnectionString.AuthKey)
