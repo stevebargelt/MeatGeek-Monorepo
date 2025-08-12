@@ -23,10 +23,10 @@ namespace MeatGeek.Sessions
     {
 
         private const string JsonContentType = "application/json";
-        private readonly ILogger<CreateSession> _log;
+        private readonly ILogger<GetSessionById> _log;
         private readonly ISessionsService _sessionsService;
 
-        public GetSessionById(ILogger<CreateSession> log, ISessionsService sessionsService)
+        public GetSessionById(ILogger<GetSessionById> log, ISessionsService sessionsService)
         {
             _log = log;
             _sessionsService = sessionsService;

@@ -16,7 +16,7 @@ namespace MeatGeek.Sessions.Api.Tests
 {
     public class GetAllSessionStatusesTests
     {
-        private readonly Mock<ILogger<CreateSession>> _mockLogger;
+        private readonly Mock<ILogger<GetAllSessionStatuses>> _mockLogger;
         private readonly Mock<ISessionsService> _mockSessionsService;
         private readonly Mock<CosmosClient> _mockCosmosClient;
         private readonly Mock<ILogger> _mockGenericLogger;
@@ -24,11 +24,11 @@ namespace MeatGeek.Sessions.Api.Tests
 
         public GetAllSessionStatusesTests()
         {
-            _mockLogger = new Mock<ILogger<CreateSession>>();
+            _mockLogger = new Mock<ILogger<GetAllSessionStatuses>>();
             _mockSessionsService = new Mock<ISessionsService>();
             _mockCosmosClient = new Mock<CosmosClient>();
             _mockGenericLogger = new Mock<ILogger>();
-            _getAllSessionStatuses = new GetAllSessionStatuses(_mockLogger.Object, _mockSessionsService.Object, _mockCosmosClient.Object);
+            _getAllSessionStatuses = new GetAllSessionStatuses(_mockLogger.Object, _mockSessionsService.Object);
         }
 
         #region Valid Request Tests

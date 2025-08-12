@@ -22,10 +22,10 @@ namespace MeatGeek.Sessions
 {
     public class UpdateSession
     {
-        private readonly ILogger<CreateSession> _log;
+        private readonly ILogger<UpdateSession> _log;
         private readonly ISessionsService _sessionsService;
 
-        public UpdateSession(ILogger<CreateSession> log, ISessionsService sessionsService)
+        public UpdateSession(ILogger<UpdateSession> log, ISessionsService sessionsService)
         {
             _log = log;
             _sessionsService = sessionsService;

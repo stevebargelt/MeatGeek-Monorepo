@@ -20,10 +20,10 @@ namespace MeatGeek.Sessions
     public class GetSessionChart
     {
         private const string JsonContentType = "application/json";
-        private readonly ILogger<CreateSession> _log;
+        private readonly ILogger<GetSessionChart> _log;
         private readonly ISessionsService _sessionsService;
 
-        public GetSessionChart(ILogger<CreateSession> log, ISessionsService sessionsService)
+        public GetSessionChart(ILogger<GetSessionChart> log, ISessionsService sessionsService)
         {
             _log = log;
             _sessionsService = sessionsService;
@@ -42,10 +42,9 @@ namespace MeatGeek.Sessions
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/statuses/{smokerId}/{sessionId}/{timeseries:int?}")] HttpRequest req,
                 string smokerId,
                 string sessionId,
-                int? timeSeries,
-                ILogger log)
+                int? timeSeries)
         {
-            log.LogInformation("GetSessionChart triggered");
+            _log.LogInformation("GetSessionChart triggered");
 
             if (string.IsNullOrEmpty(smokerId))
             {
@@ -94,7 +93,7 @@ namespace MeatGeek.Sessions
             }
             catch (Exception ex)
             {
-                log.LogError(ex, "<-- GetSessionChart Unhandled exception");
+                _log.LogError(ex, "<-- GetSessionChart Unhandled exception");
                 return new ExceptionResult(ex, false);
             }
         }

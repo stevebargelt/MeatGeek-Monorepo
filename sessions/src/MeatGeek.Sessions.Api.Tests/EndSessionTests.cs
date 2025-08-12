@@ -17,15 +17,15 @@ namespace MeatGeek.Sessions.Api.Tests
 {
     public class EndSessionTests
     {
-        private readonly Mock<ILogger> _mockLogger;
+        private readonly Mock<ILogger<EndSession>> _mockLogger;
         private readonly Mock<ISessionsService> _mockSessionsService;
         private readonly EndSession _endSession;
 
         public EndSessionTests()
         {
-            _mockLogger = new Mock<ILogger>();
+            _mockLogger = new Mock<ILogger<EndSession>>();
             _mockSessionsService = new Mock<ISessionsService>();
-            _endSession = new EndSession(_mockSessionsService.Object);
+            _endSession = new EndSession(_mockSessionsService.Object, _mockLogger.Object);
         }
 
         #region Valid Request Tests
@@ -44,7 +44,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(EndSessionResult.Success);
 
             // Act
-            var result = await _endSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, sessionId);
+            var result = await _endSession.Run(mockRequest.Object, smokerId, sessionId);
             var afterTime = DateTime.UtcNow;
 
             // Assert
@@ -70,7 +70,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(EndSessionResult.Success);
 
             // Act
-            var result = await _endSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, sessionId);
+            var result = await _endSession.Run(mockRequest.Object, smokerId, sessionId);
             var afterTime = DateTime.UtcNow;
 
             // Assert
@@ -96,7 +96,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(EndSessionResult.Success);
 
             // Act
-            var result = await _endSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, sessionId);
+            var result = await _endSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -119,7 +119,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(EndSessionResult.NotFound);
 
             // Act
-            var result = await _endSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, sessionId);
+            var result = await _endSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -138,7 +138,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = CreateMockHttpRequest("");
 
             // Act
-            var result = await _endSession.Run(mockRequest.Object, _mockLogger.Object, null, sessionId);
+            var result = await _endSession.Run(mockRequest.Object, null, sessionId);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -158,7 +158,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = CreateMockHttpRequest("");
 
             // Act
-            var result = await _endSession.Run(mockRequest.Object, _mockLogger.Object, "", sessionId);
+            var result = await _endSession.Run(mockRequest.Object, "", sessionId);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -178,7 +178,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = CreateMockHttpRequest("");
 
             // Act
-            var result = await _endSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, null);
+            var result = await _endSession.Run(mockRequest.Object, smokerId, null);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -198,7 +198,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = CreateMockHttpRequest("");
 
             // Act
-            var result = await _endSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, "");
+            var result = await _endSession.Run(mockRequest.Object, smokerId, "");
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -220,7 +220,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = CreateMockHttpRequest(requestBody);
 
             // Act
-            var result = await _endSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, sessionId);
+            var result = await _endSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -251,7 +251,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ThrowsAsync(expectedException);
 
             // Act
-            var result = await _endSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, sessionId);
+            var result = await _endSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<ExceptionResult>(result);
@@ -280,7 +280,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(EndSessionResult.Success);
 
             // Act
-            var result = await _endSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, sessionId);
+            var result = await _endSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -305,7 +305,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(EndSessionResult.Success);
 
             // Act
-            var result = await _endSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, sessionId);
+            var result = await _endSession.Run(mockRequest.Object, smokerId, sessionId);
             var afterTime = DateTime.UtcNow;
 
             // Assert
@@ -331,7 +331,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(EndSessionResult.Success);
 
             // Act
-            var result = await _endSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, sessionId);
+            var result = await _endSession.Run(mockRequest.Object, smokerId, sessionId);
             var afterTime = DateTime.UtcNow;
 
             // Assert

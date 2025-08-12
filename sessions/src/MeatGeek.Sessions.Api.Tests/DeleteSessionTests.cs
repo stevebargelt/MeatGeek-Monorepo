@@ -16,14 +16,14 @@ namespace MeatGeek.Sessions.Api.Tests
     public class DeleteSessionTests
     {
         private readonly Mock<ISessionsService> _mockSessionsService;
-        private readonly Mock<ILogger> _mockLogger;
+        private readonly Mock<ILogger<DeleteSession>> _mockLogger;
         private readonly DeleteSession _deleteSession;
 
         public DeleteSessionTests()
         {
             _mockSessionsService = new Mock<ISessionsService>();
-            _mockLogger = new Mock<ILogger>();
-            _deleteSession = new DeleteSession(_mockSessionsService.Object);
+            _mockLogger = new Mock<ILogger<DeleteSession>>();
+            _deleteSession = new DeleteSession(_mockLogger.Object, _mockSessionsService.Object);
         }
 
         #region Valid Request Tests
@@ -41,7 +41,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(DeleteSessionResult.Success);
 
             // Act
-            var result = await _deleteSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, sessionId);
+            var result = await _deleteSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -61,7 +61,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(DeleteSessionResult.NotFound);
 
             // Act
-            var result = await _deleteSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, sessionId);
+            var result = await _deleteSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -80,7 +80,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = new Mock<HttpRequest>();
 
             // Act
-            var result = await _deleteSession.Run(mockRequest.Object, _mockLogger.Object, null, sessionId);
+            var result = await _deleteSession.Run(mockRequest.Object, null, sessionId);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -100,7 +100,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = new Mock<HttpRequest>();
 
             // Act
-            var result = await _deleteSession.Run(mockRequest.Object, _mockLogger.Object, "", sessionId);
+            var result = await _deleteSession.Run(mockRequest.Object, "", sessionId);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -120,7 +120,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = new Mock<HttpRequest>();
 
             // Act
-            var result = await _deleteSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, null);
+            var result = await _deleteSession.Run(mockRequest.Object, smokerId, null);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -140,7 +140,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = new Mock<HttpRequest>();
 
             // Act
-            var result = await _deleteSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, "");
+            var result = await _deleteSession.Run(mockRequest.Object, smokerId, "");
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -171,7 +171,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ThrowsAsync(expectedException);
 
             // Act
-            var result = await _deleteSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, sessionId);
+            var result = await _deleteSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<ExceptionResult>(result);
@@ -197,7 +197,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(DeleteSessionResult.Success);
 
             // Act
-            var result = await _deleteSession.Run(mockRequest.Object, _mockLogger.Object, smokerId, sessionId);
+            var result = await _deleteSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);

@@ -15,14 +15,14 @@ namespace MeatGeek.Sessions.Api.Tests
 {
     public class GetSessionByIdTests
     {
-        private readonly Mock<ILogger<CreateSession>> _mockLogger;
+        private readonly Mock<ILogger<GetSessionById>> _mockLogger;
         private readonly Mock<ISessionsService> _mockSessionsService;
         private readonly Mock<ILogger> _mockGenericLogger;
         private readonly GetSessionById _getSessionById;
 
         public GetSessionByIdTests()
         {
-            _mockLogger = new Mock<ILogger<CreateSession>>();
+            _mockLogger = new Mock<ILogger<GetSessionById>>();
             _mockSessionsService = new Mock<ISessionsService>();
             _mockGenericLogger = new Mock<ILogger>();
             _getSessionById = new GetSessionById(_mockLogger.Object, _mockSessionsService.Object);
