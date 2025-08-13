@@ -195,7 +195,7 @@ resource functionsApiAppName_appsettings 'Microsoft.Web/sites/config@2016-08-01'
     ContentStorageAccount: storage.name
     ContentContainer: blobService::content.name
     FUNCTIONS_EXTENSION_VERSION: '~4'
-    FUNCTIONS_WORKER_RUNTIME: 'dotnet'
+    FUNCTIONS_WORKER_RUNTIME: 'dotnet-isolated'
     AzureWebJobsStorage: storageConnectionString
     WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: storageConnectionString
     WEBSITE_CONTENTSHARE: '${functionsApiAppName}102269'

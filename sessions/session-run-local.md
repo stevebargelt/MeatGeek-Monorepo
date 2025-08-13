@@ -41,7 +41,7 @@ Create `sessions/src/MeatGeek.Sessions.Api/local.settings.json`:
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "FUNCTIONS_EXTENSION_VERSION": "~4",
     
     // CosmosDB Configuration (Production)
@@ -77,7 +77,7 @@ Create `sessions/src/MeatGeek.Sessions.WorkerApi/local.settings.json`:
   "IsEncrypted": false,
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "FUNCTIONS_EXTENSION_VERSION": "~4",
     
     // CosmosDB Configuration (Production)
