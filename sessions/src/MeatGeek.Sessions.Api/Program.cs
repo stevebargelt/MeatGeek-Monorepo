@@ -5,19 +5,23 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Fluent;
 using System.Security.AccessControl;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MeatGeek.Sessions;
 using MeatGeek.Sessions.Services;
 using MeatGeek.Sessions.Services.Repositories;
 using MeatGeek.Shared;
 
 var host = new HostBuilder()
-    .ConfigureFunctionsWebApplication()
     .ConfigureHostConfiguration(configHost =>
-        {
-            configHost.SetBasePath(Environment.CurrentDirectory);
-            configHost.AddEnvironmentVariables();
-            configHost.AddJsonFile("local.settings.json", optional: true, reloadOnChange: true);
-        })
+    {
+        configHost.SetBasePath(Environment.CurrentDirectory);
+        configHost.AddEnvironmentVariables();
+        configHost.AddJsonFile("local.settings.json", optional: true, reloadOnChange: true);
+    })
+    .ConfigureAppConfiguration(configBuilder =>
+    {
+        configBuilder.AddEnvironmentVariables();
+    })        
     .ConfigureServices(services =>
     {
         var appInsightsConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
@@ -44,6 +48,20 @@ var host = new HostBuilder()
         services.AddScoped<ISessionsRepository, SessionsRepository>();
         services.AddScoped<IEventGridPublisherService, EventGridPublisherService>();
     })
+    .ConfigureFunctionsWebApplication()
+        // Must be set at the end of the chain
+        .ConfigureLogging(logging =>
+        {
+            // logging.Services.Configure<LoggerFilterOptions>(options =>
+            // {
+            //     LoggerFilterRule? defaultRule = options.Rules.FirstOrDefault(rule => rule.ProviderName
+            //         == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
+            //     if (defaultRule is not null)
+            //     {
+            //         options.Rules.Remove(defaultRule);
+            //     }
+            // });
+        })    
     .Build();
 
 host.Run();
