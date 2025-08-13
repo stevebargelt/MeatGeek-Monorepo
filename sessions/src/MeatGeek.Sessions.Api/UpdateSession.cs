@@ -65,7 +65,7 @@ namespace MeatGeek.Sessions.Api
                 await badResponse.WriteAsJsonAsync(new { error = "Missing required properties. Nothing to update." });
                 return badResponse;
             }
-            JToken titleToken = data["title"];
+            JToken? titleToken = data["title"];
             if (titleToken != null && titleToken.Type == JTokenType.String && titleToken.ToString() != String.Empty)
             {
                 updateData.Title = titleToken.ToString();
@@ -75,7 +75,7 @@ namespace MeatGeek.Sessions.Api
             {
                 _log.LogInformation($"Title will NOT be updated.");
             }
-            JToken descriptionToken = data["description"];
+            JToken? descriptionToken = data["description"];
             if (descriptionToken != null && descriptionToken.Type == JTokenType.String && descriptionToken.ToString() != String.Empty)
             {
                 updateData.Description = descriptionToken.ToString();
@@ -85,8 +85,8 @@ namespace MeatGeek.Sessions.Api
             {
                 _log.LogInformation($"Description will NOT be updated");
             }
-            JToken endTimeToken = data["endTime"];
-            _log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
+            JToken? endTimeToken = data["endTime"];
+            _log.LogInformation($"endTimeToken Type = {endTimeToken?.Type}");
             if (endTimeToken != null && endTimeToken.Type == JTokenType.Date)
             {
                 _log.LogInformation($"endTime= {endTimeToken.ToString()}");
