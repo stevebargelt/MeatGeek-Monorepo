@@ -1,12 +1,7 @@
-using System;
 using System.Net;
-using System.Web.Http;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 // using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 // using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 // using Microsoft.OpenApi.Models;
@@ -21,7 +16,7 @@ using MeatGeek.Shared;
 
 using Newtonsoft.Json.Linq;
 
-namespace MeatGeek.Sessions
+namespace MeatGeek.Sessions.Api
 {
     public class DeleteSession
     {
@@ -43,8 +38,8 @@ namespace MeatGeek.Sessions
         // [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session not found", Description = "Session Not Found")]
         // [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Summary = "Invalid input", Description = "Invalid input")]
         // [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception or internal server error occurred", Description = "An exception or internal server error occurred.")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "sessions/{smokerId}/{id}")] HttpRequest req,
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "sessions/{smokerId}/{id}")] HttpRequestData req,
                 string smokerId,
                 string id)
         {
@@ -52,14 +47,18 @@ namespace MeatGeek.Sessions
 
             if (string.IsNullOrEmpty(smokerId))
             {
-                _log.LogError("DeleteSession: Missing smokerId - url should be /sessions/{smokerId}/{id}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
+                _log.LogInformation("GetAllSessions: Missing smokerId - url should be /sessions/{smokerId}");
+                var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await badResponse.WriteAsJsonAsync(new { error = "Missing required property 'smokerId'." });
+                return badResponse;
             }
 
             if (string.IsNullOrEmpty(id))
             {
                 _log.LogError("DeleteSession: Missing id - url should be /sessions/{smokerId}/{id}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'id'." });
+                var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await badResponse.WriteAsJsonAsync(new { error = "Missing required property 'id'." });
+                return badResponse;
             }
 
             try
@@ -72,15 +71,19 @@ namespace MeatGeek.Sessions
                 if (result == DeleteSessionResult.NotFound)
                 {
                     _log.LogWarning($"SessionID {id} not found.");
-                    return new NotFoundResult();
+                    var notFoundResponse = req.CreateResponse(HttpStatusCode.NotFound);
+                    return notFoundResponse;
                 }
                 _log.LogInformation("DeleteSession completing");
-                return new NoContentResult();
+                var noContentResponse = req.CreateResponse(HttpStatusCode.NoContent);
+                return noContentResponse;
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "DeleteSession: Unhandled exception");
-                return new ExceptionResult(ex, false);
+                var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
+                await errorResponse.WriteAsJsonAsync(new { error = "An internal server error occurred." });
+                return errorResponse;
             }
 
         }

@@ -1,0 +1,22 @@
+{
+  "name": "MeatGeek.Sessions.Api",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "sessions/src/MeatGeek.Sessions.Api",
+  "targets": {
+    "serve-func": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./serve.sh",
+        "cwd": "sessions/src/MeatGeek.Sessions.Api"
+      }
+    },
+    "build-func": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet build --output ./bin/output --configuration Debug",
+        "cwd": "sessions/src/MeatGeek.Sessions.Api"
+      }
+    }
+  }
+}

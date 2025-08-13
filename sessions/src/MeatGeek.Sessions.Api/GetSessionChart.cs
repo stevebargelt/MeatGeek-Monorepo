@@ -1,21 +1,17 @@
-using System;
 using System.Net;
-using System.Web.Http;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Microsoft.Azure.Functions.Worker;// using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
+// using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
 // using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 // using Microsoft.OpenApi.Models;
 
 
 using MeatGeek.Sessions.Services;
-using MeatGeek.Sessions.Services.Models.Data;
 
 #nullable enable
-namespace MeatGeek.Sessions
+namespace MeatGeek.Sessions.Api
 {
     public class GetSessionChart
     {
@@ -38,8 +34,8 @@ namespace MeatGeek.Sessions
         // [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "application/json", bodyType: typeof(string), Summary = "Invalid input", Description = "Invalid input")]
         // [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session Statuses not found", Description = "Session Statuses Not Found")]
         // [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception occurred", Description = "An exception occurred.")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/statuses/{smokerId}/{sessionId}/{timeseries:int?}")] HttpRequest req,
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "sessions/statuses/{smokerId}/{sessionId}/{timeseries:int?}")] HttpRequestData req,
                 string smokerId,
                 string sessionId,
                 int? timeSeries)
@@ -49,12 +45,16 @@ namespace MeatGeek.Sessions
             if (string.IsNullOrEmpty(smokerId))
             {
                 _log.LogError("GetSessionChart: Missing smokerId - url should be /sessions/statuses/{smokerId}/{sessionId}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'smokerId'." });
+                var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await badResponse.WriteAsJsonAsync(new { error = "Missing required property 'smokerId'." });
+                return badResponse;
             }
             if (string.IsNullOrEmpty(sessionId))
             {
                 _log.LogError("GetSessionChart: Missing sessionId - url should be /sessions/statuses/{smokerId}/{sessionId}");
-                return new BadRequestObjectResult(new { error = "Missing required property 'sessionId'." });
+                var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await badResponse.WriteAsJsonAsync(new { error = "Missing required property 'sessionId'." });
+                return badResponse;
             }
             if (!timeSeries.HasValue || timeSeries <= 0)
             {
@@ -72,7 +72,8 @@ namespace MeatGeek.Sessions
                 if (statuses == null)
                 {
                     _log.LogInformation($"GetSessionChart no statuses found");
-                    return new NotFoundResult();
+                    var notFoundResponse = req.CreateResponse(HttpStatusCode.NotFound);
+                    return notFoundResponse;
                 }
                 _log.LogInformation($"GetSessionChart Numer of statuses = {statuses.Count}");
 
@@ -82,19 +83,18 @@ namespace MeatGeek.Sessions
                     Formatting = Formatting.Indented
                 };
                 //settings.Converters.Add(new SessionSummariesConverter());
-                var json = JsonConvert.SerializeObject(statuses, settings);
-
-                return new ContentResult
-                {
-                    Content = json,
-                    ContentType = JsonContentType,
-                    StatusCode = StatusCodes.Status200OK
-                };
+                
+                var okResponse = req.CreateResponse(HttpStatusCode.OK);
+                okResponse.Headers.Add("Content-Type", JsonContentType);
+                await okResponse.WriteStringAsync(JsonConvert.SerializeObject(statuses, settings));
+                return okResponse;
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "<-- GetSessionChart Unhandled exception");
-                return new ExceptionResult(ex, false);
+                var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
+                await errorResponse.WriteAsJsonAsync(new { error = "An internal server error occurred." });
+                return errorResponse;
             }
         }
     }

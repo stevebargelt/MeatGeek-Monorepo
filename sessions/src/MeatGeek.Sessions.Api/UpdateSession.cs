@@ -1,24 +1,19 @@
 using System;
+using System.IO;
 using System.Net;
-using System.Web.Http;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 
-using MeatGeek.Sessions.Services.Models;
 using MeatGeek.Sessions.Services;
 using MeatGeek.Sessions.Services.Models.Request;
 using MeatGeek.Sessions.Services.Models.Results;
-using MeatGeek.Sessions.Services.Models.Response;
-using MeatGeek.Sessions.Services.Repositories;
-using MeatGeek.Shared;
 
 using Newtonsoft.Json.Linq;
 
-namespace MeatGeek.Sessions
+namespace MeatGeek.Sessions.Api
 {
     public class UpdateSession
     {
@@ -38,8 +33,8 @@ namespace MeatGeek.Sessions
         // [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.MethodNotAllowed, Summary = "Invalid input", Description = "Invalid input")]
         // [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Summary = "Session not found", Description = "Session not found")]
         // [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.InternalServerError, Summary = "An exception occurred", Description = "An exception occurred.")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "patch", "put", Route = "sessions/{smokerId}/{id}")] HttpRequest req,
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "patch", "put", Route = "sessions/{smokerId}/{id}")] HttpRequestData req,
                 string smokerId,
                 string id)
         {
@@ -58,13 +53,17 @@ namespace MeatGeek.Sessions
             catch (JsonReaderException)
             {
                 _log.LogWarning("UpdateSession: Could not parse JSON");
-                return new BadRequestObjectResult(new { error = "Body should be provided in JSON format." });
+                var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await badResponse.WriteAsJsonAsync(new { error = "Body should be provided in JSON format." });
+                return badResponse;
             }
             _log.LogInformation("Made it past data = JObject.Parse(requestBody)");
             if (!data.HasValues)
             {
                 _log.LogWarning("UpdateSession: data has no values.");
-                return new BadRequestObjectResult(new { error = "Missing required properties. Nothing to update." });
+                var badResponse = req.CreateResponse(HttpStatusCode.BadRequest);
+                await badResponse.WriteAsJsonAsync(new { error = "Missing required properties. Nothing to update." });
+                return badResponse;
             }
             JToken titleToken = data["title"];
             if (titleToken != null && titleToken.Type == JTokenType.String && titleToken.ToString() != String.Empty)
@@ -129,15 +128,19 @@ namespace MeatGeek.Sessions
                 if (result == UpdateSessionResult.NotFound)
                 {
                     _log.LogWarning($"SessionID {id} not found.");
-                    return new NotFoundResult();
+                    var notFoundResponse = req.CreateResponse(HttpStatusCode.NotFound);
+                    return notFoundResponse;
                 }
                 _log.LogInformation("UpdateSession completing");
-                return new NoContentResult();
+                var successResponse = req.CreateResponse(HttpStatusCode.NoContent);
+                return successResponse;
             }
             catch (Exception ex)
             {
                 _log.LogError(ex, "Unhandled exception");
-                return new ExceptionResult(ex, false);
+                var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
+                await errorResponse.WriteAsJsonAsync(new { error = "An internal server error occurred." });
+                return errorResponse;
             }
 
         }
