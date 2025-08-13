@@ -20,8 +20,13 @@ var host = new HostBuilder()
         })
     .ConfigureServices(services =>
     {
-        services.AddApplicationInsightsTelemetryWorkerService();
-        services.ConfigureFunctionsApplicationInsights();
+        var appInsightsConnectionString = Environment.GetEnvironmentVariable("APPLICATIONINSIGHTS_CONNECTION_STRING");
+        if (string.IsNullOrEmpty(appInsightsConnectionString))
+        {
+            throw new ArgumentNullException("Please specify a value for APPLICATIONINSIGHTS_CONNECTION_STRING in the local.settings.json file or your Azure Functions Settings.");
+        }
+        // services.AddApplicationInsightsTelemetryWorkerService();
+        // services.ConfigureFunctionsApplicationInsights();
         services.AddSingleton<CosmosClient>((s) =>
         {
             var connectionString = Environment.GetEnvironmentVariable("CosmosDBConnection");
