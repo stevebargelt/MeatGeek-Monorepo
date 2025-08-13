@@ -31,7 +31,7 @@ var host = new HostBuilder()
             }
 
             var cosmosDbConnectionString = new CosmosDbConnectionString(connectionString);
-            return new CosmosClientBuilder(cosmosDbConnectionString.ServiceEndpoint.OriginalString, cosmosDbConnectionString.AuthKey)
+            return new CosmosClientBuilder(cosmosDbConnectionString.ServiceEndpoint?.OriginalString ?? throw new ArgumentNullException(nameof(connectionString), "ServiceEndpoint is null"), cosmosDbConnectionString.AuthKey)
                 .WithBulkExecution(true)
                 .Build();
         });

@@ -92,8 +92,8 @@ namespace MeatGeek.Sessions.Api
                 }
                 else
                 {
-                    JToken endTimeToken = data["endTime"];
-                    _log.LogInformation($"endTimeToken Type = {endTimeToken.Type}");
+                    JToken? endTimeToken = data["endTime"];
+                    _log.LogInformation($"endTimeToken Type = {endTimeToken?.Type}");
                     if (endTimeToken != null && (endTimeToken.Type == JTokenType.Date || endTimeToken.Type == JTokenType.String))
                     {
                         _log.LogInformation($"endTime= {endTimeToken.ToString()}");
