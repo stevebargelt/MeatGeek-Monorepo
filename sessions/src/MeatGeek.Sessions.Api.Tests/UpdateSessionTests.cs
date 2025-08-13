@@ -17,14 +17,14 @@ namespace MeatGeek.Sessions.Api.Tests
 {
     public class UpdateSessionTests
     {
-        private readonly Mock<ILogger<CreateSession>> _mockLogger;
+        private readonly Mock<ILogger<UpdateSession>> _mockLogger;
         private readonly Mock<ISessionsService> _mockSessionsService;
         private readonly Mock<ILogger> _mockGenericLogger;
         private readonly UpdateSession _updateSession;
 
         public UpdateSessionTests()
         {
-            _mockLogger = new Mock<ILogger<CreateSession>>();
+            _mockLogger = new Mock<ILogger<UpdateSession>>();
             _mockSessionsService = new Mock<ISessionsService>();
             _mockGenericLogger = new Mock<ILogger>();
             _updateSession = new UpdateSession(_mockLogger.Object, _mockSessionsService.Object);
@@ -46,7 +46,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(UpdateSessionResult.Success);
 
             // Act
-            var result = await _updateSession.Run(mockRequest.Object, _mockGenericLogger.Object, smokerId, sessionId);
+            var result = await _updateSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -67,7 +67,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(UpdateSessionResult.Success);
 
             // Act
-            var result = await _updateSession.Run(mockRequest.Object, _mockGenericLogger.Object, smokerId, sessionId);
+            var result = await _updateSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -89,7 +89,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(UpdateSessionResult.Success);
 
             // Act
-            var result = await _updateSession.Run(mockRequest.Object, _mockGenericLogger.Object, smokerId, sessionId);
+            var result = await _updateSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -115,7 +115,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(UpdateSessionResult.Success);
 
             // Act
-            var result = await _updateSession.Run(mockRequest.Object, _mockGenericLogger.Object, smokerId, sessionId);
+            var result = await _updateSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -136,7 +136,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(UpdateSessionResult.NotFound);
 
             // Act
-            var result = await _updateSession.Run(mockRequest.Object, _mockGenericLogger.Object, smokerId, sessionId);
+            var result = await _updateSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -157,7 +157,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = CreateMockHttpRequest(requestBody);
 
             // Act
-            var result = await _updateSession.Run(mockRequest.Object, _mockGenericLogger.Object, smokerId, sessionId);
+            var result = await _updateSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -179,7 +179,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = CreateMockHttpRequest(requestBody);
 
             // Act
-            var result = await _updateSession.Run(mockRequest.Object, _mockGenericLogger.Object, smokerId, sessionId);
+            var result = await _updateSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -205,7 +205,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(UpdateSessionResult.Success);
 
             // Act
-            var result = await _updateSession.Run(mockRequest.Object, _mockGenericLogger.Object, smokerId, sessionId);
+            var result = await _updateSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -234,7 +234,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(UpdateSessionResult.Success);
 
             // Act
-            var result = await _updateSession.Run(mockRequest.Object, _mockGenericLogger.Object, smokerId, sessionId);
+            var result = await _updateSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -255,7 +255,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(UpdateSessionResult.Success);
 
             // Act 
-            var result = await _updateSession.Run(mockRequest.Object, _mockGenericLogger.Object, smokerId, sessionId);
+            var result = await _updateSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert - Invalid date format string is not recognized as JTokenType.Date by JSON.NET, 
             // so it's treated as a string and ignored. The function returns NoContentResult.
@@ -285,7 +285,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ThrowsAsync(expectedException);
 
             // Act
-            var result = await _updateSession.Run(mockRequest.Object, _mockGenericLogger.Object, smokerId, sessionId);
+            var result = await _updateSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<ExceptionResult>(result);
@@ -310,7 +310,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(UpdateSessionResult.Success);
 
             // Act
-            var result = await _updateSession.Run(mockRequest.Object, _mockGenericLogger.Object, smokerId, sessionId);
+            var result = await _updateSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);
@@ -331,7 +331,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(UpdateSessionResult.Success);
 
             // Act
-            var result = await _updateSession.Run(mockRequest.Object, _mockGenericLogger.Object, smokerId, sessionId);
+            var result = await _updateSession.Run(mockRequest.Object, smokerId, sessionId);
 
             // Assert
             Assert.IsType<NoContentResult>(result);

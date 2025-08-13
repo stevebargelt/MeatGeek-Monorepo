@@ -16,7 +16,7 @@ namespace MeatGeek.Sessions.Api.Tests
 {
     public class GetSessionChartTests
     {
-        private readonly Mock<ILogger<CreateSession>> _mockLogger;
+        private readonly Mock<ILogger<GetSessionChart>> _mockLogger;
         private readonly Mock<ISessionsService> _mockSessionsService;
         private readonly Mock<CosmosClient> _mockCosmosClient;
         private readonly Mock<ILogger> _mockGenericLogger;
@@ -24,11 +24,10 @@ namespace MeatGeek.Sessions.Api.Tests
 
         public GetSessionChartTests()
         {
-            _mockLogger = new Mock<ILogger<CreateSession>>();
+            _mockLogger = new Mock<ILogger<GetSessionChart>>();
             _mockSessionsService = new Mock<ISessionsService>();
             _mockCosmosClient = new Mock<CosmosClient>();
-            _mockGenericLogger = new Mock<ILogger>();
-            _getSessionChart = new GetSessionChart(_mockLogger.Object, _mockSessionsService.Object, _mockCosmosClient.Object);
+            _getSessionChart = new GetSessionChart(_mockLogger.Object, _mockSessionsService.Object);
         }
 
         #region Valid Request Tests
@@ -65,7 +64,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(sessionStatuses);
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries);
 
             // Assert
             var contentResult = Assert.IsType<ContentResult>(result);
@@ -102,7 +101,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(sessionStatuses);
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries);
 
             // Assert
             var contentResult = Assert.IsType<ContentResult>(result);
@@ -128,7 +127,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(sessionStatuses);
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries);
 
             // Assert
             _mockSessionsService.Verify(s => s.GetSessionChartAsync(sessionId, smokerId, 1), Times.Once);
@@ -150,7 +149,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(sessionStatuses);
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries);
 
             // Assert
             _mockSessionsService.Verify(s => s.GetSessionChartAsync(sessionId, smokerId, 1), Times.Once);
@@ -172,7 +171,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(sessionStatuses);
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries);
 
             // Assert
             _mockSessionsService.Verify(s => s.GetSessionChartAsync(sessionId, smokerId, 60), Times.Once);
@@ -192,7 +191,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync((SessionStatuses)null);
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries);
 
             // Assert
             Assert.IsType<NotFoundResult>(result);
@@ -212,7 +211,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = new Mock<HttpRequest>();
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, null, sessionId, timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, null, sessionId, timeSeries);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -233,7 +232,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = new Mock<HttpRequest>();
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, "", sessionId, timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, "", sessionId, timeSeries);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -254,7 +253,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = new Mock<HttpRequest>();
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, null, timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, null, timeSeries);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -275,7 +274,7 @@ namespace MeatGeek.Sessions.Api.Tests
             var mockRequest = new Mock<HttpRequest>();
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, "", timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, "", timeSeries);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
@@ -307,7 +306,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ThrowsAsync(expectedException);
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries);
 
             // Assert
             Assert.IsType<ExceptionResult>(result);
@@ -346,7 +345,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(sessionStatuses);
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries);
 
             // Assert
             var contentResult = Assert.IsType<ContentResult>(result);
@@ -383,7 +382,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(sessionStatuses);
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries);
 
             // Assert
             var contentResult = Assert.IsType<ContentResult>(result);
@@ -418,7 +417,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(sessionStatuses);
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries);
 
             // Assert
             var contentResult = Assert.IsType<ContentResult>(result);
@@ -461,7 +460,7 @@ namespace MeatGeek.Sessions.Api.Tests
                 .ReturnsAsync(sessionStatuses);
 
             // Act
-            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries, _mockGenericLogger.Object);
+            var result = await _getSessionChart.Run(mockRequest.Object, smokerId, sessionId, timeSeries);
 
             // Assert
             var contentResult = Assert.IsType<ContentResult>(result);
