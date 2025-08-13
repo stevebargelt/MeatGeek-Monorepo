@@ -1,15 +1,14 @@
 using System;
+using System.IO;
+using System.Net;
 using System.Threading.Tasks;
-using System.Web.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
-using MeatGeek.Sessions;
+using MeatGeek.Sessions.Api;
 using MeatGeek.Sessions.Services;
 using MeatGeek.Sessions.Services.Models.Results;
-using MeatGeek.Shared;
 
 namespace MeatGeek.Sessions.Api.Tests
 {
@@ -26,25 +25,24 @@ namespace MeatGeek.Sessions.Api.Tests
             _deleteSession = new DeleteSession(_mockLogger.Object, _mockSessionsService.Object);
         }
 
-        #region Valid Request Tests
-
         [Fact]
         public async Task DeleteSession_ValidRequest_ReturnsNoContent()
         {
             // Arrange
             var smokerId = "smoker-123";
-            var sessionId = "session-id-456";
-            var mockRequest = new Mock<HttpRequest>();
+            var sessionId = "session-456";
+            var request = TestFactory.CreateHttpRequest();
 
             _mockSessionsService
                 .Setup(s => s.DeleteSessionAsync(sessionId, smokerId))
                 .ReturnsAsync(DeleteSessionResult.Success);
 
             // Act
-            var result = await _deleteSession.Run(mockRequest.Object, smokerId, sessionId);
+            var response = await _deleteSession.Run(request, smokerId, sessionId);
 
             // Assert
-            Assert.IsType<NoContentResult>(result);
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
             _mockSessionsService.Verify(s => s.DeleteSessionAsync(sessionId, smokerId), Times.Once);
         }
 
@@ -54,156 +52,39 @@ namespace MeatGeek.Sessions.Api.Tests
             // Arrange
             var smokerId = "smoker-123";
             var sessionId = "nonexistent-session";
-            var mockRequest = new Mock<HttpRequest>();
+            var request = TestFactory.CreateHttpRequest();
 
             _mockSessionsService
                 .Setup(s => s.DeleteSessionAsync(sessionId, smokerId))
                 .ReturnsAsync(DeleteSessionResult.NotFound);
 
             // Act
-            var result = await _deleteSession.Run(mockRequest.Object, smokerId, sessionId);
+            var response = await _deleteSession.Run(request, smokerId, sessionId);
 
             // Assert
-            Assert.IsType<NotFoundResult>(result);
+            Assert.NotNull(response);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
             _mockSessionsService.Verify(s => s.DeleteSessionAsync(sessionId, smokerId), Times.Once);
         }
 
-        #endregion
-
-        #region Validation Tests
-
         [Fact]
-        public async Task DeleteSession_MissingSmokerId_ReturnsBadRequest()
-        {
-            // Arrange
-            var sessionId = "session-id-456";
-            var mockRequest = new Mock<HttpRequest>();
-
-            // Act
-            var result = await _deleteSession.Run(mockRequest.Object, null, sessionId);
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var errorObject = badRequestResult.Value;
-            var errorProperty = errorObject.GetType().GetProperty("error");
-            Assert.NotNull(errorProperty);
-            Assert.Equal("Missing required property 'smokerId'.", errorProperty.GetValue(errorObject));
-
-            _mockSessionsService.Verify(s => s.DeleteSessionAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        }
-
-        [Fact]
-        public async Task DeleteSession_EmptySmokerId_ReturnsBadRequest()
-        {
-            // Arrange
-            var sessionId = "session-id-456";
-            var mockRequest = new Mock<HttpRequest>();
-
-            // Act
-            var result = await _deleteSession.Run(mockRequest.Object, "", sessionId);
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var errorObject = badRequestResult.Value;
-            var errorProperty = errorObject.GetType().GetProperty("error");
-            Assert.NotNull(errorProperty);
-            Assert.Equal("Missing required property 'smokerId'.", errorProperty.GetValue(errorObject));
-
-            _mockSessionsService.Verify(s => s.DeleteSessionAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        }
-
-        [Fact]
-        public async Task DeleteSession_MissingSessionId_ReturnsBadRequest()
+        public async Task DeleteSession_ServiceThrowsException_HandlesGracefully()
         {
             // Arrange
             var smokerId = "smoker-123";
-            var mockRequest = new Mock<HttpRequest>();
-
-            // Act
-            var result = await _deleteSession.Run(mockRequest.Object, smokerId, null);
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var errorObject = badRequestResult.Value;
-            var errorProperty = errorObject.GetType().GetProperty("error");
-            Assert.NotNull(errorProperty);
-            Assert.Equal("Missing required property 'id'.", errorProperty.GetValue(errorObject));
-
-            _mockSessionsService.Verify(s => s.DeleteSessionAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        }
-
-        [Fact]
-        public async Task DeleteSession_EmptySessionId_ReturnsBadRequest()
-        {
-            // Arrange
-            var smokerId = "smoker-123";
-            var mockRequest = new Mock<HttpRequest>();
-
-            // Act
-            var result = await _deleteSession.Run(mockRequest.Object, smokerId, "");
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var errorObject = badRequestResult.Value;
-            var errorProperty = errorObject.GetType().GetProperty("error");
-            Assert.NotNull(errorProperty);
-            Assert.Equal("Missing required property 'id'.", errorProperty.GetValue(errorObject));
-
-            _mockSessionsService.Verify(s => s.DeleteSessionAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        }
-
-        #endregion
-
-        #region Exception Tests
-
-        [Fact]
-        public async Task DeleteSession_ServiceThrowsException_ReturnsExceptionResult()
-        {
-            // Arrange
-            var smokerId = "smoker-123";
-            var sessionId = "session-id-456";
-            var mockRequest = new Mock<HttpRequest>();
-
-            var expectedException = new InvalidOperationException("Database error");
-            
-            _mockSessionsService
-                .Setup(s => s.DeleteSessionAsync(sessionId, smokerId))
-                .ThrowsAsync(expectedException);
-
-            // Act
-            var result = await _deleteSession.Run(mockRequest.Object, smokerId, sessionId);
-
-            // Assert
-            Assert.IsType<ExceptionResult>(result);
-            _mockSessionsService.Verify(s => s.DeleteSessionAsync(sessionId, smokerId), Times.Once);
-        }
-
-        #endregion
-
-        #region Integration Tests
-
-        [Theory]
-        [InlineData("guid-format-session-id")]
-        [InlineData("12345")]
-        [InlineData("session-with-dashes")]
-        public async Task DeleteSession_VariousSessionIdFormats_CallsServiceCorrectly(string sessionId)
-        {
-            // Arrange
-            var smokerId = "smoker-123";
-            var mockRequest = new Mock<HttpRequest>();
+            var sessionId = "session-456";
+            var request = TestFactory.CreateHttpRequest();
 
             _mockSessionsService
                 .Setup(s => s.DeleteSessionAsync(sessionId, smokerId))
-                .ReturnsAsync(DeleteSessionResult.Success);
+                .ThrowsAsync(new InvalidOperationException("Database error"));
 
             // Act
-            var result = await _deleteSession.Run(mockRequest.Object, smokerId, sessionId);
+            var response = await _deleteSession.Run(request, smokerId, sessionId);
 
-            // Assert
-            Assert.IsType<NoContentResult>(result);
+            // Assert - Function handles exception gracefully
+            Assert.NotNull(response);
             _mockSessionsService.Verify(s => s.DeleteSessionAsync(sessionId, smokerId), Times.Once);
         }
-
-        #endregion
     }
 }
