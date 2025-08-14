@@ -1,9 +1,9 @@
 {
-  "azureFunctions.deploySubpath": "sessions/src/MeatGeek.Sessions.WorkerApi/bin/Release/net8.0/publish",
+  "azureFunctions.deploySubpath": "sessions/src/MeatGeek.Sessions.Isolated.Api/bin/Release/net8.0/publish",
   "azureFunctions.projectLanguage": "C#",
   "azureFunctions.projectRuntime": "~4",
   "debug.internalConsoleOptions": "neverOpen",
-  "azureFunctions.preDeployTask": "publish",
+  "azureFunctions.preDeployTask": "publish (functions)",
   "cSpell.words": ["Traeger"],
   "workbench.colorCustomizations": {
     "activityBar.activeBackground": "#e54e52",
@@ -26,6 +26,6 @@
     "commandCenter.border": "#e7e7e799"
   },
   "peacock.color": "#df2126",
-  "azureFunctions.projectSubpath": "sessions/src/MeatGeek.Sessions.WorkerApi",
+  "azureFunctions.projectSubpath": "sessions/src/MeatGeek.Sessions.Isolated.Api",
   "nxConsole.generateAiAgentRules": true
 }

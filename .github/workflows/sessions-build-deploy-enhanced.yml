@@ -22,7 +22,7 @@ on:
 
 env:
   AZURE_FUNCTIONAPP_NAME_PROD: "meatgeeksessionsapi"
-  AZURE_FUNCTIONAPP_NAME_STAGING: "meatgeeksessions-stagingapi"
+  AZURE_FUNCTIONAPP_NAME_STAGING: "meatgeeksessionsapi-pre-prod"
   DOTNET_VERSION: "8.0.x"
   AZURE_RESOURCEGROUP_NAME_PROD: "MeatGeek-Sessions"
   AZURE_RESOURCEGROUP_NAME_STAGING: "MeatGeek-Sessions-Staging"

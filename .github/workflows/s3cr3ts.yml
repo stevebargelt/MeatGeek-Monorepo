@@ -13,7 +13,6 @@ jobs:
 
     - name: Set up secret file
       env:
-        PUBLISH_PROFILE_SESSIONS_API_FUNCTION_APP: ${{ secrets.PUBLISH_PROFILE_SESSIONS_API_FUNCTION_APP }}
         IOT_HUB_RESOURCE_ID: ${{ secrets.IOT_HUB_RESOURCE_ID }}
         IOT_HUB_SHARED_ACCESS_CONN_STRING: ${{ secrets.IOT_HUB_SHARED_ACCESS_CONN_STRING }}
         ACR_USERNAME: ${{ secrets.ACR_USERNAME }}
@@ -22,9 +21,6 @@ jobs:
         LOG_ANALYTICS_WORKSPACE_ID: ${{ secrets.IOT_LOG_ANALYTICS_WORKSPACE_ID }}   
         LOG_ANALYTICS_SHARED_KEY: ${{ secrets.IOT_LOG_ANALYTICS_SHARED_KEY }}   
       run: |
-        printf 'PUBLISH PROFILE SESSIONS API FUNCTION APP:\n'
-        echo ${{ secrets.PUBLISH_PROFILE_SESSIONS_API_FUNCTION_APP }} | sed 's/./& /g'
-        printf '\n\n'
         printf 'IOT HUB SHARED ACCESS CONNECTION STRING:\n'
         echo ${{ secrets.IOT_HUB_SHARED_ACCESS_CONN_STRING }} | sed 's/./& /g'
         printf '\n\n'
