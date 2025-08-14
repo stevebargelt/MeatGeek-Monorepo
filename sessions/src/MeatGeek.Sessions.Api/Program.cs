@@ -50,18 +50,17 @@ var host = new HostBuilder()
     })
     .ConfigureFunctionsWebApplication()
         // Must be set at the end of the chain
-        // .ConfigureLogging(logging =>
-        // {
-        //     // logging.Services.Configure<LoggerFilterOptions>(options =>
-        //     // {
-        //     //     LoggerFilterRule? defaultRule = options.Rules.FirstOrDefault(rule => rule.ProviderName
-        //     //         == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
-        //     //     if (defaultRule is not null)
-        //     //     {
-        //     //         options.Rules.Remove(defaultRule);
-        //     //     }
-        //     // });
-        // })    
+        .ConfigureLogging(logging =>
+        {
+            logging.Services.Configure<LoggerFilterOptions>(options =>
+            {
+                LoggerFilterRule? defaultRule = options.Rules.FirstOrDefault(rule => rule.ProviderName
+                    == "Microsoft.Extensions.Logging.ApplicationInsights.ApplicationInsightsLoggerProvider");
+                if (defaultRule is not null)
+                {
+                    options.Rules.Remove(defaultRule);
+                }
+            });
+        })    
     .Build();
-
 host.Run();
