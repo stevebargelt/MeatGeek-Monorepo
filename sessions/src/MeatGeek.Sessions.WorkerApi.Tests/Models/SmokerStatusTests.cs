@@ -115,17 +115,17 @@ namespace MeatGeek.Sessions.WorkerApi.Tests.Models
             var smokerStatus = new SmokerStatus();
 
             // Assert
-            Assert.Null(smokerStatus.Id);
+            Assert.Equal(string.Empty, smokerStatus.Id);
             Assert.Null(smokerStatus.ttl);
-            Assert.Null(smokerStatus.SmokerId);
-            Assert.Null(smokerStatus.SessionId);
-            Assert.Null(smokerStatus.Type);
+            Assert.Equal(string.Empty, smokerStatus.SmokerId);
+            Assert.Equal(string.Empty, smokerStatus.SessionId);
+            Assert.Equal(string.Empty, smokerStatus.Type);
             Assert.False(smokerStatus.AugerOn);
             Assert.False(smokerStatus.BlowerOn);
             Assert.False(smokerStatus.IgniterOn);
-            Assert.Null(smokerStatus.Temps);
+            Assert.NotNull(smokerStatus.Temps);
             Assert.False(smokerStatus.FireHealthy);
-            Assert.Null(smokerStatus.Mode);
+            Assert.Equal(string.Empty, smokerStatus.Mode);
             Assert.Equal(0, smokerStatus.SetPoint);
             Assert.Equal(default(DateTime), smokerStatus.ModeTime);
             Assert.Equal(default(DateTime), smokerStatus.CurrentTime);

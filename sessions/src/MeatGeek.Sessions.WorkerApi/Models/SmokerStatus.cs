@@ -6,15 +6,15 @@ namespace MeatGeek.Sessions.WorkerApi.Models
     public class SmokerStatus
     {
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public string Id { get; set; } = string.Empty;
         [JsonProperty]
         public int? ttl { get; set; }
         [JsonProperty("smokerId")]
-        public string SmokerId { get; set; }
+        public string SmokerId { get; set; } = string.Empty;
         [JsonProperty("sessionId")]
-        public string SessionId { get; set; }
+        public string SessionId { get; set; } = string.Empty;
         [JsonProperty("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = string.Empty;
         [JsonProperty("augerOn")]
         public bool AugerOn { get; set; }
         [JsonProperty("blowerOn")]
@@ -22,11 +22,11 @@ namespace MeatGeek.Sessions.WorkerApi.Models
         [JsonProperty("igniterOn")]
         public bool IgniterOn { get; set; }
         [JsonProperty("temps")]
-        public Temps Temps { get; set; }
+        public Temps Temps { get; set; } = new();
         [JsonProperty("fireHealthy")]
         public bool FireHealthy { get; set; }
         [JsonProperty("mode")]
-        public string Mode { get; set; }
+        public string Mode { get; set; } = string.Empty;
         [JsonProperty("setPoint")]
         public int SetPoint { get; set; }
         [JsonProperty("modeTime")]

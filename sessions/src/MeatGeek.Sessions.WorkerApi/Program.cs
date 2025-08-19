@@ -46,11 +46,9 @@ var host = new HostBuilder()
                 .WithBulkExecution(true)
                 .Build();
         });
-
-        // Uncomment and add other services as needed
-        // services.AddScoped<ISessionsService, SessionsService>();
-        // services.AddScoped<ISessionsRepository, SessionsRepository>();
-        // services.AddScoped<IEventGridPublisherService, EventGridPublisherService>();
+        services.AddScoped<ISessionsService, SessionsService>();
+        services.AddScoped<ISessionsRepository, SessionsRepository>();
+        services.AddScoped<IEventGridPublisherService, EventGridPublisherService>();
     })
     .ConfigureFunctionsWebApplication()
     .ConfigureLogging(logging =>

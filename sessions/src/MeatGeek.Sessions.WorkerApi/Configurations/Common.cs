@@ -15,14 +15,30 @@ namespace MeatGeek.Sessions.WorkerApi.Configurations
                 ConnectionString = connectionString
             };
 
-            if (builder.TryGetValue("AccountKey", out object key))
+            if (builder.TryGetValue("AccountKey", out object? key) && key != null)
             {
-                AuthKey = key.ToString();
+                AuthKey = key.ToString() ?? throw new ArgumentException("AccountKey cannot be null");
+            }
+            else
+            {
+                throw new ArgumentException("AccountKey not found in connection string");
             }
 
-            if (builder.TryGetValue("AccountEndpoint", out object uri))
+            if (builder.TryGetValue("AccountEndpoint", out object? uri) && uri != null)
             {
-                ServiceEndpoint = new Uri(uri.ToString());
+                var uriString = uri.ToString();
+                if (!string.IsNullOrEmpty(uriString))
+                {
+                    ServiceEndpoint = new Uri(uriString);
+                }
+                else
+                {
+                    throw new ArgumentException("AccountEndpoint cannot be empty");
+                }
+            }
+            else
+            {
+                throw new ArgumentException("AccountEndpoint not found in connection string");
             }
         }
 
