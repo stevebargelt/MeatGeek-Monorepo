@@ -20,7 +20,8 @@ on:
       - "!.vscode"
   schedule:
     - cron: "20 11 * * *"
-
+  workflow_dispatch:
+    
 env:
   AZURE_FUNCTIONAPP_NAME: "meatgeekiot-workerapi"
   DOTNET_VERSION: "8.0.x"
