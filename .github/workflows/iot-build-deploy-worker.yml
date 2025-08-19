@@ -21,7 +21,7 @@ on:
   schedule:
     - cron: "20 11 * * *"
   workflow_dispatch:
-    
+
 env:
   AZURE_FUNCTIONAPP_NAME: "meatgeekiot-workerapi"
   DOTNET_VERSION: "8.0.x"
@@ -39,12 +39,13 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-
+      
       - name: "Resolve Project Dependencies Using Dotnet"
         shell: bash
         run: |
-          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet build "./iot/src/MeatGeek.IoT.WorkerApi" --configuration Release --output ./output
+          pushd './sessions/src/MeatGeek.IoT.WorkerApi'
+          dotnet restore
+          dotnet publish --configuration Release --output ../../../output --no-restore
           popd
 
       - name: "Deploy IoT Worker API Functions App"
@@ -52,5 +53,5 @@ jobs:
         id: fa
         with:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-          package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
+          package: "./output"
           publish-profile: ${{ secrets.PUBLISH_PROFILE_IOT_WORKER_FUNCTION_APP }}
