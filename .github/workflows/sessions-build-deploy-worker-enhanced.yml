@@ -116,8 +116,9 @@ jobs:
       - name: "Resolve Project Dependencies Using Dotnet"
         shell: bash
         run: |
-          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          dotnet build "./sessions/src/MeatGeek.Sessions.WorkerApi" --configuration Release --output ./output
+          pushd './sessions/src/MeatGeek.Sessions.WorkerApi'
+          dotnet restore
+          dotnet publish --configuration Release --output ../../../output --no-restore
           popd
 
       - name: "Run Azure Functions Action"
@@ -125,7 +126,7 @@ jobs:
         id: fa
         with:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-          package: "${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output"
+          package: "./output"
           publish-profile: ${{ secrets.PUBLISH_PROFILE_SESSION_WORKER_FUNCTION_APP }}
 
       - name: Slack Notification
