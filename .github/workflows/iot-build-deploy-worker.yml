@@ -43,7 +43,7 @@ jobs:
       - name: "Resolve Project Dependencies Using Dotnet"
         shell: bash
         run: |
-          pushd './sessions/src/MeatGeek.IoT.WorkerApi'
+          pushd './iot/src/MeatGeek.IoT.WorkerApi'
           dotnet restore
           dotnet publish --configuration Release --output ../../../output --no-restore
           popd
