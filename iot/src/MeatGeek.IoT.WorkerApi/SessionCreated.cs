@@ -9,31 +9,29 @@ using Newtonsoft.Json.Linq;
 
 namespace MeatGeek.IoT.WorkerApi
 {
-    public class SessionCreatedTrigger
+    public class SessionCreatedTrigger(ServiceClient iothubServiceClient, ILogger<SessionCreatedTrigger> logger)
     {
-        private readonly ServiceClient _iothubServiceClient;
-        private readonly ILogger<SessionCreatedTrigger> _logger;
+        private readonly ServiceClient _iothubServiceClient = iothubServiceClient;
+        private readonly ILogger<SessionCreatedTrigger> _logger = logger;
         private const string METHOD_NAME = "SetSessionId";
         private const string MODULE_NAME = "Telemetry";
 
-        public SessionCreatedTrigger(ServiceClient iothubServiceClient, ILogger<SessionCreatedTrigger> logger)
-        {
-            _iothubServiceClient = iothubServiceClient;
-            _logger = logger;
-        }
-
         [Function("SessionCreated")]
-        public async Task Run([EventGridTrigger] EventGridEvent eventGridEvent, FunctionContext context)
+        public async Task Run([EventGridTrigger] EventGridEvent eventGridEvent)
         {
             _logger.LogInformation("SessionCreated Called");
             _logger.LogInformation(eventGridEvent.Data.ToString());
             
             try
             {
-                SessionCreatedEventData? sessionCreatedEventData;
+                SessionCreatedEventData sessionCreatedEventData;
+                if (eventGridEvent.Data == null)
+                {
+                    _logger.LogError("eventGridEvent.Data is null");
+                    return;
+                }    
 
-                //TODO: Maybe some error/exception handling here??
-                var data = eventGridEvent.Data as JObject;
+                JObject data = JObject.Parse(eventGridEvent.Data.ToString());
                 if (data == null)
                 {
                     _logger.LogError("Event data is null");
@@ -89,7 +87,7 @@ namespace MeatGeek.IoT.WorkerApi
             }
         }
         
-        private bool IsSuccessStatusCode(int statusCode)
+        private static bool IsSuccessStatusCode(int statusCode)
         {
             return (statusCode >= 200) && (statusCode <= 299);
         }        
