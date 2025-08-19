@@ -5,33 +5,33 @@ namespace MeatGeek.Sessions.WorkerApi.Models
 {
     public class SmokerStatus
     {
-        [JsonProperty("id")] 
+        [JsonProperty("id")]
         public string Id { get; set; }
-        [JsonProperty] 
+        [JsonProperty]
         public int? ttl { get; set; }
-        [JsonProperty("smokerId")] 
+        [JsonProperty("smokerId")]
         public string SmokerId { get; set; }
-        [JsonProperty("sessionId")] 
+        [JsonProperty("sessionId")]
         public string SessionId { get; set; }
-        [JsonProperty("type")] 
+        [JsonProperty("type")]
         public string Type { get; set; }
-        [JsonProperty("augerOn")] 
+        [JsonProperty("augerOn")]
         public bool AugerOn { get; set; }
-        [JsonProperty("blowerOn")] 
+        [JsonProperty("blowerOn")]
         public bool BlowerOn { get; set; }
-        [JsonProperty("igniterOn")] 
+        [JsonProperty("igniterOn")]
         public bool IgniterOn { get; set; }
-        [JsonProperty("temps")] 
+        [JsonProperty("temps")]
         public Temps Temps { get; set; }
-        [JsonProperty("fireHealthy")] 
+        [JsonProperty("fireHealthy")]
         public bool FireHealthy { get; set; }
-        [JsonProperty("mode")] 
+        [JsonProperty("mode")]
         public string Mode { get; set; }
-        [JsonProperty("setPoint")] 
+        [JsonProperty("setPoint")]
         public int SetPoint { get; set; }
-        [JsonProperty("modeTime")] 
+        [JsonProperty("modeTime")]
         public DateTime ModeTime { get; set; }
-        [JsonProperty("currentTime")] 
+        [JsonProperty("currentTime")]
         public DateTime CurrentTime { get; set; }
     }
 }
