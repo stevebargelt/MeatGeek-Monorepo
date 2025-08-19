@@ -1,7 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Azure.WebJobs.Extensions.EventGrid;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Devices;
 using Moq;
 using Xunit;
 using FluentAssertions;
@@ -14,15 +16,34 @@ namespace MeatGeek.IoT.WorkerApi.Tests
 {
     public class SessionCreatedTriggerTests
     {
-        private readonly Mock<ILogger> _mockLogger;
+        private readonly Mock<ServiceClient> _mockServiceClient;
+        private readonly Mock<ILogger<SessionCreatedTrigger>> _mockLogger;
+        private readonly Mock<FunctionContext> _mockContext;
+        private readonly SessionCreatedTrigger _trigger;
 
         public SessionCreatedTriggerTests()
         {
-            _mockLogger = new Mock<ILogger>();
+            _mockServiceClient = new Mock<ServiceClient>();
+            _mockLogger = new Mock<ILogger<SessionCreatedTrigger>>();
+            
+            var services = new ServiceCollection();
+            services.AddSingleton<ILoggerFactory>(sp =>
+            {
+                var factory = new Mock<ILoggerFactory>();
+                factory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(_mockLogger.Object);
+                return factory.Object;
+            });
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            _mockContext = new Mock<FunctionContext>();
+            _mockContext.Setup(c => c.InstanceServices).Returns(serviceProvider);
+
+            _trigger = new SessionCreatedTrigger(_mockServiceClient.Object, _mockLogger.Object);
         }
 
         [Fact]
-        public void Run_WithValidEventData_ShouldLogSessionInformation()
+        public async Task Run_WithValidEventData_ShouldLogSessionInformation()
         {
             // Arrange
             var sessionId = Guid.NewGuid().ToString();
@@ -40,16 +61,26 @@ namespace MeatGeek.IoT.WorkerApi.Tests
                 Data = JObject.FromObject(sessionCreatedData)
             };
 
+            var mockResult = new CloudToDeviceMethodResult
+            {
+                Status = 200
+            };
+            _mockServiceClient.Setup(s => s.InvokeDeviceMethodAsync(
+                It.IsAny<string>(), 
+                It.IsAny<string>(), 
+                It.IsAny<CloudToDeviceMethod>()))
+                .ReturnsAsync(mockResult);
+
             // Act
-            // Note: The actual Run method uses static ServiceClient which makes it difficult to test
-            // In a real scenario, we would refactor to use dependency injection
-            
+            var exception = await Record.ExceptionAsync(() =>
+                _trigger.Run(eventGridEvent, _mockContext.Object));
+
             // Assert
-            // Note: Since SessionCreatedTrigger.Run is static and depends on environment variables,
-            // actual testing would require dependency injection refactoring
-            eventGridEvent.Should().NotBeNull();
-            sessionCreatedData.Id.Should().Be(sessionId);
-            sessionCreatedData.SmokerId.Should().Be(smokerId);
+            Assert.Null(exception);
+            _mockServiceClient.Verify(s => s.InvokeDeviceMethodAsync(
+                smokerId, 
+                "Telemetry", 
+                It.IsAny<CloudToDeviceMethod>()), Times.Once);
         }
 
         [Fact]
