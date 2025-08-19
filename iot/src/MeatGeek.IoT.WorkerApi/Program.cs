@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
+
 
 var host = new HostBuilder()
     .ConfigureHostConfiguration(configHost =>
@@ -38,7 +40,8 @@ var host = new HostBuilder()
             return ServiceClient.CreateFromConnectionString(connectionString);
         });
     })
-    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureFunctionsWebApplication()
+        // Must be set at the end of the chain
     .ConfigureLogging(logging =>
     {
         logging.Services.Configure<LoggerFilterOptions>(options =>
