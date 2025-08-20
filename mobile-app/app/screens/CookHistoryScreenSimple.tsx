@@ -7,14 +7,13 @@ import { Text } from "@/components/Text"
 interface CookHistoryScreenProps extends AppStackScreenProps<"CookHistory"> {}
 
 export const CookHistoryScreen: FC<CookHistoryScreenProps> = () => {
-  console.log("=== SIMPLE CookHistoryScreen RENDERING ===")
-  
   return (
     <Screen preset="fixed">
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-        <Text preset="heading" text="Cook History" />
-        <Text text="This is a simplified version to test rendering" />
-        <Text text="If you can see this, the screen component works!" />
+        <Text preset="heading" text="Cook History Screen" />
+        <Text text="This is a simplified test version" />
+        <Text text="If you can see this text, the screen works!" />
+        <Text text="Navigation is working correctly" />
       </View>
     </Screen>
   )

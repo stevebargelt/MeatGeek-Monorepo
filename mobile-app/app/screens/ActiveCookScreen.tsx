@@ -148,7 +148,6 @@ export const ActiveCookScreen: FC<ActiveCookScreenProps> = () => {
           text="TEST: Go to Welcome Screen"
           preset="default"
           onPress={() => {
-            console.log("=== TEST: Navigate to Welcome ===")
             (navigation as any).navigate("Welcome")
           }}
           style={$button}
@@ -158,14 +157,12 @@ export const ActiveCookScreen: FC<ActiveCookScreenProps> = () => {
           text="View History"
           preset="reversed"
           onPress={() => {
-            console.log("=== ATTEMPTING NAVIGATION TO CookHistory ===")
-            Alert.alert("Debug", "Navigation button pressed - check console")
+            Alert.alert("Debug", "Attempting to navigate to CookHistory")
             try {
               (navigation as any).navigate("CookHistory")
-              console.log("Navigation called successfully")
+              Alert.alert("Success", "Navigation called")
             } catch (error) {
-              console.error("Navigation error:", error)
-              Alert.alert("Error", `Navigation failed: ${error}`)
+              Alert.alert("Error", `Navigation failed: ${String(error)}`)
             }
           }}
           style={$button}
