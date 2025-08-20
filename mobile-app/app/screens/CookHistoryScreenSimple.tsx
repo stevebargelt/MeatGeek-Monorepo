@@ -115,15 +115,6 @@ export const CookHistoryScreen: FC<CookHistoryScreenProps> = () => {
         <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Cook History</Text>
       </View>
 
-      {/* Debug info */}
-      <View style={{ padding: 16, backgroundColor: '#f0f0f0', marginBottom: 8 }}>
-        <Text style={{ fontSize: 12, marginBottom: 4 }}>
-          Debug: {sessions.length} total sessions, {completedSessions.length} completed
-        </Text>
-        <Text style={{ fontSize: 12 }}>
-          Loading: {isLoading.toString()}, Error: {error || 'None'}
-        </Text>
-      </View>
 
       {/* Content */}
       <FlatList

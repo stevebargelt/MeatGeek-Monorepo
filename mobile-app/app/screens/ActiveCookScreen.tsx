@@ -1,5 +1,5 @@
 import { FC, useEffect } from "react"
-import { ViewStyle, ScrollView, RefreshControl, View, TextStyle, Alert } from "react-native"
+import { ViewStyle, ScrollView, RefreshControl, View, TextStyle } from "react-native"
 import * as Haptics from "expo-haptics"
 import { useNavigation } from "@react-navigation/native"
 import type { AppStackScreenProps } from "@/navigators/AppNavigator"
@@ -145,26 +145,9 @@ export const ActiveCookScreen: FC<ActiveCookScreenProps> = () => {
         )}
 
         <Button
-          text="TEST: Go to Welcome Screen"
-          preset="default"
-          onPress={() => {
-            (navigation as any).navigate("Welcome")
-          }}
-          style={$button}
-        />
-        
-        <Button
           text="View History"
           preset="reversed"
-          onPress={() => {
-            Alert.alert("Debug", "Attempting to navigate to CookHistory")
-            try {
-              (navigation as any).navigate("CookHistory")
-              Alert.alert("Success", "Navigation called")
-            } catch (error) {
-              Alert.alert("Error", `Navigation failed: ${String(error)}`)
-            }
-          }}
+          onPress={() => (navigation as any).navigate("CookHistory")}
           style={$button}
         />
       </ScrollView>
