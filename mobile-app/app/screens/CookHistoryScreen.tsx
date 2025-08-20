@@ -123,6 +123,16 @@ export const CookHistoryScreen: FC<CookHistoryScreenProps> = () => {
     <Screen style={$root} preset="fixed">
       <View style={$container}>
         <Text preset="heading" text="Cook History" style={$title} />
+        
+        {/* Debug info */}
+        <View style={{ padding: 16, backgroundColor: '#f0f0f0', marginBottom: 16 }}>
+          <Text>Debug Info:</Text>
+          <Text>Total sessions: {sessions.length}</Text>
+          <Text>Completed sessions: {completedSessions.length}</Text>
+          <Text>Is loading: {isLoading.toString()}</Text>
+          <Text>Error: {error || 'None'}</Text>
+          <Text>Sessions data: {JSON.stringify(sessions, null, 2)}</Text>
+        </View>
 
         <FlatList
           data={sessions} // Show ALL sessions temporarily for debugging
