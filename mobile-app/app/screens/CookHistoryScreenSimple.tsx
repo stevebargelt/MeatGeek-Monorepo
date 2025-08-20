@@ -118,12 +118,12 @@ export const CookHistoryScreen: FC<CookHistoryScreenProps> = () => {
 
       {/* Content */}
       <FlatList
-        data={sessions} // Show ALL sessions for now
+        data={completedSessions} // Show only completed sessions
         renderItem={renderSessionItem}
         keyExtractor={(item) => item.id}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListEmptyComponent={error ? renderErrorState : renderEmptyState}
-        contentContainerStyle={sessions.length === 0 ? { flex: 1 } : { padding: 16 }}
+        contentContainerStyle={completedSessions.length === 0 ? { flex: 1 } : { padding: 16 }}
         showsVerticalScrollIndicator={false}
       />
     </View>
