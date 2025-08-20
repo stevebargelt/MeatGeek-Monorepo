@@ -15,7 +15,7 @@ import { LoginScreen } from "@/screens/LoginScreen"
 import { WelcomeScreen } from "@/screens/WelcomeScreen"
 import { ActiveCookScreen } from "@/screens/ActiveCookScreen"
 import { StartCookScreen } from "@/screens/StartCookScreen"
-import { CookHistoryScreen } from "@/screens/CookHistoryScreen"
+import { CookHistoryScreen } from "@/screens/CookHistoryScreenSimple"
 import { useAppTheme } from "@/theme/context"
 
 import { DemoNavigator, DemoTabParamList } from "./DemoNavigator"

@@ -12,25 +12,30 @@ import type { SessionSummary } from "@/services/api/types"
 interface CookHistoryScreenProps extends AppStackScreenProps<"CookHistory"> {}
 
 export const CookHistoryScreen: FC<CookHistoryScreenProps> = () => {
-  const { sessions, isLoading, loadSessions, usesCelsius, error, retryLastAction } = useSession()
-  const [refreshing, setRefreshing] = useState(false)
+  console.log("=== CookHistoryScreen RENDERING ===")
+  
+  try {
+    const { sessions, isLoading, loadSessions, usesCelsius, error, retryLastAction } = useSession()
+    const [refreshing, setRefreshing] = useState(false)
 
-  // Load sessions when screen mounts
-  useEffect(() => {
-    console.log("CookHistoryScreen mounted, loading sessions...")
-    loadSessions()
-  }, [])
+    console.log("SessionContext data:", { sessions, isLoading, error })
 
-  const completedSessions = sessions.filter((session) => session.endTime)
+    // Load sessions when screen mounts
+    useEffect(() => {
+      console.log("CookHistoryScreen mounted, loading sessions...")
+      loadSessions()
+    }, [])
 
-  // Debug logging
-  console.log("CookHistoryScreen render:")
-  console.log("- Total sessions:", sessions.length)
-  console.log("- Sessions data:", sessions)
-  console.log("- Completed sessions:", completedSessions.length)
-  console.log("- Completed sessions data:", completedSessions)
-  console.log("- Is loading:", isLoading)
-  console.log("- Error:", error)
+    const completedSessions = sessions.filter((session) => session.endTime)
+
+    // Debug logging
+    console.log("CookHistoryScreen render:")
+    console.log("- Total sessions:", sessions.length)
+    console.log("- Sessions data:", sessions)
+    console.log("- Completed sessions:", completedSessions.length)
+    console.log("- Completed sessions data:", completedSessions)
+    console.log("- Is loading:", isLoading)
+    console.log("- Error:", error)
 
   const convertTemp = (temp: number) => {
     return usesCelsius ? Math.round(((temp - 32) * 5) / 9) : Math.round(temp)
@@ -119,33 +124,44 @@ export const CookHistoryScreen: FC<CookHistoryScreenProps> = () => {
     </View>
   )
 
-  return (
-    <Screen style={$root} preset="fixed">
-      <View style={$container}>
-        <Text preset="heading" text="Cook History" style={$title} />
-        
-        {/* Debug info */}
-        <View style={{ padding: 16, backgroundColor: '#f0f0f0', marginBottom: 16 }}>
-          <Text>Debug Info:</Text>
-          <Text>Total sessions: {sessions.length}</Text>
-          <Text>Completed sessions: {completedSessions.length}</Text>
-          <Text>Is loading: {isLoading.toString()}</Text>
-          <Text>Error: {error || 'None'}</Text>
-          <Text>Sessions data: {JSON.stringify(sessions, null, 2)}</Text>
-        </View>
+    return (
+      <Screen style={$root} preset="fixed">
+        <View style={$container}>
+          <Text preset="heading" text="Cook History" style={$title} />
+          
+          {/* Debug info */}
+          <View style={{ padding: 16, backgroundColor: '#f0f0f0', marginBottom: 16 }}>
+            <Text>Debug Info:</Text>
+            <Text>Total sessions: {sessions.length}</Text>
+            <Text>Completed sessions: {completedSessions.length}</Text>
+            <Text>Is loading: {isLoading.toString()}</Text>
+            <Text>Error: {error || 'None'}</Text>
+            <Text>Sessions data: {JSON.stringify(sessions, null, 2)}</Text>
+          </View>
 
-        <FlatList
-          data={sessions} // Show ALL sessions temporarily for debugging
-          renderItem={renderSessionItem}
-          keyExtractor={(item) => item.id}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-          ListEmptyComponent={error ? renderErrorState : renderEmptyState}
-          contentContainerStyle={sessions.length === 0 ? $emptyContainer : undefined}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
-    </Screen>
-  )
+          <FlatList
+            data={sessions} // Show ALL sessions temporarily for debugging
+            renderItem={renderSessionItem}
+            keyExtractor={(item) => item.id}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            ListEmptyComponent={error ? renderErrorState : renderEmptyState}
+            contentContainerStyle={sessions.length === 0 ? $emptyContainer : undefined}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+      </Screen>
+    )
+  } catch (error) {
+    console.error("CookHistoryScreen error:", error)
+    return (
+      <Screen style={$root} preset="fixed">
+        <View style={$container}>
+          <Text>Error loading Cook History screen</Text>
+          <Text>{String(error)}</Text>
+        </View>
+      </Screen>
+    )
+  }
 }
 
 const $root: ViewStyle = {
