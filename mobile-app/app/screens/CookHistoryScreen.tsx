@@ -23,6 +23,15 @@ export const CookHistoryScreen: FC<CookHistoryScreenProps> = () => {
 
   const completedSessions = sessions.filter((session) => session.endTime)
 
+  // Debug logging
+  console.log("CookHistoryScreen render:")
+  console.log("- Total sessions:", sessions.length)
+  console.log("- Sessions data:", sessions)
+  console.log("- Completed sessions:", completedSessions.length)
+  console.log("- Completed sessions data:", completedSessions)
+  console.log("- Is loading:", isLoading)
+  console.log("- Error:", error)
+
   const convertTemp = (temp: number) => {
     return usesCelsius ? Math.round(((temp - 32) * 5) / 9) : Math.round(temp)
   }
@@ -116,12 +125,12 @@ export const CookHistoryScreen: FC<CookHistoryScreenProps> = () => {
         <Text preset="heading" text="Cook History" style={$title} />
 
         <FlatList
-          data={completedSessions}
+          data={sessions} // Show ALL sessions temporarily for debugging
           renderItem={renderSessionItem}
           keyExtractor={(item) => item.id}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
           ListEmptyComponent={error ? renderErrorState : renderEmptyState}
-          contentContainerStyle={completedSessions.length === 0 ? $emptyContainer : undefined}
+          contentContainerStyle={sessions.length === 0 ? $emptyContainer : undefined}
           showsVerticalScrollIndicator={false}
         />
       </View>

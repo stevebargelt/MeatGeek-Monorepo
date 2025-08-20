@@ -70,7 +70,7 @@ export const SessionProvider: React.FC<SessionProviderProps> = ({ children }) =>
   const [error, setError] = useState<string | null>(null)
   const [usesCelsius, setUsesCelsius] = useState(false)
   const [temperaturePresets] = useState<TemperaturePreset[]>(defaultPresets)
-  const [useMockData] = useState(false) // Use real API
+  const [useMockData] = useState(true) // Temporarily use mock data for debugging
   const lastLoadedSessionRef = useRef<string | null>(null) // Track last loaded session to prevent loops
 
   // Initialize from storage
