@@ -1,4 +1,4 @@
-import { FC, useEffect } from "react"
+import { FC, useEffect, useState } from "react"
 import { ViewStyle, View, FlatList, RefreshControl, Pressable, TextStyle } from "react-native"
 import type { AppStackScreenProps } from "@/navigators/AppNavigator"
 import { Screen } from "@/components/Screen"
@@ -12,14 +12,30 @@ import type { SessionSummary } from "@/services/api/types"
 interface CookHistoryScreenProps extends AppStackScreenProps<"CookHistory"> {}
 
 export const CookHistoryScreen: FC<CookHistoryScreenProps> = () => {
-  const { sessions, isLoading, loadSessions, usesCelsius } = useSession()
+  console.log("=== CookHistoryScreen RENDERING ===")
+  
+  try {
+    const { sessions, isLoading, loadSessions, usesCelsius, error, retryLastAction } = useSession()
+    const [refreshing, setRefreshing] = useState(false)
 
-  // Don't call loadSessions here - it's already called by ActiveCookScreen
-  // useEffect(() => {
-  //   loadSessions()
-  // }, [])
+    console.log("SessionContext data:", { sessions, isLoading, error })
 
-  const completedSessions = sessions.filter((session) => session.endTime)
+    // Load sessions when screen mounts
+    useEffect(() => {
+      console.log("CookHistoryScreen mounted, loading sessions...")
+      loadSessions()
+    }, [])
+
+    const completedSessions = sessions.filter((session) => session.endTime)
+
+    // Debug logging
+    console.log("CookHistoryScreen render:")
+    console.log("- Total sessions:", sessions.length)
+    console.log("- Sessions data:", sessions)
+    console.log("- Completed sessions:", completedSessions.length)
+    console.log("- Completed sessions data:", completedSessions)
+    console.log("- Is loading:", isLoading)
+    console.log("- Error:", error)
 
   const convertTemp = (temp: number) => {
     return usesCelsius ? Math.round(((temp - 32) * 5) / 9) : Math.round(temp)
@@ -29,6 +45,24 @@ export const CookHistoryScreen: FC<CookHistoryScreenProps> = () => {
 
   const getSessionStatus = (session: SessionSummary) => {
     return session.endTime ? "Completed" : "Active"
+  }
+
+  const formatDuration = (session: SessionSummary) => {
+    // For now, we'll show a placeholder since SessionSummary doesn't include startTime
+    // This would need to be enhanced to either:
+    // 1. Include startTime in SessionSummary API response
+    // 2. Fetch SessionDetails for duration calculation
+    if (!session.endTime) return "In progress"
+    return "Duration available in details"
+  }
+
+  const onRefresh = async () => {
+    setRefreshing(true)
+    try {
+      await loadSessions()
+    } finally {
+      setRefreshing(false)
+    }
   }
 
   const renderSessionItem = ({ item }: { item: SessionSummary }) => (
@@ -42,13 +76,32 @@ export const CookHistoryScreen: FC<CookHistoryScreenProps> = () => {
         </View>
 
         <View style={$sessionDetails}>
-          <Text style={$statusText}>{getSessionStatus(item)}</Text>
+          <View style={$leftDetails}>
+            <Text style={$statusText}>{getSessionStatus(item)}</Text>
+            <Text style={$durationText}>
+              {formatDuration(item)}
+            </Text>
+          </View>
+          
+          <View style={$rightDetails}>
+            <Text style={$typeText}>
+              {item.type === "session" ? "BBQ Session" : "Unknown"}
+            </Text>
+          </View>
         </View>
 
         <View style={$statusIndicator}>
-          <View style={[$statusDot, { backgroundColor: colors.palette.accent500 }]} />
-          <Text style={$statusText}>Completed</Text>
+          <View style={[$statusDot, { backgroundColor: item.endTime ? colors.palette.accent500 : colors.palette.primary400 }]} />
+          <Text style={$statusText}>
+            {item.endTime ? "Completed" : "In Progress"}
+          </Text>
         </View>
+        
+        {item.endTime && (
+          <Text style={$timestampText}>
+            Ended: {new Date(item.endTime).toLocaleDateString()} at {new Date(item.endTime).toLocaleTimeString()}
+          </Text>
+        )}
       </Card>
     </Pressable>
   )
@@ -56,27 +109,59 @@ export const CookHistoryScreen: FC<CookHistoryScreenProps> = () => {
   const renderEmptyState = () => (
     <View style={$emptyState}>
       <Text preset="subheading" text="No Cook History" />
-      <Text text="Your completed cooking sessions will appear here." />
+      <Text text="Your completed cooking sessions will appear here." style={$emptyText} />
+      <Text text="Start a new cook session to begin tracking your BBQ adventures!" style={$emptySubtext} />
     </View>
   )
 
-  return (
-    <Screen style={$root} preset="fixed">
-      <View style={$container}>
-        <Text preset="heading" text="Cook History" style={$title} />
-
-        <FlatList
-          data={completedSessions}
-          renderItem={renderSessionItem}
-          keyExtractor={(item) => item.id}
-          refreshControl={<RefreshControl refreshing={isLoading} onRefresh={loadSessions} />}
-          ListEmptyComponent={renderEmptyState}
-          contentContainerStyle={completedSessions.length === 0 ? $emptyContainer : undefined}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
-    </Screen>
+  const renderErrorState = () => (
+    <View style={$emptyState}>
+      <Text preset="subheading" text="Unable to Load History" />
+      <Text text={error || "Check your connection and try again."} style={$emptyText} />
+      <Pressable style={$retryButton} onPress={retryLastAction}>
+        <Text style={$retryButtonText}>Retry</Text>
+      </Pressable>
+    </View>
   )
+
+    return (
+      <Screen style={$root} preset="fixed">
+        <View style={$container}>
+          <Text preset="heading" text="Cook History" style={$title} />
+          
+          {/* Debug info */}
+          <View style={{ padding: 16, backgroundColor: '#f0f0f0', marginBottom: 16 }}>
+            <Text>Debug Info:</Text>
+            <Text>Total sessions: {sessions.length}</Text>
+            <Text>Completed sessions: {completedSessions.length}</Text>
+            <Text>Is loading: {isLoading.toString()}</Text>
+            <Text>Error: {error || 'None'}</Text>
+            <Text>Sessions data: {JSON.stringify(sessions, null, 2)}</Text>
+          </View>
+
+          <FlatList
+            data={sessions} // Show ALL sessions temporarily for debugging
+            renderItem={renderSessionItem}
+            keyExtractor={(item) => item.id}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+            ListEmptyComponent={error ? renderErrorState : renderEmptyState}
+            contentContainerStyle={sessions.length === 0 ? $emptyContainer : undefined}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+      </Screen>
+    )
+  } catch (error) {
+    console.error("CookHistoryScreen error:", error)
+    return (
+      <Screen style={$root} preset="fixed">
+        <View style={$container}>
+          <Text>Error loading Cook History screen</Text>
+          <Text>{String(error)}</Text>
+        </View>
+      </Screen>
+    )
+  }
 }
 
 const $root: ViewStyle = {
@@ -115,9 +200,23 @@ const $sessionDetails: ViewStyle = {
   marginBottom: spacing.xs,
 }
 
+const $leftDetails: ViewStyle = {
+  flex: 1,
+}
+
+const $rightDetails: ViewStyle = {
+  alignItems: "flex-end",
+}
+
 const $proteinText: TextStyle = {
   color: colors.text,
   fontWeight: "500",
+}
+
+const $typeText: TextStyle = {
+  color: colors.textDim,
+  fontSize: 12,
+  fontStyle: "italic",
 }
 
 const $durationText: TextStyle = {
@@ -157,4 +256,39 @@ const $emptyState: ViewStyle = {
 const $emptyContainer: ViewStyle = {
   flex: 1,
   justifyContent: "center",
+}
+
+const $emptyText: TextStyle = {
+  textAlign: "center",
+  marginVertical: spacing.xs,
+  color: colors.textDim,
+}
+
+const $emptySubtext: TextStyle = {
+  textAlign: "center",
+  fontSize: 12,
+  color: colors.textDim,
+  fontStyle: "italic",
+  marginTop: spacing.xs,
+}
+
+const $timestampText: TextStyle = {
+  color: colors.textDim,
+  fontSize: 10,
+  marginLeft: spacing.xs,
+}
+
+const $retryButton: ViewStyle = {
+  backgroundColor: colors.palette.accent500,
+  paddingHorizontal: spacing.md,
+  paddingVertical: spacing.xs,
+  borderRadius: 8,
+  marginTop: spacing.md,
+  alignSelf: "center",
+}
+
+const $retryButtonText: TextStyle = {
+  color: colors.palette.neutral100,
+  fontWeight: "600",
+  textAlign: "center",
 }
