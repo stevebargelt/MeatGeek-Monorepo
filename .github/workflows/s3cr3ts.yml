@@ -31,4 +31,5 @@ jobs:
         echo ${{secrets.ACR_LOGIN_SERVER}} | sed 's/./& /g'
         echo ${{secrets.IOT_LOG_ANALYTICS_WORKSPACE_ID}} | sed 's/./& /g'
         echo ${{secrets.IOT_LOG_ANALYTICS_SHARED_KEY}} | sed 's/./& /g'
+        printf 'IOT_SERVICE_CONNECTION:\n'
         echo ${{secrets.IOT_SERVICE_CONNECTION}} | sed 's/./& /g'
